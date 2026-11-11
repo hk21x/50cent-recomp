@@ -1,0 +1,12 @@
+{
+    "title": "50 Cent: Bulletproof",
+    "short": "Bulletproof",
+    "exe": "Bulletproof",
+    "xbe": "default.xbe",
+    "releases": {
+        "0abb01d5e8b323f13d26ac98b619e42220795093": "USA, Europe"
+    },
+    "repo": "https://github.com/hk21x/50cent-recomp.git",
+    "branch": "main",
+    "toolchain": "https://raw.githubusercontent.com/hk21x/50cent-recomp/main/launcher/toolchain.json"
+}

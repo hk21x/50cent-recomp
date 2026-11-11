@@ -1,0 +1,21 @@
+# vblank buttons [vblanks held]   (vertical blanks: 60 a second; one line per press)
+# Provisional: START and A every few seconds skip the intro movies and reach the front-end menu (about 115 draws a
+# frame from about vblank 1300, 2026-11-11). Not yet a named route through the menus.
+600 START 10
+750 A 10
+900 START 10
+1050 A 10
+1200 START 10
+1350 A 10
+1500 START 10
+1650 A 10
+1800 START 10
+1950 A 10
+2100 START 10
+2250 A 10
+2400 START 10
+2550 A 10
+2700 START 10
+2850 A 10
+3000 START 10
+3150 A 10
