@@ -3,14 +3,45 @@
 Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Status
-- Milestone: 2 - New Game reaches the first mission (the alley) headless with the HUD, the left stick walks; SMOKE OK
-  on that route. Not yet checked: firing, aiming, the face buttons, sound (Windows)
+- Milestone: 2 - New Game reaches the first mission (the alley) headless; the left stick walks, LT aims, RT fires,
+  X reloads; SMOKE OK on that route. The CRI movie server race fixed (src/game/movie_server.cpp). Next: Windows
+- To check on Windows: picture and sound; the front end is silent after the title music (58 s) headless; gameplay
+  audio peaks at full scale; what A, B and Y do
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
-- Push buffers: no game code writes them (every push pointer user is in the D3D library); one unnamed library helper
-  (0x24E880) pushes a vertex cache flush. CreatePushBuffer/RunPushBuffer not seen; Ghidra check still to do
+- Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
+  library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
 - GitHub: private hk21x/50cent-recomp; SDK at fork main c3bd337
 
 ## Log
+
+### 2026-11-11 - The movie server race (crash in 0x153280); the gameplay buttons; push buffers; audio
+
+Crash: signal 11 reading guest 0x48 in 0x153280, from the CRI Sofdec server (0x12F090 -> 0x132840 -> 0x1556F0 ->
+0x1556A0 -> 0x1555D0 -> 0x153280) during the logo movies: 3 of 6 headless runs with WAV output (WAV=audio.wav),
+0 of 4 without, so on Windows (real audio) it would be likelier. gdb watchpoints on handle 0's SFD handle
+(0x49D748) showed the movie thread zeroing it and putting it back many times a movie, always on its own thread:
+CRI stops or resets the SFD that way (0x14AE20, 0x149A10), under the state's server switch +0x170C (0x1554A0)
+that the server 0x1556F0 tests once before serving the eight handles. On the console the server's thread outranks
+the movie thread on one core; here they overlap. src/game/movie_server.cpp: switching the server off waits for a
+pass under way (fences on both sides, a 100 ms limit, the caller's own pass excepted). That alone: 1 crash in 12;
+the stop 0x14AE20 also runs unswitched from 0x14B140 (the game's 0xF8D00), so it now throws the switch itself when
+its caller has not. 0 crashes in 18 runs with WAV; the 100 ms limit was never reached. SMOKE OK.
+
+Buttons in the alley (live run driven through the cmd file): LT moves the camera over the shoulder to aim; RT
+while aiming fires (15/20 -> 13/20 after two presses); X reloads (back to 15/20). A, B and Y change the view and
+the pose, but stills do not say what they do. No traps.
+
+Push buffers (Ghidra, scripts/ghidra.sh PushBufferScan): the only push buffer tag store is 0x257468 (0x20001) in
+0x257380, reached only from the D3D library's Begin, DrawVertices and DrawIndexedVertices, which the host replaces.
+The game's .text stores no tags and calls nothing that builds or runs one; its other hits are flags and colours
+(0x118B20 unpacks a colour). Nothing to replay.
+
+Audio (WAV of the route, 248 s, scripts/wavstats.py): the logo movies around -30 dB, the teaser and title music
+(trk00_12.adx) 45 to 58 s, then silence through the front end (only blips at the menu presses) until the intro movie
+at 107 s; the mission about -15 dB RMS with music (trk05_27.adx, act_12.adx), voices (voiceovr.afs) and peaks at
+full scale (11116 clipped samples). Whether the front end has music on the console: to hear on Windows.
+
+Next: a Windows build through the windows-vm session.
 
 ### 2026-11-11 - The first mission headless: pad route and smoke test
 
