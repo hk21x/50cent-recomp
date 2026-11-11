@@ -4,11 +4,11 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Status
 - Milestone: 1 - boots headless through the movies to the front end (profile name entry, Choose Difficulty), drawn
-  correctly since the SDK's shader size fix (fork branch bulletproof-vs-size, gating on the other games)
+  correctly since the SDK's shader size fix (fork main c3bd337)
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: no game code writes them (every push pointer user is in the D3D library); one unnamed library helper
   (0x24E880) pushes a vertex cache flush. CreatePushBuffer/RunPushBuffer not seen; Ghidra check still to do
-- GitHub: private hk21x/50cent-recomp; SDK at fork main 26f372b
+- GitHub: private hk21x/50cent-recomp; SDK at fork main c3bd337
 
 ## Log
 
@@ -28,8 +28,12 @@ Fix (SDK c3bd337, fork branch bulletproof-vs-size): the hosted CreateVertexShade
 +8. Evidence: REF captures now show the Sofdec teaser movie, the PDA-style front end (profile name entry with
 "aaa" typed by the pad script, Choose Difficulty: Playa ... G-Unit Soldier).
 
-Next: the gate on the other six games, then fork main and this repository's main; a named pad route into the first
-mission and a smoke route that reaches gameplay.
+Gate (smoke-tools/gate.sh, each game at its main): PGR2, PGR1, EoN, Agent Under Fire and NightFire SMOKE OK on
+c3bd337; True Crime's own line conflicts with fork main in app.h and interp.cpp (not this change), and passed on its
+pin with the commit cherry-picked (148c60e, local test only). The launcher links. Fork main fast-forwarded to
+c3bd337. This repository's smoke: SMOKE OK.
+
+Next: a named pad route into the first mission and a smoke route that reaches gameplay.
 
 ### 2026-11-11 - Repository set up from the SDK template; boots to the menu headless
 
