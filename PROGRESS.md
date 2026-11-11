@@ -29,8 +29,13 @@ vertical blanks). The simulation follows the clock, not frames: Havok's step (0x
 start, end, step, rate) logged under gdb in the alley 0.0167 s a step (rate 59.6 to 60.1, 0.0190 and 0.0144 for a
 long and a short frame). So 60 runs at the right speed, and more should too. Real frame rates need Harry's run.
 
-Options (Game, Camera, Audio/Video, Customize Pager, Credits) has no controller page; the game's own controls are
-still to be read from the pause menu or the code.
+Controls: neither Options (Game, Camera, Audio/Video, Customize Pager, Credits) nor the pause menu (Continue, Tasks,
+Communications, Entertainment, Options: + Codes, Enable Autosave; Quit) has a controller page: the controls are
+fixed. The pad is read once a frame by 0x11F530 (XInputGetState for the port at +0x28, report at +0xE4): the d-pad,
+Start, Back and stick clicks become 1.0 or 0 at +0x4C to +0x88, the analog buttons (past a dead zone [0x30E65C]) at
++0x5C on, the sticks at +0x3C to +0x48; last frame's copy at +0x8C. The game's logical buttons are BUTTON_1 to
+BUTTON_12 (strings); the map from channels to them is next. Prompts: the HUD and menus draw glyphs from
+buttons_Xbox.xtf (in an .ark), placed in strings by a marker ("This string should have an action button (").
 
 ### 2026-11-11 - The movie server race (crash in 0x153280); the gameplay buttons; push buffers; audio
 
