@@ -22,3 +22,14 @@ game's own code and data, with its addresses).
   copies it to the back buffer. The movies draw the same way from a 640x480 LIN_A8R8G8B8 texture.
 - **[game]** 0x24E880, an unnamed D3D library function (probably D3DVertexBuffer_Lock2), writes NV2A method 0x1710
   directly through MakeSpace.
+- **[game]** Vertex shaders are created once, then placed in program memory by the game's own allocator (state at
+  [0x365A14]: +0x20 the next free slot of 0x88; each shader record +0x04 handle, +0x0C size, +0x10 its slot or -1).
+  0x12A4A5 calls LoadVertexShader(handle, next free slot), and 0x12A54D SelectVertexShader. The size comes from
+  0x250E10 (GetVertexShaderSize, unnamed: it reads the shader object's +8).
+- **[console]** The XDK's shader object keeps the instruction count at +8 (5849 CreateVertexShader 0x2509F6; +0 a
+  refcount of 1, +4 the flags). The host's record held 0 there, so every program loaded at slot 0 over the last one,
+  and the full-screen copy ran another program's code (DP4s against c10 to c13): every frame was black. Fixed in the
+  SDK (fork branch bulletproof-vs-size c3bd337), which now writes the count.
+- **[game]** No game code writes the push buffer: all 14 users of the push pointer [0x25BDB0] and every reader of
+  the device [0x25BDA8] are in the D3D section. About 40 of those library functions are unnamed and run their own
+  code. The only one seen pushing so far is 0x24E880.

@@ -3,14 +3,33 @@
 Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Status
-- Milestone: 1 - set up; boots headless to the front-end menu with no game code; **every frame is black** in the
-  reference renderer
+- Milestone: 1 - boots headless through the movies to the front end (profile name entry, Choose Difficulty), drawn
+  correctly since the SDK's shader size fix (fork branch bulletproof-vs-size, gating on the other games)
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
-- Push buffers: none found by name; one unnamed D3D helper (0x24E880) writes a command directly. Recorded push buffers
-  not yet ruled out in Ghidra
+- Push buffers: no game code writes them (every push pointer user is in the D3D library); one unnamed library helper
+  (0x24E880) pushes a vertex cache flush. CreatePushBuffer/RunPushBuffer not seen; Ghidra check still to do
 - GitHub: private hk21x/50cent-recomp; SDK at fork main 26f372b
 
 ## Log
+
+### 2026-11-11 - Black frames: every vertex program was loaded at slot 0 (SDK: the shader object's size)
+
+The final full-screen copy (vertex shader B0064BF1, `mov oPos, v0` and three more) drew with positions of 1e25 and w
+of 0. Its constants were right (XBE_VSC: c-95 = 360.5 240.5, c-70 = 0.03125 ...). REF_DRAWLOG with a temporary
+dump of the program the reference renderer ran showed 10 instructions that start with DP4s against c10 to c13:
+another shader's program.
+
+The game places programs itself: 0x12A4A5 LoadVertexShader(handle, [state+0x20]), then adds the shader's size,
+which it reads through 0x250E10 (GetVertexShaderSize: the object's +8). The host's CreateVertexShader returned a
+zeroed 16-byte record, so the size was 0: logged loads were "B00652B1 at 0" then "B0064BF1 at 0", and later loads
+overwrote both. The XDK's own CreateVertexShader stores the count at +8 (0x2509F6).
+
+Fix (SDK c3bd337, fork branch bulletproof-vs-size): the hosted CreateVertexShader writes the instruction count at
++8. Evidence: REF captures now show the Sofdec teaser movie, the PDA-style front end (profile name entry with
+"aaa" typed by the pad script, Choose Difficulty: Playa ... G-Unit Soldier).
+
+Next: the gate on the other six games, then fork main and this repository's main; a named pad route into the first
+mission and a smoke route that reaches gameplay.
 
 ### 2026-11-11 - Repository set up from the SDK template; boots to the menu headless
 
