@@ -18,8 +18,8 @@ Read `sdk/README.md`, `sdk/harness/README.md`, `PROGRESS.md` and `FINDINGS.md` a
 - `scripts/recompile.sh`   regenerate `generated/game`
 - `scripts/harness.sh [secs] [pad] [ENV=..]`   build + run headless (`REF=N` CPU frames into `captures/`, `KEEP_HDD=1`
   keeps the emulated disk, `snap`/`memdump`/`poke` files in the run folder)
-- `scripts/smoke.sh`   headless boot with `scripts/pad/boot.txt`; must print SMOKE OK before every fast-forward of `main`
-  (provisional: movies skipped to the menu; extend the route into a mission when one is reached)
+- `scripts/smoke.sh`   title -> New Game -> the first mission (the alley) headless, 150 s; must print SMOKE OK before
+  every fast-forward of `main`
 - `scripts/wincheck.sh`   Windows-only sources against mingw headers; `scripts/shadercheck.sh`   generated HLSL with DXC
 - Ghidra: `python3 sdk/tools/symbols/xbe2pe.py <config> .local/game.exe`, import into `~/ghidra-projects/<GHIDRA_PROJECT>`,
   then `scripts/ghidra.sh Decomp|Disasm|FindOperand|Callers|DumpRange|PushBufferScan|DeviceRefs ...`
@@ -29,6 +29,9 @@ Read `sdk/README.md`, `sdk/harness/README.md`, `PROGRESS.md` and `FINDINGS.md` a
   `default.xbe` SHA-1 0abb01d5e8b323f13d26ac98b619e42220795093; target and exe `Bulletproof`, hooks in `src/game`.
 - XDK 5849, D3D8 not LTCG; XACTENG, DSOUND, WMADEC, XGRAPHC. No XNET or XONLINE: no Live, no system link.
 - Middleware linked into the xbe as guest code: CRI ADX (audio, .adx), CRI Sofdec (movies, .sfd), Havok, Lua, Dolby.
+- Pad script `scripts/pad/boot.txt` (first boot): START through the logos and teaser, Title Screen New Game, Thug
+  (Normal), X "Continue without saving" (UP, A over the default No), START skips seq\S001.sfd and cs\m001.sfd, then
+  the alley with Lloyd Banks from about vblank 7200, where the left stick walks.
 - Data under `assets/ark/` (.ark archives, .xtf textures, XACT banks). First boot copies `Ark\Shell` and `Ark\Player`
   to the Z: cache.
 

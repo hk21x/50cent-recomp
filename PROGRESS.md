@@ -3,14 +3,32 @@
 Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Status
-- Milestone: 1 - boots headless through the movies to the front end (profile name entry, Choose Difficulty), drawn
-  correctly since the SDK's shader size fix (fork main c3bd337)
+- Milestone: 2 - New Game reaches the first mission (the alley) headless with the HUD, the left stick walks; SMOKE OK
+  on that route. Not yet checked: firing, aiming, the face buttons, sound (Windows)
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: no game code writes them (every push pointer user is in the D3D library); one unnamed library helper
   (0x24E880) pushes a vertex cache flush. CreatePushBuffer/RunPushBuffer not seen; Ghidra check still to do
 - GitHub: private hk21x/50cent-recomp; SDK at fork main c3bd337
 
 ## Log
+
+### 2026-11-11 - The first mission headless: pad route and smoke test
+
+Mapped live (a long harness run driven through its `cmd` file, a `snap` after each press): START through the logo
+movies (the CRI Sofdec/ADX screen among them) and the teaser to the Title Screen (New Game / Load Game / Options),
+New Game, Choose Difficulty (Thug, Normal, the default), the profile screen (X: Continue without saving; the
+confirmation's default is No, so UP then A), then START skips seq\S001.sfd and cs\m001.sfd. The mission loads
+voiceovr.afs and starts in an alley: 50 in third person with Lloyd Banks, the HUD (Health, Armor, $0, Nine 15/20,
+"Lloyd Banks: Picking Lock"), about 1900 draws a frame. Holding the left stick walks 50 down the alley. No traps.
+
+scripts/pad/boot.txt is that route from a first boot (in the alley by about vblank 7200, then walking).
+scripts/game.env: SMOKE_MENU "5800 6100" (the intro movie, 3 draws a frame: the front end's own screens draw
+about 116, over smoke's 2D limit of 100) and SMOKE_SECS 150.
+Evidence: SMOKE OK: menu 3, race 1858 draws a frame over the last 300 frames, no traps; with
+PAD=scripts/pad/none.txt it fails ("race not drawing: 1 draws a frame").
+
+Next: firing and aiming (RT, LT) and the face buttons headless; then a Windows build for picture and sound; the
+push buffer check in Ghidra.
 
 ### 2026-11-11 - Black frames: every vertex program was loaded at slot 0 (SDK: the shader object's size)
 

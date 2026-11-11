@@ -1,21 +1,19 @@
 # vblank buttons [vblanks held]   (vertical blanks: 60 a second; one line per press)
-# Provisional: START and A every few seconds skip the intro movies and reach the front-end menu (about 115 draws a
-# frame from about vblank 1300, 2026-11-11). Not yet a named route through the menus.
-600 START 10
-750 A 10
-900 START 10
-1050 A 10
-1200 START 10
-1350 A 10
-1500 START 10
-1650 A 10
-1800 START 10
-1950 A 10
-2100 START 10
-2250 A 10
-2400 START 10
-2550 A 10
-2700 START 10
-2850 A 10
-3000 START 10
-3150 A 10
+# First boot to the first mission (the alley, 50 and Lloyd Banks), 2026-11-11:
+# START skips the logo movies and the teaser to the Title Screen
+1700 START 10
+2300 START 10
+2550 START 10
+2850 START 10
+# Title Screen: New Game; Choose Difficulty: Thug (Normal), the default
+3500 A 8
+4150 A 8
+# profile: X Continue without saving, then UP to "Continue without saving" over the default No, A
+4800 X 8
+5500 UP 8
+5600 A 8
+# START skips the intro sequence (seq\S001.sfd) and the mission's cutscene (cs\m001.sfd)
+6150 START 10
+6850 START 10
+# in the alley: walk forward
+7800 LS 300

@@ -17,6 +17,13 @@ game's own code and data, with its addresses).
   The first boot copies `Ark\Shell` and `Ark\Player` to the Z: cache partition (wbinvd at 0x113800 and 0x114Bxx
   around the copy are ignored, which is harmless).
 
+## Front end
+- **[game]** First boot: logo movies (sierra, gglogo, DolbyN, inter, havok, a CRI Sofdec/ADX screen) and the teaser,
+  each skipped by START, then the Title Screen (New Game, Load Game, Options). New Game: Choose Difficulty (Playa,
+  Hustler, Thug (default), Gangsta, G-Unit Soldier), then the profile screen (A Create Profile: a name keyboard; X
+  Continue without saving, confirmed with No as the default). The intro sequence seq\S001.sfd and the mission
+  cutscene cs\m001.sfd follow; START skips each. The front end draws about 116 draws a frame.
+
 ## Rendering
 - **[game]** The front end draws into a 720x480 off-screen target, then one full-screen quad (vertex shader B0064BF1)
   copies it to the back buffer. The movies draw the same way from a 640x480 LIN_A8R8G8B8 texture.
