@@ -5,6 +5,7 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 ## Status
 - Milestone: 2 - New Game reaches the first mission (the alley) headless; the left stick walks, LT aims, RT fires,
   X reloads; SMOKE OK on that route. The CRI movie server race fixed (src/game/movie_server.cpp). Next: Windows
+- 60 fps headless with the simulation on the clock (Havok steps of 1/60 s); Windows frame rate from Harry's run
 - To check on Windows: picture and sound; the front end is silent after the title music (58 s) headless; gameplay
   audio peaks at full scale; what A, B and Y do
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
@@ -13,6 +14,23 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - GitHub: private hk21x/50cent-recomp; SDK at fork main c3bd337
 
 ## Log
+
+### 2026-11-11 - Windows build; 60 fps; Harry's three priorities
+
+windows-vm: main 2ab47b7 builds on Windows (LLVM 22.1.3, 4.3 min, no errors; xbe_symbols rewrote config\game.toml
+identically) and boots 103 s with no traps or application errors on WARP (about 2.4 frames a second, no GPU or
+audio); ready for Harry at \\192.168.1.229\Work\50cent-recomp\out\build\release\Bulletproof.exe.
+Harry (through windows-vm): 1. the first mission on Windows, 2. at least 60 frames a second, 3. modern controller
+buttons and layout plus keyboard and mouse, as True Crime has.
+
+60 fps: the game asks for interval 0x80000002 (two, or immediate when late: 30 a second on the console), but no
+5849 layout gives the runtime that interval, so it presents every vertical blank: 60 a second headless (frames equal
+vertical blanks). The simulation follows the clock, not frames: Havok's step (0x189230, its second argument's
+start, end, step, rate) logged under gdb in the alley 0.0167 s a step (rate 59.6 to 60.1, 0.0190 and 0.0144 for a
+long and a short frame). So 60 runs at the right speed, and more should too. Real frame rates need Harry's run.
+
+Options (Game, Camera, Audio/Video, Customize Pager, Credits) has no controller page; the game's own controls are
+still to be read from the pause menu or the code.
 
 ### 2026-11-11 - The movie server race (crash in 0x153280); the gameplay buttons; push buffers; audio
 
