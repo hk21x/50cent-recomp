@@ -15,6 +15,23 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-12 - Harry's crash after creating a save profile: a D3D12 read-back over the game's data
+
+Harry (Windows, RX 7900 XT, D3D12): a crash after creating a profile. His log: at 91.7 s, just after "colour target
+made ... 821A1180 512x512", an access violation on guest thread 14 reading guest 71A18C80; his dump (exe base
+7FF7D3B00000, fault at +0x50D564) symbolises to __imp__sub_001145D0. 0x1145D0 reads a texture table entry at
+[[0x347C30]+0x10] + index*8 with the index [object+0x234]: the one object in the list at 0x349260 (0x822A1200, from
+0x11AF60's loop at 0x11B0DB) held 0xFE000000 there, and 0x81A18C80 + 0xFE000000*8 wraps to 0x71A18C80.
+The dump's guest memory: from 822A1180, the end of the 512x512 target at 821A1180, 0xFE000000 pixels run to about
+822F2180, the end of a 720x480 target at the same address (one was made there at present 64 for the front end).
+The save picture (saveimage.xbx) is drawn into the 512x512 target and locked; D3D12's read-back took the frame sized
+720x480 target at that address (ColourTargetAt preferred it), so 720x480 pixels went over the game's data behind
+the 512x512 surface. Not seen headless: the reference renderer draws into guest memory at the surface's own size.
+(Headless the same route, profile "aaa", saves U:\006100610061 and plays on.)
+
+SDK fix (fork branch d3d12-readback-latest): a smaller colour target set up at an address is the one read back until
+a frame sized one is set up there again. wincheck and SMOKE OK; the gate and Harry's retry next.
+
 ### 2026-11-12 - Modern button pictures; the keyboard and mouse; the console's layout
 
 The layout (no page in the game sets it): the PS2 version's list (psxdatacenter SLUS-21315 / SLES-53906) matched to
