@@ -15,6 +15,35 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-12 - Soak: a crash and a hang in XACT's DPC; IRQL now keeps DPCs out (SDK); the menu mouse; README
+
+The 30 minute soak (scripts/pad/soak.py: boot.txt's route into the alley, then random play) stopped presenting at
+467 s, two threads spinning (memory flat at 99 MB, no traps). Replayed under gdb (the same script) it crashed at 158 s
+instead: SIGSEGV in XACT's engine (0x26375E, under 0x263C88) on the kernel's DPC thread. On the console a DPC runs at
+dispatch level on the one processor, and DirectSound's calls raise to it to keep the DPC out (0x26B2D0, a CAutoIrql
+from some 70 places; XACT's 0x25EA0F); the runtime kept IRQL as a number only, so XACT's DPC ran over the game
+thread's DirectSound calls. SDK branch dispatch-level: raising IRQL to 2 holds a lock shared, lowering below 2 lets it
+go, and each DPC runs holding it exclusive (an exclusive lock for raised threads too was tried first);
+XBE_NO_DISPATCH_LOCK=1 bypasses it, for comparison. With it, the soak's script ran 600 s in two of three instances
+(the third froze at 1.1 s of boot: see below).
+
+Boot stalls under load: six first boots at once sometimes start 10 to 15 s late (the cache copy); gdb attached to
+one (harness XBE_PTRACER=1, the SDK harness's new opt in, as Yama allows only an ancestor) found the main thread in
+the movie loop 0x105F50 waiting for the movie, CRI's server thread 0x12F090 suspended between the vsync loop's
+(0x12F400) resumes each 16 ms: normal idle, and it went on. With the lock 0 of 24 boots hung (under 600 frames at 70 s),
+without it (XBE_NO_DISPATCH_LOCK=1) 0 of 24: the lock adds no boot hang. The one boot that froze at 1.1 s for 600 s
+(three instances of the soak's script) stays unexplained: rare, not seen again in 48 boots.
+
+Front-end music: no music file is opened after the title's trk00_12.adx until the intro, so the silence is the
+game's. Clipping: 0.05% of samples, on gunfire; the mixer keeps the APU's headroom and clamps.
+
+Menu mouse (src/common/menu_mouse.cpp): byte 0x342A90 is set at the title's menu and the pause menu (0x1047B0, from
+0x84E40 which pauses the music, the speech and the movie textures), 0 in play (memory compared headless); there the
+left button plays A and the right B instead of fire, the wheel the d-pad's up and down. Tried headless (a live run,
+the harness's CLICKL/CLICKR/WHEELD): a left click at the title opened Choose Difficulty, a right click went back, the
+wheel moved the row (the harness gives a notch a poll while held; a real wheel one a click: to check on Windows).
+README: status, features so far and a controls table.
+
 ### 2026-11-12 - The VM's tests: save fixed; no audio device; the name keyboard garbled (a vertex buffer wait unnamed)
 
 windows-vm drove first boots on WARP with a new test hook (src/common/test_pad.cpp: FC_PAD_CMD=<file> of timed

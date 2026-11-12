@@ -12,5 +12,7 @@ constexpr uint64_t kButtonsDisc = 0xD9B9754E92AA4661ull;  // at 0x81BD6D80 in th
 bool ButtonPictures(uint32_t header, uint32_t palette);  // GameInfo::texture_bound
 std::array<uint16_t, 2> Keys(int control);               // GameInfo::default_keys
 void Init();                                             // GameInfo::init
-void TestPad(int port, input::Pad& pad);                 // GameInfo::pad: FC_PAD_CMD's presses (src/common/test_pad.cpp)
+void TestPad(int port, input::Pad& pad);                 // FC_PAD_CMD's presses (src/common/test_pad.cpp)
+void Pad(int port, input::Pad& pad);                     // GameInfo::pad: TestPad, then the mouse in the menus
+bool MenuUp();                                           // a menu is up (the front end or the pause menu)
 }  // namespace fc
