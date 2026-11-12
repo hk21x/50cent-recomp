@@ -11,7 +11,7 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main c3bd337
+- GitHub: private hk21x/50cent-recomp; SDK at fork main 6a49204
 
 ## Log
 
@@ -33,7 +33,12 @@ guest code never told the renderer the buffer changes. Named in config/bulletpro
 keyboard draws right. SMOKE OK with and without RT_THREAD.
 
 FC_PAD_CMD's presses now show the pad's pictures; FC_NO_BUTTON_PICTURES=1 leaves the disc's (diagnostic).
-Next: the VM to confirm the keyboard on D3D12, the audio fix's gate, then fork main and this repository's main.
+The VM confirmed on D3D12 (2515abf): the keyboard right with modern prompts, the save and the intro, no exception.
+Gate: 474eaeb and 6a49204 SMOKE OK on PGR2, PGR1, EoN, Agent Under Fire, NightFire; the launcher links. Fork main
+fast-forwarded to 6a49204 (c3bd337 + the D3D12 read-back + the audio fallback). The other D3D functions the game
+calls unnamed were read: GetTile, the reference counts, Register, GetType, GetLevelCount, GetSurfaceLevel2, the
+locks (through the hosted Lock2DSurface), SetPushBufferSize (0x24F6B0), a render state setter (0x24BE60) pushing
+through the library's helper the runtime reads: none other waits or tells the renderer anything.
 
 ### 2026-11-12 - Harry's crash after creating a save profile: a D3D12 read-back over the game's data
 
