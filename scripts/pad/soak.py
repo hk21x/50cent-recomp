@@ -2,7 +2,9 @@
 # Soak pad script for 50 Cent: Bulletproof (scripts/game.env SOAK_PAD): soak.py SECONDS [SEED] (or SOAK_SEED=n)
 # From a first boot the route of scripts/pad/boot.txt into the first mission (the alley), then play at random until
 # SECONDS: walk and run about, turn the camera, fire (RT), crouch (LT held), jump (A), grab or execute (B), the action
-# and reload (X), evade (Y), heal (White), the weapon inventory (Black), and pause and unpause. Times are vertical
+# and reload (X), evade (Y), heal (White), the weapon inventory (Black), and pause and unpause. START may open the
+# PDA on a new message (Popcorn's camera modes), where only B goes back: B four times reaches the pause menu's top
+# (B does nothing there), and A takes its Continue. Times are vertical
 # blanks at 60 a second.
 import random
 import sys
@@ -28,10 +30,13 @@ while t < end:
         lines.append(f"{t} {rng.choice(['A', 'B', 'X', 'X', 'Y'])} {rng.randint(8, 20)}")
     elif r < 0.86:  # heal, the weapon inventory
         lines.append(f"{t} {rng.choice(['WHITE', 'BLACK'])} {rng.randint(30, 120)}")
-    elif r < 0.90:  # pause, then back
+    elif r < 0.90:  # pause (the PDA may open on a new message), back out with B to the top, Continue (A)
         lines.append(f"{t} START 10")
         t += 240
-        lines.append(f"{t} START 10")
+        for _ in range(4):
+            lines.append(f"{t} B 8")
+            t += 90
+        lines.append(f"{t} A 8")
     else:  # crouch and creep
         held = rng.randint(60, 240)
         lines.append(f"{t} LT+LS {held}")

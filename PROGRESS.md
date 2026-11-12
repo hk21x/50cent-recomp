@@ -20,8 +20,15 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 Gate for dispatch-level (6970886): SMOKE OK on PGR2, PGR1, EoN, Agent Under Fire, NightFire; the launcher links;
 wincheck clean; this repository's SMOKE OK. Fork main and main fast-forwarded; windows-vm built f4c629e for the share.
 Stick clicks (FC_PAD_CMD's LTHUMB / RTHUMB, in the alley): the left showed nothing, the right moved the camera a
-little (a recentre, perhaps); not settled, for Harry's pad. scripts/pad/soak.py takes SOAK_SEED; a 60 minute soak
-with seed 2 is running.
+little (a recentre, perhaps); not settled, for Harry's pad. scripts/pad/soak.py takes SOAK_SEED.
+
+Soaks: the 60 minute one (seed 2) and the 30 minute one before were clean (frames to the end, no traps, 99 MB flat)
+but were in play for only their first 11 to 12 minutes: a START opened the PDA on a new message (Popcorn's camera
+modes), where only B goes back, and the soak's next START did not; its stick and A presses then wandered the pause
+menu to Quit. Draws a frame by the minute show it (700 to 1000 in the alley, about 30 at the menus). The pause step
+now backs out with B four times (B does nothing at the pause menu's top) and takes Continue (A). scripts/soak.sh 30
+with it: in play the whole run (330 to 1388 draws a frame each minute, 35 returns to play), no traps, frames to
+1798 s, memory flat.
 
 ### 2026-11-12 - Soak: a crash and a hang in XACT's DPC; IRQL now keeps DPCs out (SDK); the menu mouse; README
 
