@@ -258,8 +258,19 @@ Look Current() {
         const char* e = std::getenv("FC_KEY_PICTURES");
         return e && *e == '1';
     }();
+    // FC_NO_BUTTON_PICTURES=1: the disc's pictures whatever plays (a diagnostic); FC_PAD_CMD's presses are a pad's,
+    // so with it the pad's pictures show although no controller is plugged in (src/common/test_pad.cpp)
+    static const bool off = [] {
+        const char* e = std::getenv("FC_NO_BUTTON_PICTURES");
+        return e && *e == '1';
+    }();
+    static const bool test_pad = [] {
+        const char* e = std::getenv("FC_PAD_CMD");
+        return e && *e;
+    }();
     Look l;
-    l.keys = force || input::UsingKeyboard();
+    if (off) return l;
+    l.keys = force || (!test_pad && input::UsingKeyboard());
     if (!l.keys) {
         l.modern = modern_buttons;
         return l;
