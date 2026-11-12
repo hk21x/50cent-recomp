@@ -15,6 +15,14 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-12 - Merged: fork main 6970886, main f4c629e; the stick clicks; a 60 minute soak (seed 2)
+
+Gate for dispatch-level (6970886): SMOKE OK on PGR2, PGR1, EoN, Agent Under Fire, NightFire; the launcher links;
+wincheck clean; this repository's SMOKE OK. Fork main and main fast-forwarded; windows-vm built f4c629e for the share.
+Stick clicks (FC_PAD_CMD's LTHUMB / RTHUMB, in the alley): the left showed nothing, the right moved the camera a
+little (a recentre, perhaps); not settled, for Harry's pad. scripts/pad/soak.py takes SOAK_SEED; a 60 minute soak
+with seed 2 is running.
+
 ### 2026-11-12 - Soak: a crash and a hang in XACT's DPC; IRQL now keeps DPCs out (SDK); the menu mouse; README
 
 The 30 minute soak (scripts/pad/soak.py: boot.txt's route into the alley, then random play) stopped presenting at

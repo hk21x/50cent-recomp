@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Soak pad script for 50 Cent: Bulletproof (scripts/game.env SOAK_PAD): soak.py SECONDS [SEED]
+# Soak pad script for 50 Cent: Bulletproof (scripts/game.env SOAK_PAD): soak.py SECONDS [SEED] (or SOAK_SEED=n)
 # From a first boot the route of scripts/pad/boot.txt into the first mission (the alley), then play at random until
 # SECONDS: walk and run about, turn the camera, fire (RT), crouch (LT held), jump (A), grab or execute (B), the action
 # and reload (X), evade (Y), heal (White), the weapon inventory (Black), and pause and unpause. Times are vertical
@@ -8,7 +8,8 @@ import random
 import sys
 
 secs = int(sys.argv[1]) if len(sys.argv) > 1 else 600
-rng = random.Random(int(sys.argv[2]) if len(sys.argv) > 2 else 1)
+import os
+rng = random.Random(int(sys.argv[2]) if len(sys.argv) > 2 else int(os.environ.get("SOAK_SEED", "1")))
 end = secs * 60
 lines = ["# boot.txt's route: the logos and teaser, New Game, Thug, no profile, the intro and cutscene skipped",
          "1700 START 10", "2300 START 10", "2550 START 10", "2850 START 10",
