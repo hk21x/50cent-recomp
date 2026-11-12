@@ -15,4 +15,5 @@ void Init();                                             // GameInfo::init
 void TestPad(int port, input::Pad& pad);                 // FC_PAD_CMD's presses (src/common/test_pad.cpp)
 void Pad(int port, input::Pad& pad);                     // GameInfo::pad: TestPad, then the mouse in the menus
 bool MenuUp();                                           // a menu is up (the front end or the pause menu)
+void PcSettingsPad(input::Pad& pad);                     // Y on an Options page opens the settings (src/game/pc_settings.cpp)
 }  // namespace fc

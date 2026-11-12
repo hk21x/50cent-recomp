@@ -31,6 +31,7 @@ Supports Xbox, PlayStation and Switch controllers, with hot plugging and rumble.
 - **Mouse in the Menus** - The left button selects, the right goes back, the wheel moves up and down.
 
 ### General
+- **PC Settings in the Options page** - Y on the game's Options page (from the title and the pause menu) opens the PC settings; F1 or Back + Start anywhere.
 
 ### Miscellaneous
 - **Boot Splash** - Place a `splash.png` (or `.bmp`) beside the exe to display a splash screen at launch.

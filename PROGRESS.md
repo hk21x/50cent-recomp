@@ -15,6 +15,18 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-12 - PC settings from the game's Options page ("Y PC Settings")
+
+Harry asked for PC settings in the game's menu. A seventh row on the pause menu's Options page means a new node in
+the menu layout (fe.ark; rows are layout nodes matched by name to descriptors such as 0x2E9C48's handler 0xD0AB0 for
+the autosave row): not done. Agreed instead: a prompt in the PDA's button bar. src/game/pc_settings.cpp: the prompt
+table 0x329C40 (0x1EDAA0 fills it; an entry a menu: name, then labels for B, A, X, Y) gets our label on the Y of
+"Options" (0x329C7C) and "MainOptions" (0x329C90); the string table's lookup 0xF81D0 answers its hash with an entry
+over our own record (the hash, 0, length, size, "PC Settings"), loaded by the game's own 0xF8870; 0x1F010 (a menu
+coming up, its name at [+0xC] + 6) tells the Options pages; there Y opens the settings window (app::ToggleOverlay) and
+the game does not see it. Headless: "Y PC Settings" in the bar of the title's Options and the pause menu's, Y asks for
+the window. SMOKE OK; wincheck clean.
+
 ### 2026-11-12 - Merged: fork main 6970886, main f4c629e; the stick clicks; a 60 minute soak (seed 2)
 
 Gate for dispatch-level (6970886): SMOKE OK on PGR2, PGR1, EoN, Agent Under Fire, NightFire; the launcher links;

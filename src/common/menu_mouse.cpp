@@ -80,6 +80,8 @@ void MenuMouse(input::Pad& p) {
 // GameInfo::pad: the test hook's presses (src/common/test_pad.cpp), then the mouse in the menus
 void Pad(int port, input::Pad& p) {
     TestPad(port, p);
-    if (port == 0) MenuMouse(p);
+    if (port != 0) return;
+    MenuMouse(p);
+    PcSettingsPad(p);
 }
 }  // namespace fc
