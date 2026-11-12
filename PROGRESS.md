@@ -15,6 +15,26 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-12 - The VM's tests: save fixed; no audio device; the name keyboard garbled (a vertex buffer wait unnamed)
+
+windows-vm drove first boots on WARP with a new test hook (src/common/test_pad.cpp: FC_PAD_CMD=<file> of timed
+presses and SHOTs, the pad counted plugged in): the movies never ended, as the VM has no audio device and the
+runtime's output thread returned when XAudio2 failed, so nothing took the title's samples (the CRI movies run by
+their sound). SDK fork branch audio-null-fallback (6a49204): the mixer pulled every 10 ms then. With it the VM went
+Title Screen, New Game, Thug, Create Profile, "aaa", Done: saved (UDATA\56550042\006100610061) and on into the intro,
+no exception: the save crash fix holds.
+
+The name keyboard was garbled on D3D12 (the UI atlas and the button sheet drawn huge, the PDA frame gone), the same
+with FC_NO_BUTTON_PICTURES=1 (the console's pictures): not the replacement. Headless with RT_THREAD=1 (the render
+thread, as Windows runs) the keyboard screen showed the profile screen still, at the keyboard's 115 draws a frame:
+the render thread drew vertices it had kept. 0x24E880 (the vertex buffer's Lock2) and 0x24E8D0 wait through
+0x251B40, D3D_BlockOnNonSurfaceResource (0x36 bytes as 4039's and 4831's; 5849's signatures have none), which run as
+guest code never told the renderer the buffer changes. Named in config/bulletproof.toml: with RT_THREAD=1 the
+keyboard draws right. SMOKE OK with and without RT_THREAD.
+
+FC_PAD_CMD's presses now show the pad's pictures; FC_NO_BUTTON_PICTURES=1 leaves the disc's (diagnostic).
+Next: the VM to confirm the keyboard on D3D12, the audio fix's gate, then fork main and this repository's main.
+
 ### 2026-11-12 - Harry's crash after creating a save profile: a D3D12 read-back over the game's data
 
 Harry (Windows, RX 7900 XT, D3D12): a crash after creating a profile. His log: at 91.7 s, just after "colour target

@@ -1,3 +1,11 @@
 # Hand-kept recompiler config for default.xbe, the file the build reads. config/game.toml is xbe_symbols output and
 # every scan rewrites it, so nothing is edited there: it is included here, and everything added by hand goes below.
 includes = ["game.toml"]
+
+# XDK 5849: what the scan misses (5849's signatures have no entry), each proven by the instructions given
+[symbols]
+# (resource): a vertex or index buffer's wait before the CPU writes it; 0x24E880 (its Lock2) and 0x24E8D0 call it.
+# 0x251B51 tests the reference bits 0x780000 (then BlockOnTime(+0x2C of the device, 2)), else waits on the resource's
+# fence +8 (BlockOnTime(fence, 0x10)); 0x36 bytes, as 4039's and 4831's. Hosted, it tells the renderer the buffer
+# changes: run as guest code, the render thread drew the vertices it kept from before (the name keyboard garbled)
+D3D_BlockOnNonSurfaceResource = 0x251B40
