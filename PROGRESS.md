@@ -25,7 +25,8 @@ from some 70 places; XACT's 0x25EA0F); the runtime kept IRQL as a number only, s
 thread's DirectSound calls. SDK branch dispatch-level: raising IRQL to 2 holds a lock shared, lowering below 2 lets it
 go, and each DPC runs holding it exclusive (an exclusive lock for raised threads too was tried first);
 XBE_NO_DISPATCH_LOCK=1 bypasses it, for comparison. With it, the soak's script ran 600 s in two of three instances
-(the third froze at 1.1 s of boot: see below).
+(the third froze at 1.1 s of boot: see below), and scripts/soak.sh 30 ran to the end: frames to 1800 s, no traps,
+memory flat at 99 MB (the run without the lock stopped at 467 s).
 
 Boot stalls under load: six first boots at once sometimes start 10 to 15 s late (the cache copy); gdb attached to
 one (harness XBE_PTRACER=1, the SDK harness's new opt in, as Yama allows only an ancestor) found the main thread in
