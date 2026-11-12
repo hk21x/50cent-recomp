@@ -13,20 +13,45 @@ This port was created using the [Xbox XBE Recomp](https://github.com/TGP482/Xbox
 - Run `Bulletproof.exe`.
 - Recomp settings can be adjusted in `settings.toml` beside the exe.
 
+> [!WARNING]
+> Early work in progress: the game boots, plays its movies and front end, and reaches the first mission. Later missions
+> have not been played through yet.
+
 ## Features
 
 ### Display
-
-
-### Graphics
+- **60 FPS** - Runs at 60 frames a second (the console ran at 30); the game's simulation follows the clock, so it plays at its own speed.
 
 ### Controller
 Supports Xbox, PlayStation and Switch controllers, with hot plugging and rumble.
+- **Modern Button Prompts** - The prompts show today's Xbox controller: LB and RB for White and Black, LT and RT, View and Menu, coloured A B X Y. Can be turned off (`modern_buttons`).
+
+### Keyboard and Mouse
+- **Keyboard and Mouse** - WASD and mouse look, with the prompts showing the keys while you play on the keyboard.
+- **Mouse in the Menus** - The left button selects, the right goes back, the wheel moves up and down.
 
 ### General
 
 ### Miscellaneous
 - **Boot Splash** - Place a `splash.png` (or `.bmp`) beside the exe to display a splash screen at launch.
+
+## Controls
+
+| Action | Controller | Keyboard and mouse |
+|---|---|---|
+| Move | Left stick | W A S D |
+| Camera, aim | Right stick | Mouse |
+| Fire | RT | Left mouse button |
+| Crouch | LT | C or Ctrl |
+| Jump | A | Space |
+| Hostage, execute, grab cover | B | F |
+| Action, reload, counter-kill, cover | X | E or R |
+| Evade, dive, dual-wield | Y | Shift |
+| Heal | LB | H |
+| Weapon inventory | RB | Q or middle mouse button |
+| Music track | View | Tab |
+| Pause (the G-Unit mobile) | Menu | Esc or P |
+| Menus: select, back | A, B | Enter or left click, Backspace or right click |
 
 ## System Requirements
 
