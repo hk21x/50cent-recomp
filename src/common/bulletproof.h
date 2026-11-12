@@ -3,6 +3,8 @@
 #include <array>
 #include <cstdint>
 
+#include "core/input.h"
+
 namespace fc {
 extern bool modern_buttons;  // the prompts show today's Xbox pad (src/common/buttons.cpp)
 // FNV-1a of buttons_Xbox.xtf's 512x64 P8 bytes as the disc has them
@@ -10,4 +12,5 @@ constexpr uint64_t kButtonsDisc = 0xD9B9754E92AA4661ull;  // at 0x81BD6D80 in th
 bool ButtonPictures(uint32_t header, uint32_t palette);  // GameInfo::texture_bound
 std::array<uint16_t, 2> Keys(int control);               // GameInfo::default_keys
 void Init();                                             // GameInfo::init
+void TestPad(int port, input::Pad& pad);                 // GameInfo::pad: FC_PAD_CMD's presses (src/common/test_pad.cpp)
 }  // namespace fc
