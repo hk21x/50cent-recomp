@@ -56,4 +56,14 @@ game's own code and data, with its addresses).
   (imports [0x2AD750] and [0x2AD74C]): a real lock, not the cause.
 
 ## Controls
-- **[game]** In play: left stick walks; LT aims (over the shoulder camera); RT fires while aiming; X reloads.
+- **[game]** Fixed (no settings page). Left stick moves, right stick camera and manual aim; A jump; B hostage,
+  execute, grab cover; X action, reload, counter-kill, cover, throw; Y evade, dual-wield, interrogate, dive; RT fire;
+  LT crouch; White heal; Black weapon inventory; Back music track; Start pause (the PS2 list, tried headless).
+- **[game]** The pad: 0x11F3F0(port) the pad object ([0x359730 + port*4]); 0x11F530 reads it each frame into channels
+  (+0x3C + 4*n: sticks 0-3, d-pad right left up down 4-7, Y B A X 8-11, LT RT 12-13, White Black 14-15, Back 16, stick
+  clicks 17-18, Start 19; last frame's at +0x8C); 0x11F1F0(pad, n) reads one; +0x2C the held mask (Y 0x100, B 0x200,
+  A 0x400, X 0x800, LT 0x1000, RT 0x2000 ...), +0x34 and +0x38 read by 0x11F210 / 0x11F220.
+- **[game]** The prompts' glyphs: buttons_Xbox.xtf, 512x64 P8 swizzled, FNV-1a D9B9754E92AA4661; cells (inclusive):
+  top row d-pad left/up (2-30, 34-62, and 65-95, 97-127 outlined), B 132-156, X 164-188, L 215-233, White 279-297,
+  SELECT 328-375, R3 401-431, plus 449-461; bottom row d-pad right/down, Y, A, R, Black, L3 337-367, START 398-437,
+  ring 450-468.

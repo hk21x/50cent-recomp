@@ -3,17 +3,42 @@
 Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Status
-- Milestone: 2 - New Game reaches the first mission (the alley) headless; the left stick walks, LT aims, RT fires,
-  X reloads; SMOKE OK on that route. The CRI movie server race fixed (src/game/movie_server.cpp). Next: Windows
+- Milestone: 2 - New Game reaches the first mission (the alley) headless; the console's layout read (LT crouches,
+  RT fires, X reloads, White heals, Black the weapons); modern button pictures and WASD and mouse keys (to see on Windows); SMOKE OK on that route. The CRI movie server race fixed (src/game/movie_server.cpp). Next: Windows
 - 60 fps headless with the simulation on the clock (Havok steps of 1/60 s); Windows frame rate from Harry's run
 - To check on Windows: picture and sound; the front end is silent after the title music (58 s) headless; gameplay
-  audio peaks at full scale; what A, B and Y do
+  audio peaks at full scale; the modern and key button pictures (the reference renderer does not draw replacements)
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
 - GitHub: private hk21x/50cent-recomp; SDK at fork main c3bd337
 
 ## Log
+
+### 2026-11-12 - Modern button pictures; the keyboard and mouse; the console's layout
+
+The layout (no page in the game sets it): the PS2 version's list (psxdatacenter SLUS-21315 / SLES-53906) matched to
+the Xbox's face buttons, and each other button tried alone in the alley (snapshots): RT fires on its own (15/20 ->
+14/20), LT held crouches (it is not aiming, as the earlier entry had it), White held shows the health packs (heal),
+Black held the weapon inventory, X reloads; A jump, B hostage / execute / grab cover, Y evade / dual-wield / dive by
+the PS2 list. The d-pad's up and Back showed nothing; the stick clicks cannot be pressed in the harness (its pad
+script has no names for them). Today's pad has White and Black where LB and RB are, so the console's layout stands
+on a modern pad; only the pictures and the keys are new.
+
+Button pictures (src/common/buttons.cpp, with True Crime's stroke font src/common/strokes.*): the prompts' glyphs are
+one texture, buttons_Xbox.xtf (512x64 P8 swizzled, FNV-1a D9B9754E92AA4661, at 0x81BD6D80 in the menus), two rows of
+32 texel cells (their boxes measured on its pixels). Bound (GameInfo::texture_bound), it is drawn again four times
+larger as a replacement (gpu::SetReplacement), the guest's bytes left alone: A B X Y as coloured letters on dark
+discs, LT RT, LB RB for White and Black, View and Menu, d-pads with the arm lit, L3 R3 as sticks marked L and R; with
+the keyboard (input::UsingKeyboard) the bound keys. Setting modern_buttons (on). The reference renderer does not draw
+replacements, so FC_BUTTONS_DUMP=dir writes each look drawn: both checked (FC_KEY_PICTURES=1 for the keys).
+
+Keys (GameInfo::default_keys, src/common/game_info.cpp): WASD moves, the mouse looks (mouse_look), the left button
+fires, C or Ctrl crouches, Space jumps (Enter selects), F hostage / cover (Backspace back), E or R action and reload,
+Shift evades, H heals, Q or the middle button the weapons, Tab the music track, Esc or P pauses, the arrows the d-pad.
+
+SMOKE OK; wincheck clean. Next: Harry's Windows run for the pictures; the mouse in the menus (a pointer, as True
+Crime's); his answers on the alley's frame rate and sound.
 
 ### 2026-11-11 - Windows build; 60 fps; Harry's three priorities
 
