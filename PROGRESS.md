@@ -5,7 +5,7 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 ## Status
 - Milestone: 2 - New Game reaches the first mission (the alley) headless; the console's layout read (LT crouches,
   RT fires, X reloads, White heals, Black the weapons); modern button pictures and WASD and mouse keys (to see on Windows); SMOKE OK on that route. The CRI movie server race fixed (src/game/movie_server.cpp). Next: Windows
-- 60 fps headless with the simulation on the clock (Havok steps of 1/60 s); Windows frame rate from Harry's run
+- 60 fps headless with the simulation on the clock (Havok steps of 1/60 s); on Harry's PC 60.0 fps, about 2 ms of host work a frame
 - To check on Windows: picture and sound; the front end is silent after the title music (58 s) headless; gameplay
   audio peaks at full scale; the modern and key button pictures (the reference renderer does not draw replacements)
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
@@ -14,6 +14,20 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - GitHub: private hk21x/50cent-recomp; SDK at fork main 6a49204
 
 ## Log
+
+### 2026-11-12 - Harry's crash at 452 s: a Lua script error's longjmp (SDK: declared continuations)
+
+Harry played front end, profile and the alley on Windows (most of it as expected) and the game stopped at 452 s:
+"indirect call to 000E7A28 has no recompiled function", guest trap at the return address 82E5383C. 0xE7A28 is the
+instruction after "call 0x1E0E28" in 0xE7A00: _setjmp3 (the CRT's, "VC20" at +0x20) in Lua 5.0's
+luaD_rawrunprotected (L->errorJmp at +0x50: the handler's previous, its jmp_buf at +4, its status at +0x44). A
+script error's luaD_throw (0xE79C0) longjmps there (0x1E0DAC; 0x1E0E21 jmp [buf+0x14]), into the middle of a
+recompiled function. SDK fork branch setjmp-continuations: [xbe] continuations lists such addresses; each is made a
+function and a continuation (as C++ catch blocks' are), and the function holding the call to setjmp catches the
+X86Resume the jump throws. config/bulletproof.toml: continuations = [0xE7A28]; the only call to _setjmp3.
+Test (temporary, removed): once, a protected call running luaD_throw(L, 2): returned 2, L's handler as before, esp
+as before, the game went on into the alley. SMOKE OK; wincheck clean. His log also shows 60.0 fps, 16.66 ms a frame,
+about 2 ms of host work a frame in the alley (RX 7900 XT).
 
 ### 2026-11-12 - PC settings from the game's Options page ("Y PC Settings")
 
