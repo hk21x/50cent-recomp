@@ -11,9 +11,20 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main 6a49204
+- GitHub: private hk21x/50cent-recomp; SDK at fork main 60fc186
 
 ## Log
+
+### 2026-11-13 - Saves listed as damaged: the find pattern "~*.*" (SDK: DOS wildcards)
+
+Harry: Load Game showed his save as damaged. The game lists a save by finding its profile file in the save's folder
+with FindFirstFile (0x12CDB2) on "%s~*.*" (format 0x2D3558); the file is "~P5628E0D4", no dot. The SDK's WildMatch
+was literal, so nothing matched; the game then zeroes the find data's times and the entry's flag at +0xB2 marks it
+damaged. SDK fork branch dos-wildcards (60fc186): a pattern ending in ".*" also matches a name with no dot, as on the
+console. Headless: a profile made (.local/p_mkprofile.txt), then Load Game lists "aaa" with "Load Profile"; Yes opens
+U:\006100610061\~P5628E0D4 and the game goes on into the mission's cutscene.
+Still open from his report: cutscene flicker on Windows, pop-in at the 16:9 window's edges, the 4:3/16:9 setting
+changing nothing, the mouse turning the camera as a stick rather than directly.
 
 ### 2026-11-12 - Harry's crash at 452 s: a Lua script error's longjmp (SDK: declared continuations)
 
