@@ -82,4 +82,5 @@ const app::GameInfo app::kGame = {
     .mouse_direct = true,                 // directly, not as the right stick (src/game/mouse_aim.cpp)
     .default_keys = fc::Keys,             // WASD and the mouse
     .texture_bound = fc::ButtonPictures,  // the prompts' pictures (src/common/buttons.cpp)
+    .aspect_live = true,                  // the aspect setting applies at once (src/game/aspect.cpp)
 };

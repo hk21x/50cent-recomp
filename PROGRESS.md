@@ -15,6 +15,23 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-19 - Movie flicker fixed in the SDK; the aspect setting applies at once
+
+Harry (Windows): the mouse camera "works great"; no edge pop-in noticed since 3f5f6e3; asked for the aspect setting
+to apply at once; a video of the flicker (.local/win, 3440x1440 at 240 fps, the cutscene cs\M001.sfd).
+- Flicker: brightness per video frame and frames around a cut show the shot before the cut again for two game
+  frames, without its caption. The movie frame is one 512x512 LIN_A8R8G8B8 surface 0x822B2B00, also a render
+  target (the game draws two quads into it, then samples it; CAP=1 headless); CRI Sofdec locks it (MarkDirty) once a
+  movie frame from its decoding thread and writes it there. The renderers' LatchCpuWrite spent the lock on one look:
+  run behind the title, it could look before the decoder's writes, see the same bytes, and keep the GPU's copy until
+  the next lock. SDK 034fe74 (fork branch target-lock-watch): the lock stays pending for 16 looks until the bytes
+  change (D3D11 and D3D12). Headless cannot show it (the reference renderer reads guest memory): Harry to check.
+- Aspect: SDK c9e6489 (Juiced's 167e22d cherry-picked: GameInfo::aspect_live, the console always a widescreen TV);
+  src/game/aspect.cpp writes app::FrameAspect() to the views' aspect 0x349478 as each view is set up (0x1221E0,
+  0x122020, the only readers). Headless (a frame_aspect file in the run folder): 1.778, then 1.330, then 2.390 in
+  the alley within a frame each; snapshots at each show the same height and more at the sides. The 2D stays as the
+  game draws it at 4:3 and 16:9, squeezed into a centred 16:9 when wider (hud_aspect 16:9). SMOKE OK; wincheck clean.
+
 ### 2026-11-19 - The view's culling planes 1.25 times wider (view_cull.cpp)
 
 Harry saw pop-in at the 16:9 frame's edges. The aspect is not the cause: the game picks 720x480 widescreen
