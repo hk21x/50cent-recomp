@@ -15,6 +15,21 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-19 - The mouse turns the camera directly (mouse_aim.cpp)
+
+Harry: the mouse played the right stick (its ease in and the stick's speed). The third person camera's update 0x94000
+(thiscall: camera, angles {pitch, yaw} in radians at 0x322FE4, step) was found by logging the callers of the pad's
+channel reader 0x11F1F0 for the right stick's channels while in the alley (0x94088, 0x94136; 0x5E2C0 also reads
+them into an input record, use unknown). src/game/mouse_aim.cpp adds the mouse's counts to the angles before the
+update (0.0008 rad a count at 100%, as AUF), so the game's pitch clamp holds; GameInfo::mouse_direct leaves the
+stick to the controller. Yaw grows to the right, pitch downwards (snapshot at -0.87: the sky); the game's y invert
+byte 0x32346E is set at a first boot (stick up looks down), and the mouse ignores both invert bytes (up looks up).
+Headless FC_MOUSE_TEST=dx,dy,from,to: 50 counts a call for 61 calls turned yaw 2.44 rad; 40 up held pitch at the
+clamp -0.8727, 40 down at 1.0472. SMOKE OK; wincheck clean.
+Also: harness runs were twice stopped at 120 s ("Terminated", nothing in the log), as by another session's
+pkill -x game; .local/hrun.sh builds the harness as bp50. Widened culling (FC_CULL_WIDEN, parked in .local/view_cull.cpp)
+still to compare. To check on Windows: the feel and speed, and aiming modes (0x5E2C0's record may have had the mouse).
+
 ### 2026-11-13 - Saves listed as damaged: the find pattern "~*.*" (SDK: DOS wildcards)
 
 Harry: Load Game showed his save as damaged. The game lists a save by finding its profile file in the save's folder

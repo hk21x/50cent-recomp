@@ -27,7 +27,7 @@ Supports Xbox, PlayStation and Switch controllers, with hot plugging and rumble.
 - **Modern Button Prompts** - The prompts show today's Xbox controller: LB and RB for White and Black, LT and RT, View and Menu, coloured A B X Y. Can be turned off (`modern_buttons`).
 
 ### Keyboard and Mouse
-- **Keyboard and Mouse** - WASD and mouse look, with the prompts showing the keys while you play on the keyboard.
+- **Keyboard and Mouse** - WASD, and the mouse turns the camera directly as in a PC shooter (not as a stick), with the prompts showing the keys while you play on the keyboard.
 - **Mouse in the Menus** - The left button selects, the right goes back, the wheel moves up and down.
 
 ### General

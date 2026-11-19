@@ -78,7 +78,8 @@ const app::GameInfo app::kGame = {
     .ui = nullptr,                        // ImGui drawing each frame
     .pad = fc::Pad,                       // the mouse in the menus (src/common/menu_mouse.cpp), FC_PAD_CMD's presses
     .rumble = nullptr,                    // changes a rumble before it is set
-    .mouse_look = true,                   // the mouse turns the camera and aims (the right stick)
+    .mouse_look = true,                   // the mouse turns the camera and aims
+    .mouse_direct = true,                 // directly, not as the right stick (src/game/mouse_aim.cpp)
     .default_keys = fc::Keys,             // WASD and the mouse
     .texture_bound = fc::ButtonPictures,  // the prompts' pictures (src/common/buttons.cpp)
 };
