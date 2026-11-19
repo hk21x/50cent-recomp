@@ -15,6 +15,18 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-19 - The view's culling planes 1.25 times wider (view_cull.cpp)
+
+Harry saw pop-in at the 16:9 frame's edges. The aspect is not the cause: the game picks 720x480 widescreen
+(0x16FA8 -> 0x11AD80) and sets the views' aspect 0x349478 to 16:9, which both the projection (0x11EBF0) and the side
+planes (0x121D00: view +0xF0..+0x12C) take. The planes do cull: the alley's frame 8400 headless drew 1701 draws, 2078
+with them twice as wide (FC_CULL_WIDEN=2). On the console a TV's overscan hid the edges, so objects whose bounds are
+smaller than what they draw were cut out of sight. src/game/view_cull.cpp builds the planes 1.25 times wider and
+taller (zoom argument divided), the projection unchanged. Whether anything besides drawing reads those planes is not
+known (30 functions touch +0xF0..+0x120 offsets); to watch on Windows: auto-aim taking targets just off the screen.
+Also: the aspect setting is read at boot (app::Widescreen is static) and the 4:3 mode's aspect is 720/480 = 1.5,
+not 4:3. SMOKE OK.
+
 ### 2026-11-19 - The mouse turns the camera directly (mouse_aim.cpp)
 
 Harry: the mouse played the right stick (its ease in and the stick's speed). The third person camera's update 0x94000
