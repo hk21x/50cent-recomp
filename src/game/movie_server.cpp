@@ -15,8 +15,18 @@
 // So setting the switch waits for a server pass already under way to finish; a pass that starts after it sees it.
 // Both sides fence (the store buffer case: each side stores, then reads the other's). The wait gives up after 100 ms
 // rather than risk a deadlock, should a pass ever wait on the movie thread.
+//
+// Frames out of order (cutscenes "flickered" at camera cuts): the game takes the current frame (0xF8C40 ->
+// 0x14B960, mwPlyGetCurFrm, into the movie's +0x38), releases it (0x14B3E0), and the cutscene player 0x105F50 then
+// converts it into its texture (0x114CB0 -> 0x14C500). A server pass decoding meanwhile changed what that frame showed:
+// of M001.sfd's first 300 frames written, 29 and 35 (two headless runs) were out of display order against ffmpeg's
+// decode of the same file, mostly a P frame three early (486, 490, 488, 489). At a camera cut that is a frame of the
+// next shot, then two of the last again. So a server pass and the game's take-to-conversion exclude each other (the
+// same 100 ms way out as above): 0 of 600. Locking the take alone, without the conversion after it, did not help.
+
 #include <atomic>
 #include <chrono>
+#include <mutex>
 #include <thread>
 
 #include "core/log.h"
@@ -26,6 +36,18 @@
 namespace {
 std::atomic<int> g_serving{0};  // server passes under way (0x1556F0 has two callers, 0x1557D0 and 0x1557F0)
 thread_local int t_serving = 0;  // this thread's own, which a stop from inside a pass must not wait for
+std::recursive_timed_mutex g_frame;  // a server pass, or the game taking a frame
+
+// held for a scope unless 100 ms go by (then the two run side by side, as before)
+struct FrameLock {
+    bool held = g_frame.try_lock_for(std::chrono::milliseconds(100));
+    FrameLock() {
+        if (!held) LOG_FIRST(8, "movie: the frame lock waited 100 ms, going on without it");
+    }
+    ~FrameLock() {
+        if (held) g_frame.unlock();
+    }
+};
 }
 
 X86_EXTERN_FUNC(__imp__sub_001556F0);
@@ -33,7 +55,10 @@ X86_FUNC(sub_001556F0) {
     g_serving.fetch_add(1, std::memory_order_seq_cst);
     std::atomic_thread_fence(std::memory_order_seq_cst);
     t_serving++;
-    __imp__sub_001556F0(ctx, base);
+    {
+        FrameLock lock;
+        __imp__sub_001556F0(ctx, base);
+    }
     t_serving--;
     g_serving.fetch_sub(1, std::memory_order_seq_cst);
 }
@@ -76,4 +101,30 @@ X86_FUNC(sub_0014AE20) {
         std::atomic_thread_fence(std::memory_order_seq_cst);
         kernel::W32(kServerOff, 0);
     }
+}
+
+// (the movie): takes the current frame into its +0x38 and releases it; converts it first when its +0x5E4 says how.
+// The cutscene player 0x105F50 converts it after (0x114CB0 with the frame at +0x38, released by then), so the lock
+// is kept from here until that conversion, or the movie's next frame on this thread (not when converted already)
+namespace {
+thread_local bool t_frame_held = false;
+}
+X86_EXTERN_FUNC(__imp__sub_000F8C40);
+X86_FUNC(sub_000F8C40) {
+    if (t_frame_held) g_frame.unlock(), t_frame_held = false;
+    const uint32_t movie = kernel::R32(ctx.esp + 4);
+    FrameLock lock;
+    __imp__sub_000F8C40(ctx, base);
+    if (lock.held && movie && kernel::R32(movie + 0x38) && !kernel::R32(movie + 0x5E4)) {
+        lock.held = false;  // released after the conversion
+        t_frame_held = true;
+    }
+}
+
+// (texture slot, frame): the frame converted into the texture's surface
+X86_EXTERN_FUNC(__imp__sub_00114CB0);
+X86_FUNC(sub_00114CB0) {
+    FrameLock lock;
+    __imp__sub_00114CB0(ctx, base);
+    if (t_frame_held) g_frame.unlock(), t_frame_held = false;
 }

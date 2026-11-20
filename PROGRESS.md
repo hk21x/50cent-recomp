@@ -11,9 +11,24 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main 60fc186
+- GitHub: private hk21x/50cent-recomp; SDK at fork main c9e6489
 
 ## Log
+
+### 2026-11-20 - Cutscene flicker: Sofdec's frames out of order (movie_server.cpp frame lock)
+
+Harry: still flickering with SDK 034fe74; the aspect setting works. The diagnosis of 2026-11-19 was wrong: the
+movie buffer itself goes back. A probe on 0x114CB0 (the lock and conversion of a frame, synchronous on the main
+thread, about 8 ms) dumped 0x822B2B00 after each frame (M001: 512 wide, pitch 2048), matched against ffmpeg's decode
+of assets M001.sfd (1053 frames, no steps back): headless, 29 and 35 of the first 300 frames were out of display
+order, mostly a P frame shown three early (486, 490, 488, 489; 498, 502, 500, 501), a different set each run. At a
+camera cut that is the next shot's frame and then two of the last again, as in Harry's video. The game takes the
+frame (0xF8C40 -> 0x14B960 mwPlyGetCurFrm), releases it (0x14B3E0), and the cutscene player 0x105F50 converts it
+after (0x114CB0 -> 0x14C500); the server pass 0x1556F0 decodes on its own thread meanwhile. A lock between the
+server pass and 0xF8C40 alone: still 25 and 26 per 300. Held from 0xF8C40 until 0x114CB0 converts the frame (not past
+it when 0xF8C40 converted it already, +0x5E4): 0 of 600, twice, no extra repeats or skips, the 100 ms way out never
+taken. SDK 034fe74 (a target's lock pending until its bytes change) is not the fix but harmless; left as is.
+SMOKE OK; wincheck clean. Harry to check the 5:38am cutscene on Windows.
 
 ### 2026-11-19 - Movie flicker fixed in the SDK; the aspect setting applies at once
 
