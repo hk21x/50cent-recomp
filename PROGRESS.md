@@ -11,9 +11,19 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main c850160
+- GitHub: private hk21x/50cent-recomp; SDK at fork main 50bf254
 
 ## Log
+
+### 2026-11-20 - Frame rate in play restored: the HUD's CPU extent pass only for draws that could be HUD
+- Harry: a big FPS drop on loading into the game with d02c877. Cause: with hud_layout on (all of play), the D3D11/12
+  renderers ran every draw with a vertex program through gpu::ProgramExtent, the CPU interpreter, up to 1024 vertices
+  each, before HudMove's cheap checks threw the 3D world out. Counted in the alley frame: about 1700 draws and 123k
+  vertices a frame through it; with the new gpu::HudPiece gate (no depth test, a program, a flat matrix) first, 7
+  draws and 28 vertices.
+- SDK 50bf254 (fork main): gate passed on pgr2, pgr1, eon, agentunderfire and nightfire; smoke OK; wincheck clean;
+  the HUD capture at frame 8160 unchanged.
+- Next: Harry's Windows play test of the frame rate and the HUD.
 
 ### 2026-11-20 - Cutscenes whole at 4:3 on any frame; the HUD kept at the frame's edges (src/game/widescreen.cpp)
 
