@@ -12,10 +12,12 @@
 // The HUD: the game draws it through a flat camera of the views' aspect (src/game/aspect.cpp), each piece by a vertex
 // program's 2D matrix, depth testing off, at a fixed place laid out for its widescreen mode's 16:9: on a 4:3 frame the
 // pieces at the sides ran off its edges, on a wider one they huddled in a 16:9 part of the middle. While the gameplay
-// frame 0x86890 runs, each piece to one side is moved sideways to keep its distance from that edge as at 16:9
-// (gpu::State::hud_layout); its shape is the camera's, right at any aspect, and one about the middle stays there. The
-// menus are 2D drawn for a 4:3 screen, kept at that shape in the middle (GameInfo::hud_aspect).
+// frame 0x86890 runs with no menu up, each piece to one side is moved sideways to keep its distance from that edge as
+// at 16:9 (gpu::State::hud_layout); its shape is the camera's, right at any aspect, and one about the middle stays
+// there. The menus are 2D drawn for a 4:3 screen, kept at that shape in the middle (GameInfo::hud_aspect); the pause
+// menu is drawn in the gameplay frame too, its pieces through the same programs, so nothing moves while one is up.
 #include "app/app.h"
+#include "common/bulletproof.h"
 #include "core/log.h"
 #include "kernel/kernel.h"
 #include "xdk/d3d8.h"
@@ -53,7 +55,7 @@ X86_FUNC(sub_00105F50) {
 // the gameplay frame: the world, then the HUD over it
 X86_EXTERN_FUNC(__imp__sub_00086890);
 X86_FUNC(sub_00086890) {
-    HudLayout(true);
+    HudLayout(!fc::MenuUp());  // the pause menu, drawn in this frame too, is 4:3 2D kept whole in the middle
     __imp__sub_00086890(ctx, base);
     HudLayout(false);
 }

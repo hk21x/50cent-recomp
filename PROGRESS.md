@@ -34,6 +34,9 @@ Harry: asked for every cutscene at 4:3 whatever the aspect setting, and the HUD 
   from running its program on the CPU. Headless at 4:3 and 21:9: the START prompt and the box with Lloyd Banks's
   portrait, name and bar at the corners; the crosshair and "Task added" in the middle. Menus (2D for 4:3) stay at
   4:3 in the middle (GameInfo::hud_aspect).
+- The pause menu is drawn in the gameplay frame, its pieces through the same programs: at 21:9 its name, portrait and
+  Back moved off the phone. hud_layout is off while a menu is up (fc::MenuUp); headless 21:9 the phone whole again,
+  the HUD still at the edges. The cutscene headless at 4:3: the whole picture fills the frame.
 - SDK c850160 (gated on pgr2, pgr1, eon, agentunderfire, nightfire). SMOKE OK; wincheck clean; shadercheck 23 of 23. Next: Harry to check cutscenes, the HUD and the menus on Windows at
   his 21:9 and at 16:9 and 4:3.
 
