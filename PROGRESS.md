@@ -11,9 +11,31 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main c9e6489
+- GitHub: private hk21x/50cent-recomp; SDK at fork main c850160
 
 ## Log
+
+### 2026-11-20 - Cutscenes whole at 4:3 on any frame; the HUD kept at the frame's edges (src/game/widescreen.cpp)
+
+Harry: asked for every cutscene at 4:3 whatever the aspect setting, and the HUD to fit the frame.
+- Cutscenes: the player 0x105F50 draws each movie frame as one screen quad, x 0 to 720 and y -64 to 536 (the 4:3
+  picture enlarged to a widescreen TV's width, top and bottom cut off), from its 512x512 LIN_A8R8G8B8 texture. While
+  it plays, gpu::State::pillar_fit (SDK) fits such a quad whole into the frame's height and squeezes it to 4:3, bars
+  at the sides. The player's own black bars over the top and bottom 64 lines (cutscene +0x24, 0x10641E through
+  0x121B70) would cover the fitted picture: cleared while it plays, put back after. Headless M001 at 16:9 and 21:9:
+  the whole picture at 4:3, nothing over it. The movie quad is drawn by a screen program (B0064C31), so
+  GameInfo::squeeze_screen_programs is on and the program shaders take the vertical scale too.
+- HUD: drawn through a flat camera of the views' aspect (aspect.cpp), each piece a vertex program draw with depth
+  testing off at a fixed place laid out for 16:9 (headless captures at 4:3, 16:9 and 21:9: its pieces' screen x
+  went as 1 / aspect; the START prompt and the partner's box ran off a 4:3 frame's edges and sat in a 16:9 middle of
+  a 21:9 one). While the gameplay frame 0x86890 runs, gpu::State::hud_layout 16:9 (SDK) moves each piece to one side
+  of the middle sideways to keep its distance from that edge as at 16:9; its shape is the camera's, right already.
+  Text is drawn by another program (B00652F1, v0 scaled plus an offset, no matrix), so where a piece lands comes
+  from running its program on the CPU. Headless at 4:3 and 21:9: the START prompt and the box with Lloyd Banks's
+  portrait, name and bar at the corners; the crosshair and "Task added" in the middle. Menus (2D for 4:3) stay at
+  4:3 in the middle (GameInfo::hud_aspect).
+- SDK c850160 (gated on pgr2, pgr1, eon, agentunderfire, nightfire). SMOKE OK; wincheck clean; shadercheck 23 of 23. Next: Harry to check cutscenes, the HUD and the menus on Windows at
+  his 21:9 and at 16:9 and 4:3.
 
 ### 2026-11-20 - Cutscene flicker: Sofdec's frames out of order (movie_server.cpp frame lock)
 
