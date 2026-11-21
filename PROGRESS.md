@@ -15,6 +15,18 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-21 - The pointer on the dialogues ("Are you sure...?"); the cursor hidden in play
+- Harry: the load dialogue (Yes / No) did not follow the mouse, and the cursor showed in play. A dialogue is a menu
+  manager of its own on the heap (here 0x820FFE54, layer 0x82100354), its top menu's record named "Dialogue" (items
+  dlgOpt0..3, the unused ones skipped, +0x10 1); found by dumps with No, Yes, No highlighted (its menu +4 moved
+  between 0x82102030 and 0x82102014). Its layer is drawn by the PDA's camera: rows at 250.4 and 273.3 by the formula,
+  250.6 and 273.5 in Harry's screenshot. 0x49F00's hook now tracks any manager whose top menu is "Dialogue" with rows
+  placed, and leaves the PDA's menu under it alone meanwhile.
+- The cursor: ShowArrow came after MenuMouse's return for "no menu up", so leaving a menu never took the arrow away;
+  now before it (the runtime hides the cursor over the game when the arrow is off).
+- Headless (the kept profile disk): Load Game, the save, the dialogue: hover moved Yes, No, Yes; a click on Yes loaded
+  the save ("5:38am - New York City").
+
 ### 2026-11-21 - The launcher's and the game's icon (launcher/icon.ico)
 - Harry: the image he gave is the launcher's icon, not the README's. launcher/icon.ico from it (256 PNG, 128 to 16,
   the black outside the rounded corners made transparent): the launcher build and the game exe (CMakeLists, resource

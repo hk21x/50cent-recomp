@@ -149,6 +149,12 @@ void Track(X86Context& ctx, uint32_t manager) {
     if (!count || count > 64 || !stack) return;
     const uint32_t menu = R(stack + 4 * (count - 1)), record = R(menu + 0xC), layer = R(manager);
     if (!menu || !record || !layer) return;
+    // the PDA's menus, and the dialogues over them ("Are you sure...?": a manager of their own on the heap, its top
+    // menu named "Dialogue", its layer drawn by the same camera); while a dialogue is up, the menu under it is not
+    // the pointer's
+    static int64_t dialogue_at = 0;
+    const bool dialogue = mem::IsCommitted(record + 6) && std::strncmp(static_cast<const char*>(kernel::HostPtr(record + 6)), "Dialogue", 9) == 0;
+    if (!dialogue && (manager != kManager || NowMs() - dialogue_at < 300)) return;
     Rows r;
     bool text = false, list = false;
     const int n = std::min<int>(kernel::G<uint16_t>(record + 4), kMaxItems);
@@ -180,6 +186,10 @@ void Track(X86Context& ctx, uint32_t manager) {
         r.items[r.n] = item, r.slots[r.n] = -1, r.ys[r.n++] = kRowsY0 - kRowsScale * y;
     }
     r.placed = !text && (list ? r.n >= 1 : r.n >= 2);
+    if (dialogue) {
+        if (!r.placed) return;  // one not on screen (no rows placed) leaves the menu under it alone
+        dialogue_at = NowMs();
+    }
     static uint32_t said = 0;
     if (menu != said) {
         said = menu;
@@ -244,7 +254,7 @@ int PointerHit() {
 X86_EXTERN_FUNC(__imp__sub_00049F00);
 X86_FUNC(sub_00049F00) {
     const uint32_t manager = ctx.ecx;
-    if (manager == fc::kManager) fc::Track(ctx, manager);
+    fc::Track(ctx, manager);
     ctx.ecx = manager;
     __imp__sub_00049F00(ctx, base);
 }

@@ -225,12 +225,12 @@ void MenuMouse(input::Pad& p) {
         pending = 0;
     }
     was = menu;
+#ifdef _WIN32
+    ShowArrow(menu && input::UsingKeyboard());  // before the return below: out of the menus the runtime hides it again
+#endif
     if (!menu) return;
     using namespace std::chrono;
     const int64_t now = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
-#ifdef _WIN32
-    ShowArrow(menu && input::UsingKeyboard());
-#endif
     const Forced forced = ForcedPointer();
     if (input::UsingKeyboard() || forced.on) {
         const uint32_t held = forced.on ? forced.buttons : input::MouseButtons();
