@@ -15,8 +15,13 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-21 - The launcher's and the game's icon (launcher/icon.ico)
+- Harry: the image he gave is the launcher's icon, not the README's. launcher/icon.ico from it (256 PNG, 128 to 16,
+  the black outside the rounded corners made transparent): the launcher build and the game exe (CMakeLists, resource
+  1) both take it. The README's top image is now a banner cut from the alley shot (docs/img/bulletproof-banner.webp).
+
 ### 2026-11-21 - README in Juiced's style, shots from GPU-VM
-- Harry gave the game's icon and asked for the README in the Juiced README's form, every shot taken on GPU-VM.
+- Harry gave an icon and asked for the README in the Juiced README's form, every shot taken on GPU-VM.
   GPU-VM: C:\Testing\50cent-recomp at main (33d4201), the disc extracted into assets, built with CI=1 build.bat;
   task BulletproofRun (C:\bpctl\run.ps1, Juiced's driver for Bulletproof.exe) and BulletproofDesk (a desktop capture,
   hidden window). Injected letter keys do not reach the game there (Enter, arrows, Esc and F-keys do), so the route is
@@ -25,7 +30,7 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - Shots at 1920x800: all off, best (render 200%, MSAA 4x, sharpen 50%), MSAA 2/4/8, FXAA, SMAA, render 200%,
   sharpen 50/100; hero, 16:9 and 4:3 while firing (the HUD fades out a few seconds after the last action); the title
   menu, the pause menu, a movie, and the settings window's Display, Graphics, Game and Achievements pages (Y on the
-  Options page; Page Down pages it). docs/img/bulletproof-*.webp: icon, hero, wipe (animated), widescreen, menus,
+  Options page; Page Down pages it). docs/img/bulletproof-*.webp: banner, hero, wipe (animated), widescreen, menus,
   pc-settings (animated), the four close-up comparisons (lamp post and vent, 2x).
 
 ### 2026-11-21 - The pointer in the lists too (saves, profiles, messages)

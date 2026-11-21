@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/img/bulletproof-icon.webp" alt="50 Cent: Bulletproof, PC port" width="280">
+  <img src="docs/img/bulletproof-banner.webp" alt="50 Cent: Bulletproof, native PC port: 50 Cent in the first mission's alley under a street lamp" width="100%">
 </p>
 
 <p align="center">
