@@ -23,12 +23,19 @@
 #include "xdk/hle.h"
 
 namespace {
-constexpr char kLabel[] = "pcSettingsLbl";
-constexpr char kText[] = "PC Settings";
+// our labels: the name the prompt table gives (hashed as the game's), the text the string table answers with
+struct Label {
+    const char* name;
+    const char* text;
+    uint32_t hash = 0, name_va = 0, entry = 0;  // in guest memory once made
+};
+Label g_labels[] = {{"pcSettingsLbl", "PC Settings"}, {"quitGameLbl", "Quit Game"}};
+Label& kPcSettings = g_labels[0];
+Label& kQuitGame = g_labels[1];
 constexpr uint32_t kOptions = 0x329C7C, kMainOptions = 0x329C90;  // the prompt table's entries; Y at +0x10
+constexpr uint32_t kTitleMenu = 0x329DE4;                         // "Main Menu", the title's; X at +0xC
 
-uint32_t g_name = 0, g_entry = 0;  // in guest memory
-std::atomic<bool> g_options_page{false};
+std::atomic<bool> g_options_page{false}, g_title_menu{false};
 
 // 0x110700's hash: FNV-1 over the name, a-z as A-Z
 uint32_t Hash(const char* s) {
@@ -40,59 +47,64 @@ uint32_t Hash(const char* s) {
     }
     return h;
 }
-const uint32_t kHash = Hash(kLabel);
 
-void Make() {
-    if (g_entry) return;
-    g_name = mem::AllocSystem(sizeof kLabel, 16);
-    std::memcpy(kernel::HostPtr(g_name), kLabel, sizeof kLabel);
-    constexpr uint32_t kRecord = 12 + ((sizeof kText + 3) & ~3u);
-    const uint32_t record = mem::AllocSystem(kRecord, 16);
-    std::memset(kernel::HostPtr(record), 0, kRecord);
-    kernel::W32(record, kHash);
-    kernel::W16(record + 8, uint16_t(sizeof kText - 1));
-    kernel::W16(record + 10, uint16_t(kRecord));
-    std::memcpy(kernel::HostPtr(record + 12), kText, sizeof kText);
-    g_entry = mem::AllocSystem(16, 16);
-    std::memset(kernel::HostPtr(g_entry), 0, 16);
-    kernel::W32(g_entry, kHash);
-    kernel::W32(g_entry + 4, record);
-    kernel::W16(g_entry + 12, 1);  // as the disc's entries: not loaded, no count
+void Make(Label& l) {
+    if (l.entry) return;
+    l.hash = Hash(l.name);
+    const uint32_t name_size = uint32_t(std::strlen(l.name)) + 1, text_size = uint32_t(std::strlen(l.text)) + 1;
+    l.name_va = mem::AllocSystem(name_size, 16);
+    std::memcpy(kernel::HostPtr(l.name_va), l.name, name_size);
+    const uint32_t record_size = 12 + ((text_size + 3) & ~3u);
+    const uint32_t record = mem::AllocSystem(record_size, 16);
+    std::memset(kernel::HostPtr(record), 0, record_size);
+    kernel::W32(record, l.hash);
+    kernel::W16(record + 8, uint16_t(text_size - 1));
+    kernel::W16(record + 10, uint16_t(record_size));
+    std::memcpy(kernel::HostPtr(record + 12), l.text, text_size);
+    l.entry = mem::AllocSystem(16, 16);
+    std::memset(kernel::HostPtr(l.entry), 0, 16);
+    kernel::W32(l.entry, l.hash);
+    kernel::W32(l.entry + 4, record);
+    kernel::W16(l.entry + 12, 1);  // as the disc's entries: not loaded, no count
 }
 }  // namespace
 
-// the front end's prompt table, filled: our label on the Options pages' Y
+// the front end's prompt table, filled: our labels on the Options pages' Y and the title menu's X
 X86_EXTERN_FUNC(__imp__sub_001EDAA0);
 X86_FUNC(sub_001EDAA0) {
     __imp__sub_001EDAA0(ctx, base);
-    Make();
-    kernel::W32(kOptions + 0x10, g_name);
-    kernel::W32(kMainOptions + 0x10, g_name);
-    LOGR("bulletproof: \"PC Settings\" on the Options pages' Y (label %08X)", kHash);
+    for (Label& l : g_labels) Make(l);
+    kernel::W32(kOptions + 0x10, kPcSettings.name_va);
+    kernel::W32(kMainOptions + 0x10, kPcSettings.name_va);
+    kernel::W32(kTitleMenu + 0xC, kQuitGame.name_va);
+    LOGR("bulletproof: \"PC Settings\" on the Options pages' Y, \"Quit Game\" on the title menu's X");
 }
 
-// (this string table, hash): our label's entry
+// (this string table, hash): our labels' entries
 X86_EXTERN_FUNC(__imp__sub_000F81D0);
 X86_FUNC(sub_000F81D0) {
     const uint32_t hash = kernel::R32(ctx.esp + 4);
     __imp__sub_000F81D0(ctx, base);
-    if (hash == kHash && g_entry) ctx.eax = g_entry;
+    for (const Label& l : g_labels)
+        if (hash == l.hash && l.entry) ctx.eax = l.entry;
 }
 
-// (?, menu): a menu comes up; whether it is an Options page
+// (?, menu): a menu comes up; whether it is an Options page or the title's menu
 X86_EXTERN_FUNC(__imp__sub_0001F010);
 X86_FUNC(sub_0001F010) {
     const uint32_t menu = kernel::R32(ctx.esp + 8);
-    bool options = false;
+    bool options = false, title = false;
     if (menu && mem::IsCommitted(menu)) {
         const uint32_t name = kernel::R32(menu + 0x0C) + 6;
         if (mem::IsCommitted(name)) {
             const char* n = static_cast<const char*>(kernel::HostPtr(name));
             options = std::strncmp(n, "Options", 8) == 0 || std::strncmp(n, "MainOptions", 12) == 0;
+            title = std::strncmp(n, "Main Menu", 10) == 0;
         }
     }
     if (options != g_options_page.load()) LOGI("bulletproof: %s", options ? "on an Options page" : "off the Options pages");
     g_options_page = options;
+    g_title_menu = title;
     __imp__sub_0001F010(ctx, base);
 }
 
@@ -109,5 +121,15 @@ void PcSettingsPad(input::Pad& p) {
     }
     was = y;
     if (on) p.analog[input::kY - input::kA] = 0;
+    // X on the title's menu: Quit Game (nothing to lose there: the game saves as it goes)
+    static bool was_x = false;
+    const bool x = p.analog[input::kX - input::kA] > 128;
+    const bool title = g_title_menu && MenuUp();
+    if (title && x && !was_x) {
+        LOGR("bulletproof: X on the title menu: Quit Game");
+        app::Quit();
+    }
+    was_x = x;
+    if (title) p.analog[input::kX - input::kA] = 0;
 }
 }  // namespace fc

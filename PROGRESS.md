@@ -15,6 +15,22 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-21 - Quality of life: skip intro, hide HUD (F9), field of view, Quit Game, sharp text and HUD
+- Harry asked for the other ports' quick wins and field of view (the in-game PC Settings page is next).
+- skip_intro (src/common/game_info.cpp, GameInfo::hide_file): Ark\movies' sierra, gglogo, DolbyN, inter, havok and
+  teaser reported missing; the game passes over them: the title's Press START about 10 s into boot (45 s before).
+- hide_hud (src/game/hud.cpp): the HUD is the layout layer "HUDLayer" (0x4F350 looks it up in the HUD's layer set
+  0x3311A0, kept at 0x32FA30); a layer is drawn by 0x29FA0 (ecx the layer, its top groups +4/+8 by their vtable's +0xC,
+  0x52720 for a group: drawn while +0x7C). That draw is skipped for the HUD's layer. F9 in play (no menu up)
+  switches it and saves (GameInfo::message). Headless: the message icon and START gone.
+- fov_percent 50 to 150 (src/game/aspect.cpp): the world's view 0x334CF0 (camera 0x334E20; the gameplay frame
+  0x86890), vertical field +0xD8 = 0.585 rad from its constructor 0x121F10; widened around each setup (0x1221E0,
+  0x122020): tan(half) times the setting. Headless at 130%: m00 1.437 for 1.868; 50 smaller, more of the alley.
+- Quit Game (src/game/pc_settings.cpp): the prompt table's "Main Menu" entry (0x329DE4, the title's menu) gets our
+  label "Quit Game" on X (the same string table entry trick as PC Settings); X there calls app::Quit. Headless: the
+  bar shows it, X quit ("quit asked for").
+- sharpen_2d on (GameInfo): the SDK's sharp text and HUD; the row in Graphics. To see on Windows.
+
 ### 2026-11-21 - The pointer on the dialogues ("Are you sure...?"); the cursor hidden in play
 - Harry: the load dialogue (Yes / No) did not follow the mouse, and the cursor showed in play. A dialogue is a menu
   manager of its own on the heap (here 0x820FFE54, layer 0x82100354), its top menu's record named "Dialogue" (items

@@ -75,7 +75,8 @@ your screen's resolution and shape at 60, with anti-aliasing and sharpening laye
 | **Mouse in the menus** | A pointer of its own in the PDA's colours: point at a row to highlight it and click to choose it, in lists too; right click goes back, the wheel scrolls. |
 | **Controllers** | Xbox, PlayStation and Switch pads with hot plugging and rumble. **Modern button pictures** show today's Xbox pad: LB and RB for White and Black, LT and RT, View and Menu. |
 | **Achievements** | 22, for the story's missions, the hardest difficulties, the store's disarms and weapons, Grizz medals and cash, kept in `achievements.toml` beside the game. |
-| **Quality of life** | F12 screenshots at full resolution, Alt+Enter for full screen, an optional boot splash (`splash.png` beside the game). |
+| **Field of view** | 50 to 150% of the game's, changed at once; aiming zooms in proportion. |
+| **Quality of life** | Skip the intro movies, hide the HUD (F9) for screenshots, Quit Game on the title menu, sharp text and HUD at high resolutions, F12 screenshots at full resolution, Alt+Enter for full screen, an optional boot splash (`splash.png` beside the game). |
 
 ## Widescreen and the HUD
 <sup>[(Back to top)](#table-of-contents)</sup>
@@ -113,8 +114,8 @@ all work in it: LB and RB (or Page Up and Page Down) change the page.
 | Page | Settings |
 |---|---|
 | **Display** | Monitor, display mode (full screen, borderless, window), resolution, vertical sync, aspect ratio |
-| **Graphics** | Render scale, anisotropic filtering, frame rate cap, MSAA, smooth alpha edges, edge smoothing (FXAA, SMAA), scaling filter, enhanced world textures, sharpening, low latency, show frames a second, renderer (Direct3D 12 or 11) |
-| **Game** | Modern button pictures |
+| **Graphics** | Render scale, anisotropic filtering, frame rate cap, MSAA, smooth alpha edges, edge smoothing (FXAA, SMAA), scaling filter, sharp text and HUD, enhanced world textures, sharpening, low latency, show frames a second, renderer (Direct3D 12 or 11) |
+| **Game** | Skip intro movies, hide the HUD, field of view, modern button pictures |
 | **Achievements** | Every achievement, with your unlocks and when they happened |
 | **Controls** | Key and button bindings, mouse sensitivity and the sticks |
 
@@ -180,9 +181,11 @@ the alley's lamp and vent are enlarged twice.
 | Weapon inventory | Q, middle mouse button | RB |
 | Music track | Tab | View |
 | Pause (the G-Unit PDA) | Esc, P | Menu |
+| Hide the HUD | F9 | |
 | Screenshot | F12 | |
 | Settings window | F1 | Back + Start |
 | Full screen | Alt+Enter | |
+| Quit Game (title menu) | E, R | X |
 | Menus | point and click, or arrows, Enter and Backspace; right click goes back, the wheel scrolls | d-pad, A, B |
 
 Keys and buttons can be changed in the settings window's **Controls** page.
