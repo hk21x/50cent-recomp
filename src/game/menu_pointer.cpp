@@ -202,7 +202,8 @@ void Track(X86Context& ctx, uint32_t manager) {
     float px, py;
     static float last_x = -1, last_y = -1;
     if (r.placed && PointerAt(px, py)) {
-        const bool moved = std::fabs(px - last_x) + std::fabs(py - last_y) > 0.5f;
+        // the first place seen is only where it starts: a pointer left standing over the window moves nothing
+        const bool moved = last_x >= 0 && std::fabs(px - last_x) + std::fabs(py - last_y) > 0.5f;
         last_x = px, last_y = py;
         const int over = RowAt(r, px, py);
         const uint32_t current = R(menu + 4);
