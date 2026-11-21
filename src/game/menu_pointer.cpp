@@ -15,6 +15,11 @@
 // +0x40), +0x84 its parent. The menus' camera puts the PDA's rows at y = 240.75 - 771 * the node's height (480 lines)
 // and the highlight bar from x 144 to 494 (640 wide): measured headless on the title's menu, whose rows' bars are 21.75
 // lines apart, 0.0282 apart in the layout.
+//
+// A list box (the saves, the profiles, messages) is an item whose node is the list: +0x1B8 the highlighted slot, +0x1BA
+// the entries, +0x1BC the visible slots, +0xA0 each slot's entry (-1 none), +0x1C0 its look (+0x28 the rows' spacing),
+// +0x190 a node placed on the highlighted slot (the others are drawn a spacing apart from it). Its d-pad (0x4A590)
+// steps with 0x54B20 (down) and 0x54A10 (up), ecx the list's node, with sounds 8 and 7; the pointer does the same.
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -40,6 +45,8 @@ constexpr int kMaxItems = 32;
 // the items' kinds by vtable (their pools, 0x48C10 to 0x490F0, set them): a list box's or a text box's rows are its
 // own, not placed here
 constexpr uint32_t kListBox = 0x2B93EC, kTextBox = 0x2B9404;
+constexpr uint32_t kListDown = 0x54B20, kListUp = 0x54A10;  // ecx the list box's node
+constexpr int kListSlots = 16;
 
 uint32_t R(uint32_t va) { return mem::IsCommitted(va) ? kernel::R32(va) : 0; }
 float RF(uint32_t va) {
@@ -107,9 +114,10 @@ int64_t NowMs() {
 
 // the top menu's rows as its last frame placed them: the click (the pad's thread) tests the pointer where it is now
 struct Rows {
-    bool placed = false;  // a menu of rows: two or more, no list or text box (else the click plays A anywhere)
+    bool placed = false;  // a menu of rows: a list's, or two or more, no text box (else the click plays A anywhere)
     int n = 0, current = -1;
     uint32_t items[kMaxItems];
+    int slots[kMaxItems];  // a list box's visible slot, -1 for an item's own row
     float ys[kMaxItems];
     int64_t at = 0;  // ms
 };
@@ -129,6 +137,12 @@ int RowAt(const Rows& r, float x, float y) {
     return over;
 }
 
+// a list box item's highlighted slot (+0x1B8 of its node)
+int Cursor(X86Context&, uint32_t manager, uint32_t item) {
+    const uint32_t box = Find(R(manager) + 0xBC, R(R(item + 4) + 0x14));
+    return box ? int16_t(kernel::G<uint16_t>(box + 0x1B8)) : -1;
+}
+
 // the top menu's frame: its rows placed, the row under the pointer highlighted
 void Track(X86Context& ctx, uint32_t manager) {
     const uint32_t count = R(manager + 0xC), stack = R(manager + 0x14);
@@ -136,18 +150,36 @@ void Track(X86Context& ctx, uint32_t manager) {
     const uint32_t menu = R(stack + 4 * (count - 1)), record = R(menu + 0xC), layer = R(manager);
     if (!menu || !record || !layer) return;
     Rows r;
-    bool boxes = false;
+    bool text = false, list = false;
     const int n = std::min<int>(kernel::G<uint16_t>(record + 4), kMaxItems);
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n && r.n < kMaxItems; i++) {
         const uint32_t item = Find(manager + 0x18, Hash(R(record + 0x28 + 4 * i)));
-        if (item && (R(item) == kListBox || R(item) == kTextBox)) boxes = true;
+        if (item && R(item) == kTextBox) text = true;
         if (!item || R(item + 0x10) == 1) continue;
         const uint32_t node = Find(layer + 0xBC, R(R(item + 4) + 0x14));
         float y;
-        if (!node || !NodeHeight(node, y)) continue;
-        r.items[r.n] = item, r.ys[r.n++] = kRowsY0 - kRowsScale * y;
+        if (!node) continue;
+        if (R(item) == kListBox) {
+            // its visible slots: +0x1BC of them, +0xA0 each one's entry (-1 none), +0x1B8 the highlighted one; the node at
+            // +0x190 is placed on the highlighted slot, the others a row's spacing (+0x28 of its look, +0x1C0) apart
+            list = true;
+            const int visible = std::min<int>(int16_t(kernel::G<uint16_t>(node + 0x1BC)), kListSlots);
+            const uint32_t entries = R(node + 0xA0);
+            const float spacing = RF(R(node + 0x1C0) + 0x28);
+            float top;
+            if (!entries || !std::isfinite(spacing) || spacing <= 0 || spacing > 0.2f || !NodeHeight(R(node + 0x190), top))
+                continue;
+            top += spacing * int16_t(kernel::G<uint16_t>(node + 0x1B8));
+            for (int k = 0; k < visible && r.n < kMaxItems; k++) {
+                if (int16_t(kernel::G<uint16_t>(entries + 2 * k)) < 0) continue;
+                r.items[r.n] = item, r.slots[r.n] = k, r.ys[r.n++] = kRowsY0 - kRowsScale * (top - spacing * k);
+            }
+            continue;
+        }
+        if (!NodeHeight(node, y)) continue;
+        r.items[r.n] = item, r.slots[r.n] = -1, r.ys[r.n++] = kRowsY0 - kRowsScale * y;
     }
-    r.placed = !boxes && r.n >= 2;
+    r.placed = !text && (list ? r.n >= 1 : r.n >= 2);
     static uint32_t said = 0;
     if (menu != said) {
         said = menu;
@@ -164,18 +196,31 @@ void Track(X86Context& ctx, uint32_t manager) {
         last_x = px, last_y = py;
         const int over = RowAt(r, px, py);
         const uint32_t current = R(menu + 4);
-        if (over >= 0 && r.items[over] != current && moved) {
+        if (over >= 0 && moved && (r.items[over] != current || (r.slots[over] >= 0 && r.slots[over] != Cursor(ctx, manager, r.items[over])))) {
             const uint32_t item = r.items[over];
             LOGI("bulletproof: the pointer highlights row %d", over);
-            if (current) CallThis(ctx, R(R(current) + 0x10), current, {});
-            kernel::W32(menu + 4, item);
-            CallThis(ctx, R(R(item) + 0xC), item, {});
-            CallThis(ctx, kHighlightBar, menu, {});
-            CallThis(ctx, kPlaySound, manager, {8, 0x3F800000});
+            if (item != current) {
+                if (current) CallThis(ctx, R(R(current) + 0x10), current, {});
+                kernel::W32(menu + 4, item);
+                CallThis(ctx, R(R(item) + 0xC), item, {});
+                CallThis(ctx, kHighlightBar, menu, {});
+            }
+            if (r.slots[over] >= 0) {
+                // a list's slot: the list's own steps (0x54B20 down, 0x54A10 up), as its d-pad (0x4A590) with its sounds
+                const uint32_t box = Find(layer + 0xBC, R(R(item + 4) + 0x14));
+                for (int guard = 0; guard < kListSlots; guard++) {
+                    const int at = int16_t(kernel::G<uint16_t>(box + 0x1B8));
+                    if (at == r.slots[over]) break;
+                    CallThis(ctx, at < r.slots[over] ? kListDown : kListUp, box, {});
+                    if (guard == 0) CallThis(ctx, kPlaySound, manager, {at < r.slots[over] ? 8u : 7u, 0x3F800000});
+                }
+            } else {
+                CallThis(ctx, kPlaySound, manager, {8, 0x3F800000});
+            }
         }
     }
     for (int i = 0; i < r.n; i++)
-        if (r.items[i] == R(menu + 4)) r.current = i;
+        if (r.items[i] == R(menu + 4) && (r.slots[i] < 0 || r.slots[i] == Cursor(ctx, manager, r.items[i]))) r.current = i;
     r.at = NowMs();
     std::lock_guard<std::mutex> lock(g_lock);
     g_rows = r;
@@ -189,7 +234,7 @@ int PointerHit() {
         r = g_rows;
     }
     float x, y;
-    if (NowMs() - r.at > 250 || !r.placed || !PointerAt(x, y)) return kPointerUnknown;  // no PDA menu's frame lately: another menu
+    if (NowMs() - r.at > 1000 || !r.placed || !PointerAt(x, y)) return kPointerUnknown;  // no PDA menu's frame lately: another menu
     const int over = RowAt(r, x, y);
     return over < 0 ? kPointerOff : over == r.current ? kPointerOnCurrent : kPointerOnOther;
 }

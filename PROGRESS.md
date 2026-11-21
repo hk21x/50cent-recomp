@@ -15,6 +15,16 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-21 - The pointer in the lists too (saves, profiles, messages)
+- Harry: on Load Game the pointer did not move the highlight; a click selected the save already highlighted. Lists
+  were left to A anywhere. A list box item's node is the list (0x4A590, its d-pad): +0x1B8 the highlighted slot,
+  +0x1BA the entries, +0x1BC the visible slots, +0xA0 each slot's entry, +0x1C0 its look (+0x28 the spacing, 0.0295),
+  +0x190 a node on the highlighted slot (found by a trace: it moved with the highlight). Each visible slot with an
+  entry is now a row; the pointer steps the list there with its own 0x54B20 / 0x54A10 and sounds.
+- Headless with a saved profile (two runs, the disk kept): New Game's profile list ("aaa", "- Create New Profile -"
+  at 195.3 and 218.0 as drawn); the pointer moved the highlight down, up and down again, and a click on "Create New
+  Profile" opened the name keyboard. The keyboard (a text box) keeps A anywhere.
+
 ### 2026-11-21 - A pointer in the PDA's menus: the row under it highlighted, the left button selects it
 - Harry asked (passed on from the Agent Under Fire session) for a menu pointer of the game's own; the menus had
   none (the mouse played A, B and the d-pad). src/game/menu_pointer.cpp, src/common/menu_mouse.cpp.
