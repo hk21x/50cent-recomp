@@ -15,6 +15,29 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-21 - A pointer in the PDA's menus: the row under it highlighted, the left button selects it
+- Harry asked (passed on from the Agent Under Fire session) for a menu pointer of the game's own; the menus had
+  none (the mouse played A, B and the d-pad). src/game/menu_pointer.cpp, src/common/menu_mouse.cpp.
+- The PDA's menus (title, Options, pause menu) are one menu manager, 0x32A170 (0x1F240: 0x4A7A0, layer "menuLayer"
+  at +0). Found by diffing heap dumps with the title's row moved (0, 1, 2, 1): the top menu's +4 is the highlighted
+  item. Menu: +0 first item, +4 highlighted, +8 manager, +0xC record (+0 node hash, +4 item count, +0x28 item names).
+  Item: +0 vtable (+0xC highlight, +0x10 unhighlight; pools 0x48C10..0x490F0 give each kind its own, list box
+  0x2B93EC, text box 0x2B9404), +4 record (+0x14 its layout node's hash, +0x60/+0x80 the names above and below),
+  +0x10 1 when skipped. Names hash with 0x110700 into the manager's map at +0x18 (0x495C0); nodes into the layer's
+  map at +0xBC (0x2CF90): +0x10 a 4x4 matrix, +0x84 the parent. 0x49F00 (ecx the manager) runs the top menu's frame;
+  the d-pad's move (0x49B19): unhighlight, menu+4, highlight, 0x489D0 (the bar), 0x48BC0(8, 1.0) (the sound).
+- Each of the manager's frames (0x49F00 hooked) places the top menu's rows: y = 240.75 - 771 * the node's height
+  (480 lines), the bar from x 144 to 494 (640), both measured from the title's highlight bar. A row the pointer
+  moves onto is highlighted the d-pad's way; standing still it leaves the keys' choice alone. The left button plays
+  A over the highlighted row, nothing off the rows; menus with a list or text box, or under two rows (messages,
+  the profile prompts) keep A anywhere. The pointer: a chrome arrow with a navy edge and a shadow (Windows: the
+  window subclassed for WM_SETCURSOR and the runtime's hide timer, as AUF's), shown while a menu is up.
+- Headless (FC_POINTER=<file> "x y buttons" in the menus' 640x480): title rows placed at 232.5/254.2/275.9 as drawn;
+  hover moved the highlight (Options, Load Game); a click on Load Game opened "No save games were found", on
+  Options the Options page (rows 189..276 as drawn); a click off the rows did nothing; the pause menu's top (6 rows)
+  highlighted Tasks under the pointer. wincheck clean for both files. Next: Harry's Windows run (the cursor's look,
+  hover and clicks), then the store's and sliders' left and right if wanted.
+
 ### 2026-11-21 - Achievements: 22 on the story, difficulty, unlocks and cash (src/common/achievement_set.cpp)
 - Harry confirmed the HUD at any aspect (the ammo count too), the mouse, the pop-in and the button pictures; asked for
   achievements, the full set, named for the game's missions.
