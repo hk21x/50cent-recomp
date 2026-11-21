@@ -8,6 +8,9 @@
 // on screens in the world) do not span the frame and are left alone. The black bars the player draws over the top and
 // bottom 64 lines when the cutscene's +0x24 is set (0x10641E, through 0x121B70) would then cover the fitted picture,
 // so that flag is cleared while it plays and put back after.
+// The in-engine cutscenes are the game's 3D, run by its scripts with cinematicMode set (0xC7190 sets 0x32FAD8; the
+// CinemaLayer's bars are drawn over the frame while it is, 0x4B190): while one plays the whole frame is held at 4:3
+// (app::HoldAspect), its sides black as a movie's, and given back to the aspect setting after.
 //
 // The HUD: the game draws it through a flat camera of the views' aspect (src/game/aspect.cpp), each piece by a vertex
 // program's 2D matrix, depth testing off, at a fixed place laid out for its widescreen mode's 16:9: on a 4:3 frame the
@@ -52,9 +55,20 @@ X86_FUNC(sub_00105F50) {
     if (cutscene) kernel::G<uint8_t>(cutscene + 0x24) = bars;
 }
 
+constexpr uint32_t kCinematicMode = 0x32FAD8;  // byte
+
 // the gameplay frame: the world, then the HUD over it
 X86_EXTERN_FUNC(__imp__sub_00086890);
 X86_FUNC(sub_00086890) {
+    // an in-engine cutscene (the scripts' cinematicMode, 0x32FAD8, set by 0xC7190): the whole frame at 4:3, its sides
+    // black, as a movie is; the 3D follows (src/game/aspect.cpp) from its next view
+    const bool cinematic = kernel::G<uint8_t>(kCinematicMode) != 0;
+    static bool was = false;
+    if (cinematic != was) {
+        was = cinematic;
+        app::HoldAspect(cinematic ? 4.0f / 3.0f : 0.0f);
+        LOGR("bulletproof: in-engine cutscene %s", cinematic ? "begins: the frame at 4:3" : "ends");
+    }
     HudLayout(!fc::MenuUp());  // the pause menu, drawn in this frame too, is 4:3 2D kept whole in the middle
     __imp__sub_00086890(ctx, base);
     HudLayout(false);

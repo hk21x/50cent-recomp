@@ -11,9 +11,22 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main 50bf254
+- GitHub: private hk21x/50cent-recomp; SDK at fork main d0fc75c
 
 ## Log
+
+### 2026-11-21 - In-engine cutscenes at 4:3 on any frame (src/game/widescreen.cpp, app::HoldAspect)
+- Harry: on an ultrawide, in-engine cutscenes (the alley door after Lloyd's lock) showed the 3D across the whole
+  frame, the game's letterbox bars short of the sides. They are the game's 3D, not movies: run by its scripts with
+  cinematicMode (0xC7190 stores it at 0x32FAD8; 0x4B190 draws the CinemaLayer's bars while it is set).
+- While 0x32FAD8 is set the gameplay frame hook holds the frame at 4:3 (new SDK app::HoldAspect, d0fc75c): the views
+  take 4:3 (src/game/aspect.cpp), the renderers remake their targets and pillarbox it, as the 4:3 setting does.
+- Evidence: boot.txt headless at 21:9, cinematicMode 1 from 215.2 to 219.4 s ("the 3D views at 1.333:1", then back at
+  2.390:1); ref_11820 is that doorway at 4:3 with the bars across it. Gate passed on pgr2, pgr1, eon, agentunderfire
+  and nightfire; smoke OK; wincheck clean.
+- Open: Harry reports the HUD not moving to its new places when the aspect setting changes in play; headless a live
+  change (frame_aspect file, 21:9 to 16:9) moves it as at boot, and the D3D11/12 code takes the new shape each
+  present. Details asked.
 
 ### 2026-11-20 - Frame rate in play restored: the HUD's CPU extent pass only for draws that could be HUD
 - Harry: a big FPS drop on loading into the game with d02c877. Cause: with hud_layout on (all of play), the D3D11/12
