@@ -1,5 +1,6 @@
 // PC settings from the game's own Options page: "Y PC Settings" in the PDA's prompt bar there (the title's Options and
-// the pause menu's), and Y opens the settings window (the F1 window).
+// the pause menu's), and Y opens the PC Settings page in the PDA (src/game/pc_page.cpp); "X Quit Game" on the title's
+// menu.
 //
 // The prompt bar is a table 0x329C40 the front end fills at start (0x1EDAA0): an entry a menu, 0x14 bytes: the menu's
 // name, then the label names (string table names) for B, A, X and Y; 0 hides that button. 0x1F010 (arg 2: the menu,

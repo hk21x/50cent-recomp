@@ -1,5 +1,6 @@
 // PC Settings as a page of the game's own menus: Y on an Options page (the title's and the pause menu's) opens it in
-// the PDA, rows of settings with their values; A steps the highlighted one on, B goes back. F1 still opens the window.
+// the PDA, three pages of five settings with their values and Next Page; left and right (and A, forward) change the
+// highlighted one, the mouse points and clicks as on the other lists, B goes back. F1 still opens the whole window.
 //
 // The page is the game's Codes > View page ("CodesView", the list box cheatListBox), lent while ours is up. Its handler
 // (0xCFF70) fills the list from a table of seven cheats at 0x2FE028, 12 bytes each: an id, the name's string table
@@ -55,6 +56,7 @@ struct Row {
     const char* label;
     std::string (*text)();
     void (*step)(int);
+    bool flag = false;  // on or off: shown with the page's tick box
 };
 std::string OnOff(bool b) { return b ? "On" : "Off"; }
 void Toggle(bool& b) {
@@ -69,7 +71,7 @@ int Cycle(T v, const T* list, int n, int d) {  // the index after v's
     return (i + d + n) % n;
 }
 #define FLAG(name, expr) \
-    { name, [] { return OnOff(expr); }, [](int) { Toggle(expr); } }
+    { name, [] { return OnOff(expr); }, [](int) { Toggle(expr); }, true }
 
 struct Mode {
     uint32_t w, h;
@@ -294,7 +296,8 @@ std::string RowText(int slot) {
 }
 bool RowOn(int slot) {
     if (slot == kRows) return false;
-    return kPages[g_page].rows[slot].text() == "On";
+    const Row& r = kPages[g_page].rows[slot];
+    return r.flag && r.text() == "On";
 }
 
 // entry i of the table as slot i shows now
@@ -414,8 +417,7 @@ X86_FUNC(sub_000CFE30) {
         const uint32_t id = entry ? kernel::R32(entry) : 0;
         if (!node || id < kIdBase || id >= kIdBase + uint32_t(kSlots)) continue;
         const int slot = int(id - kIdBase);
-        const bool flag = slot < kRows && (kPages[g_page].rows[slot].text() == "On" || kPages[g_page].rows[slot].text() == "Off");
-        if (flag) continue;
+        if (slot < kRows && kPages[g_page].rows[slot].flag) continue;
         const uint32_t icon = kernel::R32(kernel::R32(node + 0xA8));
         if (!icon) continue;
         const uint32_t zero = 0;
