@@ -11,9 +11,20 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main d0fc75c
+- GitHub: private hk21x/50cent-recomp; SDK at fork main 2d14c76
 
 ## Log
+
+### 2026-11-21 - The ammo count kept with its panel on any frame (SDK 2d14c76)
+- Harry (D3D12, 21:9 switched to 4:3 with F1; screenshot 10-00-05): the ammo count "12/.." stayed at its 16:9 place,
+  cut off at the 4:3 frame's right edge, while its panel, the mail icon and the START prompt moved in. The text's
+  positions are D3DVSDT_SHORT3 (decl v0 type 0x35, stride 6: R16G16B16A16_SINT on the GPU), and gpu::ProgramExtent,
+  the renderers' CPU pass for a piece's extent, gave up on anything but floats, so HudMove never moved it. Headless
+  it was right ("13/20" inside its panel at 4:3, p_ammo.txt: p_cam plus RT/LT from 8400, REF=8520): the reference
+  renderer takes the extent from its transformed vertices.
+- ProgramExtent now reads 16 bit integer and normalised positions. The live change itself works (the panel moved).
+- Gate passed on pgr2, pgr1, eon, agentunderfire and nightfire; smoke OK; wincheck clean.
+- In-engine cutscenes at 4:3 (655c027): Harry confirmed.
 
 ### 2026-11-21 - In-engine cutscenes at 4:3 on any frame (src/game/widescreen.cpp, app::HoldAspect)
 - Harry: on an ultrawide, in-engine cutscenes (the alley door after Lloyd's lock) showed the 3D across the whole
