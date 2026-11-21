@@ -11,7 +11,7 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main eaf6f0a
+- GitHub: private hk21x/50cent-recomp; SDK at fork main c06f201
 
 ## Log
 
@@ -28,7 +28,8 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - The set: a mission done when the next one's first level loads (a memory condition on 0x32DD94); Vessel and the two
   difficulty finishes from a hook on PlayCreditsMovie at level 93; the medal, disarm and weapon counts each gameplay
   frame (src/game/achievement_checks.cpp, awarded only after being seen short); cash through the player pointer.
-- SDK eaf6f0a: achievements::Award(id), for those a hook awards (condition "0=1").
+- SDK eaf6f0a: achievements::Award(id), for those a hook awards (condition "0=1"); on fork main as merge c06f201
+  (fork main had moved to 068400d, launcher changes; the merge gated again on all five and smoke OK).
 - Headless: pokes in the alley (level 20, item 370 in the new unlocks, cash 10000) unlocked Queens, Decorated and
   Pocket Money, nothing before them. Gate passed on pgr2, pgr1, eon, agentunderfire, nightfire; smoke OK; wincheck clean.
 - Not seen yet: the credits hook (headless cannot finish the story), and whether a weapon's byte means bought or
