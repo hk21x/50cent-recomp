@@ -15,6 +15,19 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-21 - The mouse wheel and 1, 2, 3 change weapons (src/game/weapon_keys.cpp)
+- Harry: the wheel to change guns, and 1, 2, 3 on the keyboard.
+- Read: the holsters are the player +0x5BC, 7 slots of 0x1C (+0 weapon, +0xC class, +0x10 in use): 0 and 1 pistols
+  (class 1), 2 SMG (2), 3 rifle / shotgun / heavy (3), 4 the left hand, 5 the right (held). Black's tap (0x86400)
+  calls 0x46C00 (the choice, player +0x3C94, to the next slot with a weapon; 0x45400 shows it), then after 0.25 s
+  (0x334F58 against 0x2B83FC) the player's event 10 draws it; 0x334F60 (the press latch) gates that code. The
+  Lua AddWeapon is 0x469B0 (weapon, holster), its ammo 0x1CD00 on the holsters (ammo type, rounds).
+- Before 0x86400: a notch down is the game's own step, up the step backwards, drawn 0.1 s after the last notch;
+  1, 2, 3 choose that class's holster (the other pistol when one is held) and draw at once. Off in menus, in the
+  inventory and while 0x3297B0 is set. The wheel in play went nowhere before (menu_mouse took and dropped it).
+- Headless (FC_GIVE_WEAPONS=7,14,1, FC_PAD_CMD's new WHEELUP / WHEELDOWN / KEY1-3): the hand held MP, AK, Gat,
+  AK, Gat, Nine, MP, Gat in turn as asked. SMOKE OK; wincheck clean. Next: Harry's try on Windows.
+
 ### 2026-11-21 - PC Settings as a page of the PDA (Y on Options); the pointer's first place
 - Harry: the other ports' in-game settings page; then "use the GPU-VM to diagnose without me".
 - src/game/pc_page.cpp: the Codes > View page ("CodesView", list box cheatListBox) is lent while ours is up. Its

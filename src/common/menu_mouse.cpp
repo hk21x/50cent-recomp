@@ -1,6 +1,6 @@
 // The mouse in the menus: while one is up and the keyboard and mouse play, the left button plays A (select) and the
 // right B (back) instead of what they play in play (the left fires: RT; the middle opens the weapons: Black), and the
-// wheel is the d-pad's up and down, a press a notch. The menus show a pointer of their own (a chrome arrow, as the
+// wheel is the d-pad's up and down, a press a notch (in play it changes weapons: src/game/weapon_keys.cpp). The menus show a pointer of their own (a chrome arrow, as the
 // PDA's case); in the PDA's menus the row under it is highlighted and the left button selects only that row
 // (src/game/menu_pointer.cpp); a press off the rows does nothing.
 //
@@ -206,6 +206,14 @@ bool PointerAt(float& x, float& y) {
 #endif
 }
 
+namespace {
+std::atomic<int> g_weapon_wheel{0}, g_weapon_key{0};
+}
+void WeaponWheel(int notches) { g_weapon_wheel += notches; }
+void WeaponKey(int key) { g_weapon_key = key; }
+int TakeWeaponWheel() { return g_weapon_wheel.exchange(0); }
+int TakeWeaponKey() { return g_weapon_key.exchange(0); }
+
 bool MenuUp() {
     uint8_t v = 0;
     std::memcpy(&v, kernel::HostPtr(0x342A90), 1);
@@ -228,7 +236,10 @@ void MenuMouse(input::Pad& p) {
 #ifdef _WIN32
     ShowArrow(menu && input::UsingKeyboard());  // before the return below: out of the menus the runtime hides it again
 #endif
-    if (!menu) return;
+    if (!menu) {
+        if (notches) WeaponWheel(notches);  // in play the wheel changes weapons (src/game/weapon_keys.cpp)
+        return;
+    }
     using namespace std::chrono;
     const int64_t now = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
     const Forced forced = ForcedPointer();

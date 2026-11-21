@@ -18,6 +18,12 @@ void TestPad(int port, input::Pad& pad);                 // FC_PAD_CMD's presses
 void Pad(int port, input::Pad& pad);                     // GameInfo::pad: TestPad, then the mouse in the menus
 extern uint32_t fov_percent;                             // the world's field of view, % (src/game/aspect.cpp)
 extern bool hide_hud;                                    // the HUD left undrawn (src/game/hud.cpp; F9)
+// the weapon keys (src/game/weapon_keys.cpp): the wheel's notches in play (up positive) and 1, 2 or 3 pressed, each
+// taken once by the player's input
+void WeaponWheel(int notches);
+void WeaponKey(int key);
+int TakeWeaponWheel();
+int TakeWeaponKey();
 bool MenuUp();                                           // a menu is up (the front end or the pause menu)
 bool PointerAt(float& x, float& y);                      // the mouse pointer in the menus' 640x480 (src/common/menu_mouse.cpp)
 // what the pointer is over in the PDA's menus (src/game/menu_pointer.cpp); unknown in the others

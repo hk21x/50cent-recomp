@@ -54,11 +54,17 @@ bool skip_intro = false;
 bool hide_hud = false;
 uint32_t fov_percent = 100;  // the world's field of view, % of the game's (src/game/aspect.cpp)  // the HUD's layer left undrawn (src/game/hud.cpp); F9 in play switches it
 
-// F9 (not a repeat) in play, no menu up: the HUD hidden or shown, and saved (WM_KEYDOWN, the virtual key in wp)
+// in play, no menu up, not a repeat (WM_KEYDOWN, the virtual key in wp): 1, 2 and 3 choose a weapon; F9 hides or
+// shows the HUD, and saves
 bool Message(void* /*hwnd*/, uint32_t msg, uintptr_t wp, intptr_t lp, intptr_t* /*result*/) {
     constexpr uint32_t kKeyDown = 0x100;
     constexpr uintptr_t kF9 = 0x78;
-    if (msg != kKeyDown || wp != kF9 || (lp & (1 << 30)) || MenuUp()) return false;
+    if (msg != kKeyDown || (lp & (1 << 30)) || MenuUp()) return false;
+    if (wp >= '1' && wp <= '3') {  // a weapon of that class (src/game/weapon_keys.cpp)
+        WeaponKey(int(wp - '0'));
+        return true;
+    }
+    if (wp != kF9) return false;
     hide_hud = !hide_hud;
     app::Save();
     LOGR("bulletproof: the HUD %s (F9)", hide_hud ? "hidden" : "shown");

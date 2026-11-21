@@ -1,7 +1,8 @@
 // A test hook for machines with no one at the pad (the Windows VM): FC_PAD_CMD=<file>. The file's lines are run in
 // order and the file is deleted once read; another can be written after. A line is `buttons [seconds]`, buttons joined
 // with + as the harness's pad scripts name them (UP DOWN LEFT RIGHT START BACK A B X Y BLACK WHITE LT RT, LS LSD LSL
-// LSR and RS RSD RSL RSR for the sticks), held that long (1 s by default) then let go for half a second; `WAIT s` waits,
+// LSR and RS RSD RSL RSR for the sticks; WHEELUP WHEELDOWN KEY1 KEY2 KEY3 a wheel notch or a weapon key), held that
+// long (1 s by default) then let go for half a second; `WAIT s` waits,
 // `SHOT` takes a screenshot (as F12). Seconds, not frames: a software renderer draws a few frames a second, and the
 // game runs by the clock. With it set, controller 1 counts as plugged in. Each step is logged ("testpad:").
 #include <chrono>
@@ -126,6 +127,10 @@ void TestPad(int port, input::Pad& p) {
         LOGR("testpad: wait %.1f s", g_current.seconds);
         g_step_end = now + len;
     } else {
+        // WHEELUP, WHEELDOWN, KEY1 to KEY3: a wheel notch or a weapon key (src/game/weapon_keys.cpp), as the step starts
+        const std::string& b = g_current.buttons;
+        if (b == "WHEELUP" || b == "WHEELDOWN") WeaponWheel(b == "WHEELUP" ? 1 : -1);
+        if (b.size() == 4 && b.compare(0, 3, "KEY") == 0) WeaponKey(b[3] - '0');
         LOGR("testpad: %s for %.1f s", g_current.buttons.c_str(), g_current.seconds);
         g_holding = true;
         g_step_end = now + len;

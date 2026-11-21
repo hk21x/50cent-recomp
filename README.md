@@ -188,7 +188,9 @@ the alley's lamp and vent are enlarged twice.
 | Action, reload, counter-kill, cover | E, R | X |
 | Evade, dive, dual-wield | Shift | Y |
 | Heal | H | LB |
-| Weapon inventory | Q, middle mouse button | RB |
+| Weapon inventory | Q, middle mouse button | RB (held) |
+| Next / previous weapon | mouse wheel down / up | RB (tapped) |
+| Pistol, SMG, rifle or shotgun | 1, 2, 3 (1 again for the other pistol) | |
 | Music track | Tab | View |
 | Pause (the G-Unit PDA) | Esc, P | Menu |
 | Hide the HUD | F9 | |
