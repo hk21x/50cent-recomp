@@ -70,7 +70,7 @@ your screen's resolution and shape at 60, with anti-aliasing and sharpening laye
 | **HUD at the edges** | On a wide screen the health bar, cash and weapon panel sit at the screen's sides, as on a 16:9 TV, not squeezed into the middle. |
 | **60 frames a second** | The console ran at 30. The game's simulation follows the clock, so it plays at its own speed. |
 | **Sharper graphics** | Render scale up to 200%, MSAA up to 8x, FXAA or SMAA, sharpening, anisotropic filtering and enhanced world textures. |
-| **PC Settings in the game** | **Y** on the game's Options page (from the title and the pause menu) opens them; **F1** anywhere. Saved in `settings.toml`. |
+| **PC Settings in the game** | **Y** on the game's Options page (from the title and the pause menu) opens a PC Settings page in the PDA, in the game's own style; **F1** opens the whole settings window anywhere. Saved in `settings.toml`. |
 | **Mouse and keyboard** | WASD and mouse aim that turns the camera directly, as in a PC shooter, not as a stick. The button prompts show your keys while you play on the keyboard. |
 | **Mouse in the menus** | A pointer of its own in the PDA's colours: point at a row to highlight it and click to choose it, in lists too; right click goes back, the wheel scrolls. |
 | **Controllers** | Xbox, PlayStation and Switch pads with hot plugging and rumble. **Modern button pictures** show today's Xbox pad: LB and RB for White and Black, LT and RT, View and Menu. |
@@ -104,22 +104,32 @@ made.
 <sup>[(Back to top)](#table-of-contents)</sup>
 
 <p align="center">
-  <img src="docs/img/bulletproof-pc-settings.webp" alt="The settings window's Display, Graphics, Game and Achievements pages" width="720">
+  <img src="docs/img/bulletproof-pc-page.webp" alt="The PC Settings page in the G-Unit PDA: Display, Graphics and Game" width="720">
+  <br>
+  <i>PC Settings in the PDA, from the pause menu: Display, Graphics and Game.</i>
 </p>
 
 The game's **Options** page, on the title menu and in the pause menu, shows **Y PC Settings** in its button bar: **Y**
-opens the settings window over the game. **F1** (or Back + Start on a pad) opens it anywhere. Pad, keyboard and mouse
-all work in it: LB and RB (or Page Up and Page Down) change the page.
+opens the PC Settings page in the PDA, in the game's own style. Left and right (or A) change the highlighted setting,
+at once; **Next Page** turns to the next of the three pages; B goes back. The mouse points and clicks there as in the
+other menus.
 
 | Page | Settings |
 |---|---|
-| **Display** | Monitor, display mode (full screen, borderless, window), resolution, vertical sync, aspect ratio |
-| **Graphics** | Render scale, anisotropic filtering, frame rate cap, MSAA, smooth alpha edges, edge smoothing (FXAA, SMAA), scaling filter, enhanced world textures, sharpening, low latency, show frames a second, renderer (Direct3D 12 or 11) |
-| **Game** | Skip intro movies, hide the HUD, field of view, modern button pictures |
-| **Achievements** | Every achievement, with your unlocks and when they happened |
-| **Controls** | Key and button bindings, mouse sensitivity and the sticks |
+| **Display** | Display mode (full screen, borderless, window), resolution, aspect ratio, vertical sync, frame rate cap |
+| **Graphics** | Render scale, MSAA, edge smoothing (FXAA, SMAA), texture filtering, sharpening |
+| **Game** | Field of view, hide the HUD, skip intro movies, modern button pictures, enhanced textures |
 
-Everything is saved in `settings.toml` beside the game.
+<p align="center">
+  <img src="docs/img/bulletproof-pc-settings.webp" alt="The settings window's Display, Graphics, Game and Achievements pages" width="720">
+  <br>
+  <i>The settings window (F1).</i>
+</p>
+
+**F1** (or Back + Start on a pad) opens the settings window over the game, with everything above and more: the
+monitor, smooth alpha edges, the scaling filter, low latency, the renderer (Direct3D 12 or 11), key and button
+bindings, mouse sensitivity and the sticks, and the achievements. LB and RB (or Page Up and Page Down) change its
+page. Everything is saved in `settings.toml` beside the game.
 
 ## Graphics settings
 <sup>[(Back to top)](#table-of-contents)</sup>

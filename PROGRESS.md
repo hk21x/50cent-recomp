@@ -15,6 +15,24 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-21 - PC Settings as a page of the PDA (Y on Options); the pointer's first place
+- Harry: the other ports' in-game settings page; then "use the GPU-VM to diagnose without me".
+- src/game/pc_page.cpp: the Codes > View page ("CodesView", list box cheatListBox) is lent while ours is up. Its
+  handler 0xCFF70 fills the list from seven cheats at 0x2FE028 (12 bytes: id, name hash, on byte) shown while
+  0x81020(0x140 + i) says unlocked, each row a layout group (musicItemGrp/trackGrp0..5: an icon and a label, so six
+  rows); A calls 0xCF3A0(entry), then 0xCFE30 draws the visible rows again from their entries (0x51B40 label from
+  the hash, 0x51550 icon on/off). Ours: the table holds our rows (ids 0xFC500000+i) and is put back when the page
+  closes; 0x81020 shows six; 0xCF3A0 steps ours; left/right (the handler's flags 1 and 2; up/down are 4/8, A 0x10)
+  step back/on before the game's handler, then 0xCFE30; rows not on/off have their tick box's alpha 0. A row's text
+  is one of two labels a slot (0x51B40 draws again only for another entry), rewritten in place (a record with +4 0
+  is shown from its own text, 0xF8870). The title label menuNameLabels_codes answers "PC Settings" while ours is up;
+  the prompt table's CodesView entry gets A "Change". Pushed as an item's next menu (0x4A220): 0x49610 by name,
+  first item current, 0x489D0, 0x49F20, from the PDA manager's frame (0x49F00 hook).
+- Headless: Y opened it, Next Page Display > Graphics > Game, left/right Field of View 110, 100, 90; B restored the
+  table. GPU-VM (pause menu > Options > Y): the three pages drawn right, "PC Settings" title, A Change.
+- The pointer: the first place it was seen counted as a move, so a pointer standing over the window highlighted the
+  row under it when a menu came up (GPU-VM: the title's Options instead of New Game). Now it only starts there.
+
 ### 2026-11-21 - Quality of life: skip intro, hide HUD (F9), field of view, Quit Game, sharp text and HUD
 - Harry asked for the other ports' quick wins and field of view (the in-game PC Settings page is next).
 - skip_intro (src/common/game_info.cpp, GameInfo::hide_file): Ark\movies' sierra, gglogo, DolbyN, inter, havok and
