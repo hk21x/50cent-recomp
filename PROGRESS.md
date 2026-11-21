@@ -29,7 +29,9 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - Quit Game (src/game/pc_settings.cpp): the prompt table's "Main Menu" entry (0x329DE4, the title's menu) gets our
   label "Quit Game" on X (the same string table entry trick as PC Settings); X there calls app::Quit. Headless: the
   bar shows it, X quit ("quit asked for").
-- sharpen_2d on (GameInfo): the SDK's sharp text and HUD; the row in Graphics. To see on Windows.
+- sharpen_2d tried and taken back out: on GPU-VM with XBE_SHARPEN_DUMP not one texture was sharpened (gpu::Sharpen2D
+  takes swizzled textures up to 512 texels, not palettized; this game's 2D pictures are none of those, the button
+  pictures a P8 512x64). Sharp text here would need the SDK to take them: not done.
 
 ### 2026-11-21 - The pointer on the dialogues ("Are you sure...?"); the cursor hidden in play
 - Harry: the load dialogue (Yes / No) did not follow the mouse, and the cursor showed in play. A dialogue is a menu
