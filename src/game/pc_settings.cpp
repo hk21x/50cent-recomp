@@ -87,6 +87,7 @@ X86_FUNC(sub_000F81D0) {
     __imp__sub_000F81D0(ctx, base);
     for (const Label& l : g_labels)
         if (hash == l.hash && l.entry) ctx.eax = l.entry;
+    if (const uint32_t e = fc::PcPageEntry(hash)) ctx.eax = e;  // the PC Settings page's rows (src/game/pc_page.cpp)
 }
 
 // (?, menu): a menu comes up; whether it is an Options page or the title's menu
@@ -115,9 +116,8 @@ void PcSettingsPad(input::Pad& p) {
     const bool y = p.analog[input::kY - input::kA] > 128;
     const bool on = g_options_page && MenuUp();
     if (on && y && !was) {
-        LOGR("bulletproof: Y on the Options page: the PC settings");
-        std::lock_guard<std::recursive_mutex> lock(app::UiLock());
-        if (!app::OverlayOpen()) app::ToggleOverlay();
+        LOGR("bulletproof: Y on the Options page: the PC Settings page");
+        OpenPcPage();
     }
     was = y;
     if (on) p.analog[input::kY - input::kA] = 0;

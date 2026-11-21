@@ -23,7 +23,9 @@ bool PointerAt(float& x, float& y);                      // the mouse pointer in
 // what the pointer is over in the PDA's menus (src/game/menu_pointer.cpp); unknown in the others
 enum { kPointerUnknown, kPointerOff, kPointerOnCurrent, kPointerOnOther };
 int PointerHit();
-void PcSettingsPad(input::Pad& pad);                     // Y on an Options page opens the settings (src/game/pc_settings.cpp)
+void PcSettingsPad(input::Pad& pad);
+void OpenPcPage();                                       // the PC Settings page in the PDA (src/game/pc_page.cpp)
+uint32_t PcPageEntry(uint32_t hash);                     // its rows' string table entries                     // Y on an Options page opens the settings (src/game/pc_settings.cpp)
 std::vector<achievements::Def> AchievementSet();         // GameInfo::achievements (src/common/achievement_set.cpp)
 void AchievementFrame();  // each gameplay frame: the unlock counts (src/game/achievement_checks.cpp)
 }  // namespace fc

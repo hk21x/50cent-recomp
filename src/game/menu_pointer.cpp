@@ -237,6 +237,8 @@ void Track(X86Context& ctx, uint32_t manager) {
 }
 }  // namespace
 
+uint32_t LayoutNode(uint32_t hash) { return Find(R(kManager) + 0xBC, hash); }
+
 int PointerHit() {
     Rows r;
     {
@@ -250,10 +252,18 @@ int PointerHit() {
 }
 }  // namespace fc
 
+namespace fc {
+void PcPageFrame(X86Context& ctx, uint32_t manager, uint32_t menu);  // src/game/pc_page.cpp
+}
+
 // (ecx the manager): its top menu's frame
 X86_EXTERN_FUNC(__imp__sub_00049F00);
 X86_FUNC(sub_00049F00) {
     const uint32_t manager = ctx.ecx;
+    if (manager == fc::kManager) {
+        const uint32_t count = kernel::R32(manager + 0xC), stack = kernel::R32(manager + 0x14);
+        fc::PcPageFrame(ctx, manager, count && count < 64 && stack ? kernel::R32(stack + 4 * (count - 1)) : 0);
+    }
     fc::Track(ctx, manager);
     ctx.ecx = manager;
     __imp__sub_00049F00(ctx, base);
