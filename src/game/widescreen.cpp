@@ -71,5 +71,6 @@ X86_FUNC(sub_00086890) {
     }
     HudLayout(!fc::MenuUp());  // the pause menu, drawn in this frame too, is 4:3 2D kept whole in the middle
     __imp__sub_00086890(ctx, base);
+    fc::AchievementFrame();  // the unlock counts (src/game/achievement_checks.cpp)
     HudLayout(false);
 }

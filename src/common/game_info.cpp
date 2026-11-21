@@ -1,5 +1,6 @@
 #include <array>
 #include <cstdlib>
+#include <string>
 
 #include "app/app.h"
 #include "bulletproof.h"
@@ -53,6 +54,9 @@ void Init() {
         modern_buttons = *e == '1';
         LOGR("bulletproof: FC_MODERN_BUTTONS=%c", *e);
     }
+    // every achievement's condition parses (a typo would leave it never met)
+    for (const achievements::Def& d : app::kGame.achievements)
+        if (std::string e = achievements::Check(d.condition); !e.empty()) LOGE("bulletproof: achievement %s: %s", d.id, e.c_str());
 }
 }  // namespace fc
 
@@ -78,6 +82,7 @@ const app::GameInfo app::kGame = {
     .ui = nullptr,                        // ImGui drawing each frame
     .pad = fc::Pad,                       // the mouse in the menus (src/common/menu_mouse.cpp), FC_PAD_CMD's presses
     .rumble = nullptr,                    // changes a rumble before it is set
+    .achievements = fc::AchievementSet(), // the story, difficulty, unlocks and cash (src/common/achievement_set.cpp)
     .hud_aspect = 4.0f / 3.0f,            // the 2D is laid out for a 4:3 TV (src/game/widescreen.cpp)
     .squeeze_screen_programs = true,      // its 2D is drawn through vertex programs
     .mouse_look = true,                   // the mouse turns the camera and aims

@@ -2,7 +2,9 @@
 #pragma once
 #include <array>
 #include <cstdint>
+#include <vector>
 
+#include "core/achievements.h"
 #include "core/input.h"
 
 namespace fc {
@@ -16,4 +18,6 @@ void TestPad(int port, input::Pad& pad);                 // FC_PAD_CMD's presses
 void Pad(int port, input::Pad& pad);                     // GameInfo::pad: TestPad, then the mouse in the menus
 bool MenuUp();                                           // a menu is up (the front end or the pause menu)
 void PcSettingsPad(input::Pad& pad);                     // Y on an Options page opens the settings (src/game/pc_settings.cpp)
+std::vector<achievements::Def> AchievementSet();         // GameInfo::achievements (src/common/achievement_set.cpp)
+void AchievementFrame();  // each gameplay frame: the unlock counts (src/game/achievement_checks.cpp)
 }  // namespace fc

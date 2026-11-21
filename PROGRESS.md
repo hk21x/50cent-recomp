@@ -11,9 +11,28 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main 2d14c76
+- GitHub: private hk21x/50cent-recomp; SDK at fork main eaf6f0a
 
 ## Log
+
+### 2026-11-21 - Achievements: 22 on the story, difficulty, unlocks and cash (src/common/achievement_set.cpp)
+- Harry confirmed the HUD at any aspect (the ammo count too), the mouse, the pop-in and the button pictures; asked for
+  achievements, the full set, named for the game's missions.
+- Mapped (.local/progress_re.md): the story is flow\flow.lua (Ark\Scripts\scripts.ark); each level loads through
+  LoadMission (0x268D0), whose 0x348D0 keeps "mX_Y" as X*10+Y at 0x32DD94. Story order m0 Queens, m2 Safe House,
+  m1 Junkyard, m3 Chinatown, m4 Disused Subway, m5 Projects, m6 Docklands, m7 City Morgue, m8 Little Italy, m9
+  Vessel, then PlayCreditsMovie (Lua 0x26400). Difficulty: the float at 0x323618 from the table at 0x2FE010 (Playa
+  0.05 .. G-Unit Soldier 0.8; found by diffing Thug and G-Unit Soldier dumps). Unlocks: one byte an item, the
+  profile's at 0x323498 (committed at checkpoints, 0x34B60 -> 0x811B0) and those since at 0x32DDB8; numbers from
+  0x810A0 (disarms 290, weapons 350, Grizz medals 370). Cash: the player (0x32DCFC) +0x3C28.
+- The set: a mission done when the next one's first level loads (a memory condition on 0x32DD94); Vessel and the two
+  difficulty finishes from a hook on PlayCreditsMovie at level 93; the medal, disarm and weapon counts each gameplay
+  frame (src/game/achievement_checks.cpp, awarded only after being seen short); cash through the player pointer.
+- SDK eaf6f0a: achievements::Award(id), for those a hook awards (condition "0=1").
+- Headless: pokes in the alley (level 20, item 370 in the new unlocks, cash 10000) unlocked Queens, Decorated and
+  Pocket Money, nothing before them. Gate passed on pgr2, pgr1, eon, agentunderfire, nightfire; smoke OK; wincheck clean.
+- Not seen yet: the credits hook (headless cannot finish the story), and whether a weapon's byte means bought or
+  only offered in the store. Left out for now: music and videos (their real item numbers not mapped).
 
 ### 2026-11-21 - The ammo count kept with its panel on any frame (SDK 2d14c76)
 - Harry (D3D12, 21:9 switched to 4:3 with F1; screenshot 10-00-05): the ammo count "12/.." stayed at its 16:9 place,
