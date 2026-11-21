@@ -11,9 +11,22 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main c06f201
+- GitHub: private hk21x/50cent-recomp; SDK at fork main c06f201; README with GPU-VM shots (docs/img)
 
 ## Log
+
+### 2026-11-21 - README in Juiced's style, shots from GPU-VM
+- Harry gave the game's icon and asked for the README in the Juiced README's form, every shot taken on GPU-VM.
+  GPU-VM: C:\Testing\50cent-recomp at main (33d4201), the disc extracted into assets, built with CI=1 build.bat;
+  task BulletproofRun (C:\bpctl\run.ps1, Juiced's driver for Bulletproof.exe) and BulletproofDesk (a desktop capture,
+  hidden window). Injected letter keys do not reach the game there (Enter, arrows, Esc and F-keys do), so the route is
+  driven by FC_PAD_CMD (C:\bpctl\pad.txt): START through the logos, New Game, Thug, X continue without saving, both
+  movies skipped, then the alley. Scripts in .local/gpuvm (g.sh, shot.sh; TAIL= pad lines before the shot).
+- Shots at 1920x800: all off, best (render 200%, MSAA 4x, sharpen 50%), MSAA 2/4/8, FXAA, SMAA, render 200%,
+  sharpen 50/100; hero, 16:9 and 4:3 while firing (the HUD fades out a few seconds after the last action); the title
+  menu, the pause menu, a movie, and the settings window's Display, Graphics, Game and Achievements pages (Y on the
+  Options page; Page Down pages it). docs/img/bulletproof-*.webp: icon, hero, wipe (animated), widescreen, menus,
+  pc-settings (animated), the four close-up comparisons (lamp post and vent, 2x).
 
 ### 2026-11-21 - The pointer in the lists too (saves, profiles, messages)
 - Harry: on Load Game the pointer did not move the highlight; a click selected the save already highlighted. Lists
