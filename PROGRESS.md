@@ -15,6 +15,16 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - The fade to black covers a wide frame's sides (src/game/hud.cpp)
+- Harry: ending a mission, the fade blackened the middle only; the sides should go too.
+- The fade is a layout layer, "fadeLayer" (0x336E30), its group "fadeGrp" (0x336E34), both found by 0x8E220: one
+  black quad laid out for the console's screen, kept centred (the HUD's layout and the menus' 4:3 both leave a piece
+  about the middle there), so at 2.4:1 the world stayed lit at the sides. While that layer draws (0x29FA0, already
+  hooked for hide_hud) its group's x scale (+0x10, identity) is 8 times wider, then put back.
+- GPU-VM, 1920x800, pause menu > Quit > Yes: before, the middle black and the alley lit at the sides; after, black
+  edge to edge. SMOKE OK. Seen there too: the title movie after it has dark grey (51) bars at its sides, the game's
+  own clear showing beside the 4:3 movie (the SDK clears black); not changed yet.
+
 ### 2026-11-21 - The mouse wheel and 1, 2, 3 change weapons (src/game/weapon_keys.cpp)
 - Harry: the wheel to change guns, and 1, 2, 3 on the keyboard.
 - Read: the holsters are the player +0x5BC, 7 slots of 0x1C (+0 weapon, +0xC class, +0x10 in use): 0 and 1 pistols
