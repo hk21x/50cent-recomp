@@ -64,16 +64,6 @@ X86_FUNC(sub_00105F50) {
 X86_EXTERN_FUNC(__imp__sub_00122350);
 X86_FUNC(sub_00122350) {
     if (kernel::R32(ctx.esp + 4) == 0xFF333333u) kernel::W32(ctx.esp + 4, 0xFF000000u);
-    {
-        std::lock_guard<std::recursive_mutex> lock(d3d::Lock());
-        const gpu::State& s = d3d::State();
-        if (s.pillar_fit) {
-            const uint32_t sz = s.rt.size;
-            LOGR_FIRST(12, "bulletproof: movie clear %08X flags %u: viewport %u %u %ux%u, target %08X %ux%u",
-                      kernel::R32(ctx.esp + 4), kernel::R32(ctx.esp + 8), s.viewport.x, s.viewport.y, s.viewport.w,
-                      s.viewport.h, s.rt.data, (sz & 0xFFF) + 1, (sz >> 12 & 0xFFF) + 1);
-        }
-    }
     __imp__sub_00122350(ctx, base);
 }
 

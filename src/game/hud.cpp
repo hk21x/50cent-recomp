@@ -11,6 +11,12 @@
 // the world stayed lit at the sides (Harry: quitting a mission, 2026-11-22; on the GPU-VM from the pause menu's Quit
 // at 1920x800). While that layer draws, the group's x scale (its matrix, +0x10, identity) is made 8 times wider about
 // the middle, so the quad covers any frame's width, then put back.
+//
+// The loading screen ("loadScreenLayer", kept at 0x340F60 by 0xD36A0): the flow loads a mission while its opening
+// movie plays (LoadMission, PlayMovie, LoadScreen), and the loading layer goes on drawing under the movie. On the
+// console the movie covers the whole screen; here it is fitted at 4:3 in the middle of a wider frame, so the loading
+// text's ends and its grey panel showed at the movie's sides (Harry, 3440x1440, a cutscene after the hub,
+// 2026-11-22). While a movie is on screen that layer is left undrawn.
 #include "common/bulletproof.h"
 #include <mutex>
 
@@ -20,7 +26,7 @@
 #include "xdk/hle.h"
 
 namespace {
-constexpr uint32_t kHudLayer = 0x32FA30, kFadeLayer = 0x336E30, kFadeGroup = 0x336E34;
+constexpr uint32_t kHudLayer = 0x32FA30, kFadeLayer = 0x336E30, kFadeGroup = 0x336E34, kLoadLayer = 0x340F60;
 
 // Sharp text (GameInfo::sharpen_2d): the game draws its menus and HUD through cameras of its own, so the renderers do
 // not see them as 2D; while a layer (or the name keyboard, 0x59330) draws, gpu::State::flat_2d says so, and their P8
@@ -30,6 +36,12 @@ bool Flat2d(bool on) {
     const bool was = d3d::State().flat_2d;
     d3d::State().flat_2d = on;
     return was;
+}
+
+// a movie on screen: the cutscene player fits its picture (src/game/widescreen.cpp)
+bool MoviePlaying() {
+    std::lock_guard<std::recursive_mutex> lock(d3d::Lock());
+    return d3d::State().pillar_fit;
 }
 
 float HudLayout(float aspect) {
@@ -47,11 +59,11 @@ X86_FUNC(sub_00029FA0) {
         ctx.esp += 4;  // ret: no arguments on the stack
         return;
     }
-    {
-        std::lock_guard<std::recursive_mutex> lock(d3d::Lock());
-        if (d3d::State().pillar_fit)
-            LOGR_FIRST(40, "bulletproof: layer %08X drawn in a movie (HUD %08X, fade %08X, layout wanted %d)", ctx.ecx,
-                       kernel::R32(kHudLayer), kernel::R32(kFadeLayer), fc::HudLayoutWanted());
+    // the loading screen under a movie (the flow loads a mission while its opening movie plays): left undrawn
+    if (ctx.ecx && ctx.ecx == kernel::R32(kLoadLayer) && MoviePlaying()) {
+        LOGR_FIRST(1, "bulletproof: the loading screen left undrawn under a movie");
+        ctx.esp += 4;
+        return;
     }
     const bool was = Flat2d(true);
     // the HUD's own layer alone is laid out to the frame's edges (src/game/widescreen.cpp)
