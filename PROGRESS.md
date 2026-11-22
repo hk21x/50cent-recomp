@@ -15,6 +15,15 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - The shops whole on a wide frame (src/game/hud.cpp, src/game/widescreen.cpp)
+- Harry (3440x1440): in the gun shop the stat bars sat apart from their frames, the counts and "9mm" off their
+  labels; the bootlegger's list text was cut off at its left. The shops draw in the gameplay frame with no menu up,
+  so hud_layout moved each of their pieces to its own side. Now hud_layout is on only while the HUD's own layer
+  (0x32FA30) draws through 0x29FA0; the shops, like the menus, stay whole in the middle.
+- GPU-VM 1920x800: Doc's shop together in the middle (its text box and Back/Buy were at the frame's edges), the
+  HUD's health, cash and item count still at the edges, as is the "Buy some meds" prompt; in the alley the ammo,
+  Lloyd's panel and the pager icons at the edges as before. The gun shop and bootlegger not reached on foot.
+
 ### 2026-11-22 - Achievements checked on the GPU-VM: the story's end, the weapons (src/game/achievement_checks.cpp)
 - FC_FLOW_START=N (a test): the loaded save's flow step (0x32ACE0, profile +0x224) set to N before 0x27C30 applies
   it, so Load Game starts flow.lua's GameFlow[N] (from 1: 55 the S041 movie then the credits, 10 the first hub).
