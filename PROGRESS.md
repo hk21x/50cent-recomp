@@ -15,6 +15,14 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - A movie's clear covers its whole target (src/game/widescreen.cpp)
+- The loading layer fix did not help Harry's case: his log has no "loading screen left undrawn" line. Loading a saved
+  game's mission from the mission select, the movie draws to a new 720x480 target (821A1480, made as it starts), and
+  the picture of the mission select stayed at the movie's sides at 3440x1440.
+- While a movie is on screen (gpu::State::pillar_fit) the game's clear (0x122350) is given the whole target as its
+  viewport and the viewport put back after; a line is logged when that widens it. The boot movies (GPU-VM): no
+  change, their clear already covered the target. Smoke OK. Harry to confirm.
+
 ### 2026-11-22 - The loading screen left undrawn under a movie (src/game/hud.cpp)
 - Harry (3440x1440): a cutscene after the hub showed a grey piece and the ends of the LOADING text at the movie's sides.
 - The flow loads a mission while its opening movie plays (LoadMission, PlayMovie, LoadScreen); the loading layer
