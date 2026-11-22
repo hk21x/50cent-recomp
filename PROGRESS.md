@@ -15,6 +15,23 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - Achievements checked on the GPU-VM: the story's end, the weapons (src/game/achievement_checks.cpp)
+- FC_FLOW_START=N (a test): the loaded save's flow step (0x32ACE0, profile +0x224) set to N before 0x27C30 applies
+  it, so Load Game starts flow.lua's GameFlow[N] (from 1: 55 the S041 movie then the credits, 10 the first hub).
+  Writing 0x337070 after the load (0xD1590) did nothing: the flow had already taken the step.
+- The story's end on GPU-VM (Gangsta profile, FC_FLOW_START=55): "the story finished (difficulty 0.500)", Vessel and
+  Hard Road unlocked, Soldier Through not; the credits rolled. PlayCreditsMovie is called once in all the scripts
+  (step 56), so the m9_3 level check is gone: a continue from m9_3's autosave reaches it with no level loaded.
+- Weapons: items 350.. are the store's offers, not owned (0x84080 sets them from inventory.lua's WeaponsUnlocked as
+  each mission is reached), so Armed Up and Full Arsenal would have come from the story alone. Now Armed Up is a gun
+  shop purchase (0xE3590 pays, then 0x31D70(weapon) on 0x325320, returning to 0xE38DD) and Full Arsenal all 20 owned
+  at once: the hub stash's counts (20 shorts at 0x3254FC, restored with a save; the hub deposits carried weapons,
+  0x31E30) or a holster. GPU-VM in the hub: "weapons owned 1 of 20", 3 with FC_GIVE_WEAPONS=7,14. A purchase not
+  tried (the gun shop not found on foot).
+- Disarms and medals were right: the disarm shop sets 290+n after paying (0xE5AB0), a medal pickup 370+mission.
+- Doc's shop is an in-world picker (an arrow over the counter, A buys), not a menu of rows: the pointer does nothing
+  there yet.
+
 ### 2026-11-22 - Sharp text and HUD (SDK sharp-p8; src/game/hud.cpp); the weapon keys as Game actions (SDK game-actions)
 - Game actions (SDK dd5b311, gated on pgr2, pgr1, eon, agentunderfire, nightfire): GameInfo::actions, a title's own
   keyboard actions after the console's inputs in the key tables (settings.toml [keys] by name, the key capture,
