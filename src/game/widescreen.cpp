@@ -55,6 +55,16 @@ X86_FUNC(sub_00105F50) {
     if (cutscene) kernel::G<uint8_t>(cutscene + 0x24) = bars;
 }
 
+// The game's clear (0x122350: colour, then whether the target, depth and stencil): a few frames at boot and as a
+// mission is left are cleared dark grey (FF333333), the loading screen's, before the movie that plays meanwhile draws
+// to another target. On a frame wider than the movie that grey stayed at its sides for the whole movie (GPU-VM,
+// 1920x800, Quit from the pause menu); on the console nothing shows past the picture. Cleared black instead.
+X86_EXTERN_FUNC(__imp__sub_00122350);
+X86_FUNC(sub_00122350) {
+    if (kernel::R32(ctx.esp + 4) == 0xFF333333u) kernel::W32(ctx.esp + 4, 0xFF000000u);
+    __imp__sub_00122350(ctx, base);
+}
+
 constexpr uint32_t kCinematicMode = 0x32FAD8;  // byte
 
 // the gameplay frame: the world, then the HUD over it
