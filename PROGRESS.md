@@ -15,6 +15,13 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - No layer drawn under a movie (src/game/hud.cpp)
+- The clear fix did not help: Harry's log has no "widened" line, so the movie's clear already covered its target and
+  the piece at the movie's side is drawn on each movie frame, under the movie: the mission select's menu going on.
+- While a movie is on screen (gpu::State::pillar_fit) no layer (0x29FA0) is drawn; the first few are logged with
+  the loading and HUD layers' addresses. On the console the movie covers them all. Boot movies unchanged on the
+  GPU-VM; smoke OK. Harry to confirm; if the piece stays, it is not drawn as a layer.
+
 ### 2026-11-22 - A movie's clear covers its whole target (src/game/widescreen.cpp)
 - The loading layer fix did not help Harry's case: his log has no "loading screen left undrawn" line. Loading a saved
   game's mission from the mission select, the movie draws to a new 720x480 target (821A1480, made as it starts), and
