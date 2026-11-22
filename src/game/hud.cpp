@@ -30,6 +30,13 @@ bool Flat2d(bool on) {
     d3d::State().flat_2d = on;
     return was;
 }
+
+float HudLayout(float aspect) {
+    std::lock_guard<std::recursive_mutex> lock(d3d::Lock());
+    const float was = d3d::State().hud_layout;
+    d3d::State().hud_layout = aspect;
+    return was;
+}
 }
 
 // (ecx the layer): its top groups drawn
@@ -40,6 +47,9 @@ X86_FUNC(sub_00029FA0) {
         return;
     }
     const bool was = Flat2d(true);
+    // the HUD's own layer alone is laid out to the frame's edges (src/game/widescreen.cpp)
+    const bool layout = ctx.ecx && ctx.ecx == kernel::R32(kHudLayer) && fc::HudLayoutWanted();
+    const float kept_layout = HudLayout(layout ? 16.0f / 9.0f : 0.0f);
     const uint32_t group = kernel::R32(kFadeGroup);
     if (ctx.ecx && group && ctx.ecx == kernel::R32(kFadeLayer)) {
         float& sx = kernel::G<float>(group + 0x10);
@@ -50,6 +60,7 @@ X86_FUNC(sub_00029FA0) {
     } else {
         __imp__sub_00029FA0(ctx, base);
     }
+    HudLayout(kept_layout);
     Flat2d(was);
 }
 

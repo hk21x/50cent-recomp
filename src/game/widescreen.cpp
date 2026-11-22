@@ -15,10 +15,13 @@
 // The HUD: the game draws it through a flat camera of the views' aspect (src/game/aspect.cpp), each piece by a vertex
 // program's 2D matrix, depth testing off, at a fixed place laid out for its widescreen mode's 16:9: on a 4:3 frame the
 // pieces at the sides ran off its edges, on a wider one they huddled in a 16:9 part of the middle. While the gameplay
-// frame 0x86890 runs with no menu up, each piece to one side is moved sideways to keep its distance from that edge as
-// at 16:9 (gpu::State::hud_layout); its shape is the camera's, right at any aspect, and one about the middle stays
-// there. The menus are 2D drawn for a 4:3 screen, kept at that shape in the middle (GameInfo::hud_aspect); the pause
-// menu is drawn in the gameplay frame too, its pieces through the same programs, so nothing moves while one is up.
+// frame 0x86890 runs with no menu up and the HUD's own layer draws (src/game/hud.cpp), each piece to one side is moved
+// sideways to keep its distance from that edge as at 16:9 (gpu::State::hud_layout); its shape is the camera's, right
+// at any aspect, and one about the middle stays there. Every other layer is left whole: the menus are 2D drawn for a
+// 4:3 screen, kept at that shape in the middle (GameInfo::hud_aspect), and so are the shops, drawn in the gameplay
+// frame with no menu up (the gun shop's stat bars, values and arrows, the bootlegger's list): moved piece by piece
+// they came apart on a 21:9 frame (Harry, 3440x1440, 2026-11-22). The pause menu is drawn in the gameplay frame too,
+// so nothing moves while one is up.
 #include "app/app.h"
 #include "common/bulletproof.h"
 #include "core/log.h"
@@ -35,11 +38,10 @@ void MoviePillar(bool on) {
     s.pillar_fit = on;
 }
 
-void HudLayout(bool on) {
-    std::lock_guard<std::recursive_mutex> lock(d3d::Lock());
-    d3d::State().hud_layout = on ? 16.0f / 9.0f : 0.0f;
-}
+bool g_gameplay = false;  // in the gameplay frame
 }  // namespace
+
+bool fc::HudLayoutWanted() { return g_gameplay && !fc::MenuUp(); }
 
 // (cutscene, its view or 0, debug): plays a movie to its end or a skip
 X86_EXTERN_FUNC(__imp__sub_00105F50);
@@ -79,8 +81,8 @@ X86_FUNC(sub_00086890) {
         app::HoldAspect(cinematic ? 4.0f / 3.0f : 0.0f);
         LOGR("bulletproof: in-engine cutscene %s", cinematic ? "begins: the frame at 4:3" : "ends");
     }
-    HudLayout(!fc::MenuUp());  // the pause menu, drawn in this frame too, is 4:3 2D kept whole in the middle
+    g_gameplay = true;
     __imp__sub_00086890(ctx, base);
+    g_gameplay = false;
     fc::AchievementFrame();  // the unlock counts (src/game/achievement_checks.cpp)
-    HudLayout(false);
 }

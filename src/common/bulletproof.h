@@ -36,5 +36,6 @@ void PcSettingsPad(input::Pad& pad);
 void OpenPcPage();                                       // the PC Settings page in the PDA (src/game/pc_page.cpp)
 uint32_t PcPageEntry(uint32_t hash);                     // its rows' string table entries                     // Y on an Options page opens the settings (src/game/pc_settings.cpp)
 std::vector<achievements::Def> AchievementSet();         // GameInfo::achievements (src/common/achievement_set.cpp)
+bool HudLayoutWanted();  // in the gameplay frame with no menu up: the HUD layer's pieces kept at the frame's edges
 void AchievementFrame();  // each gameplay frame: the unlock counts (src/game/achievement_checks.cpp)
 }  // namespace fc
