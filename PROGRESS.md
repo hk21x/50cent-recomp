@@ -15,6 +15,19 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - The pointer on the name keyboard (src/game/menu_pointer.cpp)
+- The keyboard ([0x329A1C]; up while [0x329A10] is 2 and its +0xAA5 clear) is run by 0x597A0, which 0x1E3C0 jumps
+  to after the PDA's frame (so it is handled from the 0x49F00 hook). Five rows (+0xA6C counts) of 16 byte keys from
+  +0xC (11 a row, 5 rows a page, +0xA60 the page): +0 code (0x10000 backspace, 0x10001..6 the command keys, 0x20
+  space), +4 width, +8 can be chosen. Cursor +0xA64 row, +0xA68 key, +0xA80 the key kept between rows; A types the
+  cursor's key (0x59590). Drawn always in one place: on the GPU-VM shot at 1920x800, x 626..1300 over 14 key widths
+  (a command key two widths for each of its own), rows 39.4 apart from y 346: 119.6..524.0 and 207.6 + 23.6 a row
+  in the menus' 640x480.
+- The pointer moving onto a key makes it the cursor (with the d-pad's sound, "COMMON_PAGER_INCREASE_OPTION"); a
+  click plays A over the cursor's key and nothing off the keys.
+- Headless (profile creation, FC_POINTER): the pointer at (300, 300) took the cursor to row 3 key 3 (w), at
+  (307, 243) to row 1 key 3 (c); a click typed "c"; a click at x 600 did nothing (still "c"). SMOKE OK.
+
 ### 2026-11-22 - The pointer on sliders and volumes (src/game/menu_pointer.cpp, src/common/menu_mouse.cpp)
 - Harry: the pointer in the screens it left to the keys (this entry: the sliders; the name keyboard and store next).
 - Read (dumps of Options > Camera and Audio/Video): the sensitivities and the three volumes are one item kind,

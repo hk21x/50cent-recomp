@@ -251,6 +251,63 @@ void Track(X86Context& ctx, uint32_t manager) {
 
 uint32_t LayoutNode(uint32_t hash) { return Find(R(kManager) + 0xBC, hash); }
 
+// The name keyboard (a profile's name; [0x329A1C], shown while [0x329A10] is 2 and its +0xAA5 is clear; its input is
+// 0x597A0, which 0x1E3C0 runs after the PDA's frame): five rows (+0xA6C each one's key count) of 16 byte keys from +0xC,
+// 11 a row and 5 rows a page (+0xA60 the page): +0 the code (a character; 0x20 space, 0x10000 backspace, 0x10001 to
+// 0x10006 Shift, Caps Lock, Alphabet, Symbols, Accents, Done), +4 its width, +8 1 when it can be chosen. The cursor:
+// +0xA64 the row, +0xA68 the key, +0xA80 the key kept for moving between rows. The d-pad's moves (0x579C0 and its
+// neighbours) play "COMMON_PAGER_INCREASE_OPTION"; A types the cursor's key (0x59590). It is always drawn in one place
+// (0x1F7A0): measured on the GPU-VM (1920x800, as 640x480) from x 119.6 to 524.0 across 14 key widths (the command keys
+// are drawn two widths for each of theirs: Done is four keys wide), from y 207.6 down in rows 23.6 apart.
+constexpr uint32_t kKeyboard = 0x329A1C, kKeyboardShown = 0x329A10;
+constexpr float kKeysLeft = 119.6f, kKeyWidth = (524.0f - 119.6f) / 14, kKeysTop = 207.6f, kKeyRow = 23.6f;
+
+uint32_t KeyboardUp() {
+    const uint32_t k = R(kKeyboard);
+    if (!k || R(kKeyboardShown) != 2 || kernel::G<uint8_t>(k + 0xAA5)) return 0;
+    return k;
+}
+
+// the key at (x, y): its row and index in the row, false off the keys (or on one that cannot be chosen)
+bool KeyAt(uint32_t k, float x, float y, int& row, int& key) {
+    row = int(std::floor((y - kKeysTop) / kKeyRow));
+    const float u = (x - kKeysLeft) / kKeyWidth;
+    if (row < 0 || row > 4 || u < 0 || u >= 14) return false;
+    const uint32_t page = R(k + 0xA60), keys = std::min<uint32_t>(R(k + 0xA6C + 4 * row), 11);
+    float left = 0;
+    for (uint32_t i = 0; i < keys && page < 3; i++) {
+        const uint32_t e = k + 0xC + ((page * 5 + row) * 11 + i) * 16, code = R(e), w = R(e + 4);
+        left += float(code > 0x10000 && code < 0x10007 ? 2 * w : w);
+        if (u < left) {
+            key = int(i);
+            return kernel::G<uint8_t>(e + 8) != 0;
+        }
+    }
+    return false;
+}
+
+// each PDA frame with the keyboard up: the key under the pointer, as it moves, made the cursor's
+void KeyboardTrack(X86Context& ctx) {
+    const uint32_t k = KeyboardUp();
+    float px, py;
+    static float last_x = -1, last_y = -1;
+    if (!k || !PointerAt(px, py)) {
+        last_x = -1;
+        return;
+    }
+    const bool moved = last_x >= 0 && std::fabs(px - last_x) + std::fabs(py - last_y) > 0.5f;
+    last_x = px, last_y = py;
+    int row, key;
+    if (!moved || !KeyAt(k, px, py, row, key) || (int(R(k + 0xA64)) == row && int(R(k + 0xA68)) == key)) return;
+    kernel::W32(k + 0xA64, uint32_t(row));
+    kernel::W32(k + 0xA68, uint32_t(key));
+    kernel::W32(k + 0xA80, uint32_t(key));
+    // the d-pad's sound (0x579C0): 0xFA980("common", the cue, 1.0), 0xFA8F0, 0x104750
+    const uint32_t cue = kernel::CallGuest(ctx, 0xFA980, {0x2AE2A8, 0x2B4DB0, 0x3F800000});
+    if (cue) kernel::CallGuest(ctx, 0x104750, {kernel::CallGuest(ctx, 0xFA8F0, {cue})});
+    LOGI("bulletproof: the pointer on the keyboard's row %d key %d", row, key);
+}
+
 int PointerSlider() {
     Rows r;
     {
@@ -265,6 +322,13 @@ int PointerSlider() {
 }
 
 int PointerHit() {
+    if (const uint32_t k = KeyboardUp()) {  // the name keyboard: A over the cursor's key, nothing off the keys
+        float x, y;
+        int row, key;
+        if (!PointerAt(x, y)) return kPointerUnknown;
+        if (!KeyAt(k, x, y, row, key)) return kPointerOff;
+        return int(R(k + 0xA64)) == row && int(R(k + 0xA68)) == key ? kPointerOnCurrent : kPointerOnOther;
+    }
     Rows r;
     {
         std::lock_guard<std::mutex> lock(g_lock);
@@ -290,6 +354,7 @@ X86_FUNC(sub_00049F00) {
         fc::PcPageFrame(ctx, manager, count && count < 64 && stack ? kernel::R32(stack + 4 * (count - 1)) : 0);
     }
     fc::Track(ctx, manager);
+    if (manager == fc::kManager) fc::KeyboardTrack(ctx);
     ctx.ecx = manager;
     __imp__sub_00049F00(ctx, base);
 }

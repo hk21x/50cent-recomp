@@ -198,7 +198,7 @@ the alley's lamp and vent are enlarged twice.
 | Settings window | F1 | Back + Start |
 | Full screen | Alt+Enter | |
 | Quit Game (title menu) | E, R | X |
-| Menus | point and click, or arrows, Enter and Backspace; right click goes back, the wheel scrolls; on a slider or volume, click the left or right half of its value (or roll the wheel over it) | d-pad, A, B |
+| Menus | point and click, or arrows, Enter and Backspace; right click goes back, the wheel scrolls; on a slider or volume, click the left or right half of its value (or roll the wheel over it); click the name keyboard's keys | d-pad, A, B |
 
 Keys and buttons can be changed in the settings window's **Controls** page.
 
