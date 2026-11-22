@@ -15,6 +15,22 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - The front end's menus held at 16:9 (src/game/widescreen.cpp, src/game/aspect.cpp)
+- Harry confirmed the movie fix (the screen cleared black as a movie starts): no more picture at a cutscene's sides.
+- Harry (3440x1440): in arcade mode the weapon screen's names were cut at its panel's left ("ecision"). Reproduced
+  on the GPU-VM (1920x800) with Harry's profile copied in beside its own ("aaa"): every menu's text came out
+  2.389 / 1.778 times wider than at 16:9 while the PDA around it kept its size and the text its anchors: the mission
+  select's scores ran off its right, the Story or Arcade question past its box. At the 16:9 setting all fit.
+- The views' aspect (0x349478, read only by the view setups 0x1221E0 and 0x122020) sizes both: the PDA is laid out
+  in view units, the letters from the projection, so only one can be right at a wider aspect. Giving the menus' views
+  16:9 at a wide frame stretched the PDA instead (tried, branch menu-text-aspect, not merged). The glyph sizing code
+  was not found.
+- Fix: while a menu is up and no gameplay frame has run for 250 ms (the front end), the frame is held at 16:9
+  (app::HoldAspect), as an in-engine cutscene holds it at 4:3; the front end is a 4:3 picture on black either way.
+  The pause menu (in the gameplay frame) is not held. GPU-VM: the Story or Arcade question, the mission select and
+  the weapon screen as at 16:9; the arcade stage at 2.4:1 with the HUD at the edges; its Score Summary whole.
+  Smoke OK. Harry to confirm.
+
 ### 2026-11-22 - The screen cleared black as a movie starts (src/game/widescreen.cpp)
 - Found on the GPU-VM (1920x800, a save loaded with FC_FLOW_START 10, probe branch movie-probe): the movie that
   starts a mission draws into a 512x512 target of its own (82233B00), and all of its clears go there; the display
@@ -25,7 +41,7 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - Fix: as 0x105F50 starts, each display buffer (D3DDevice_GetBackBuffer2 -1, 0, 1) is made the target and cleared
   black (D3DDevice_Clear), then the target is put back (only when the viewport is the whole target, as
   SetRenderTarget resets it). Proof: a variant clearing red (branch movie-red) showed red sides for the whole mission
-  movie on the GPU-VM. Smoke OK. Harry to confirm at 3440x1440.
+  movie on the GPU-VM. Smoke OK. Harry confirmed it at 3440x1440.
 
 ### 2026-11-22 - The movie's sides: three attempts, stopped (write-up)
 - Harry: the mission failed screen fix works (black sides, Restart and Quit fine). The cutscene piece is still there
