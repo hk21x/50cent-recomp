@@ -79,7 +79,7 @@ X86_FUNC(sub_00122350) {
     const gpu::Viewport kept = s.viewport;
     const bool whole = s.pillar_fit && s.rt.size;
     if (s.pillar_fit)
-        LOGR_FIRST(12, "bulletproof: PROBE movie clear %08X: target %08X data %08X size %08X viewport %u %u %ux%u",
+        LOGR_FIRST(400, "bulletproof: PROBE movie clear %08X: target %08X data %08X size %08X viewport %u %u %ux%u",
                    kernel::R32(ctx.esp + 4), s.rt.header, s.rt.data, s.rt.size, kept.x, kept.y, kept.w, kept.h);
     if (whole) {
         const uint32_t w = (s.rt.size & 0xFFF) + 1, h = (s.rt.size >> 12 & 0xFFF) + 1;
