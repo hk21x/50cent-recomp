@@ -50,6 +50,12 @@ X86_FUNC(sub_00105F50) {
     const uint8_t bars = cutscene ? kernel::G<uint8_t>(cutscene + 0x24) : 0;
     if (cutscene) kernel::G<uint8_t>(cutscene + 0x24) = 0;
     MoviePillar(true);
+    {
+        std::lock_guard<std::recursive_mutex> lock(d3d::Lock());
+        const gpu::State& s = d3d::State();
+        LOGR("bulletproof: PROBE movie starts: target %08X data %08X size %08X viewport %u %u %ux%u", s.rt.header,
+             s.rt.data, s.rt.size, s.viewport.x, s.viewport.y, s.viewport.w, s.viewport.h);
+    }
     static bool said = false;
     if (!said) said = true, LOGR("bulletproof: cutscenes shown whole at 4:3");
     __imp__sub_00105F50(ctx, base);
@@ -72,6 +78,9 @@ X86_FUNC(sub_00122350) {
     gpu::State& s = d3d::State();
     const gpu::Viewport kept = s.viewport;
     const bool whole = s.pillar_fit && s.rt.size;
+    if (s.pillar_fit)
+        LOGR_FIRST(12, "bulletproof: PROBE movie clear %08X: target %08X data %08X size %08X viewport %u %u %ux%u",
+                   kernel::R32(ctx.esp + 4), s.rt.header, s.rt.data, s.rt.size, kept.x, kept.y, kept.w, kept.h);
     if (whole) {
         const uint32_t w = (s.rt.size & 0xFFF) + 1, h = (s.rt.size >> 12 & 0xFFF) + 1;
         if (kept.x || kept.y || kept.w != w || kept.h != h)
