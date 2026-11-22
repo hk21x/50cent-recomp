@@ -54,17 +54,11 @@ bool skip_intro = false;
 bool hide_hud = false;
 uint32_t fov_percent = 100;  // the world's field of view, % of the game's (src/game/aspect.cpp)  // the HUD's layer left undrawn (src/game/hud.cpp); F9 in play switches it
 
-// in play, no menu up, not a repeat (WM_KEYDOWN, the virtual key in wp): 1, 2 and 3 choose a weapon; F9 hides or
-// shows the HUD, and saves
+// F9 (not a repeat) in play, no menu up: the HUD hidden or shown, and saved (WM_KEYDOWN, the virtual key in wp)
 bool Message(void* /*hwnd*/, uint32_t msg, uintptr_t wp, intptr_t lp, intptr_t* /*result*/) {
     constexpr uint32_t kKeyDown = 0x100;
     constexpr uintptr_t kF9 = 0x78;
-    if (msg != kKeyDown || (lp & (1 << 30)) || MenuUp()) return false;
-    if (wp >= '1' && wp <= '3') {  // a weapon of that class (src/game/weapon_keys.cpp)
-        WeaponKey(int(wp - '0'));
-        return true;
-    }
-    if (wp != kF9) return false;
+    if (msg != kKeyDown || wp != kF9 || (lp & (1 << 30)) || MenuUp()) return false;
     hide_hud = !hide_hud;
     app::Save();
     LOGR("bulletproof: the HUD %s (F9)", hide_hud ? "hidden" : "shown");
@@ -139,6 +133,10 @@ const app::GameInfo app::kGame = {
     .mouse_look = true,                   // the mouse turns the camera and aims
     .mouse_direct = true,                 // directly, not as the right stick (src/game/mouse_aim.cpp)
     .default_keys = fc::Keys,             // WASD and the mouse
+    // the weapon keys (src/game/weapon_keys.cpp), on the Controls page's Game actions
+    .actions = {{"weapon_1", "Weapon: pistol or thrown", {'1', 0}},
+                {"weapon_2", "Weapon: SMG", {'2', 0}},
+                {"weapon_3", "Weapon: rifle or shotgun", {'3', 0}}},
     .texture_bound = fc::ButtonPictures,  // the prompts' pictures (src/common/buttons.cpp)
     .aspect_live = true,                  // the aspect setting applies at once (src/game/aspect.cpp)
 };

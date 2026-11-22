@@ -95,7 +95,16 @@ void GiveTestWeapons(X86Context& ctx, uint32_t player) {
 X86_EXTERN_FUNC(__imp__sub_00086400);
 X86_FUNC(sub_00086400) {
     const uint32_t self = ctx.ecx;
-    const int notches = fc::TakeWeaponWheel(), key = fc::TakeWeaponKey();
+    const int notches = fc::TakeWeaponWheel();
+    // the Game actions weapon_1 to weapon_3 (keys 1, 2, 3 unless changed on the Controls page) as each goes down, and
+    // FC_PAD_CMD's KEY1 to KEY3
+    int key = fc::TakeWeaponKey();
+    static bool was[3] = {};
+    for (int i = 0; i < 3; i++) {
+        const bool held = input::ActionHeld(i);
+        if (held && !was[i]) key = i + 1;
+        was[i] = held;
+    }
     const uint32_t player = kernel::R32(kPlayer);
     if (player && R8(player + kIsHero) && !kernel::R32(kBusy) && !kernel::R32(kInventory) && !fc::MenuUp()) {
         GiveTestWeapons(ctx, player);
