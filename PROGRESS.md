@@ -15,6 +15,15 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - The mission failed screen on black (src/game/hud.cpp)
+- Harry (3440x1440): the death screen's picture covered only a 16:9 middle; the world and the HUD showed at its sides.
+- It is not a menu (Harry's log: "out of the menus" just before it) but the PDA's group "missionFail" (Restart, Quit),
+  shown by StartDeathDialogue 0x5C660 (picture shell\wallp\fail.tex; sets 0x323068 until its entry finishes, then
+  0x1FDC0 pauses play: 0x3297B0 = 1). The reset that hides missionFail (about 0x1F563) clears 0x3297B0.
+- 0x5C660 hooked: from it until 0x3297B0 has been set and cleared again, while 0x3297B0 is set, the game's clear
+  (0x122350, black, the target alone) runs just before the PDA's layer ([0x3297B8]) draws. Smoke OK; built on the
+  GPU-VM. Not seen yet: the GPU-VM's save reaches no death; Harry to confirm.
+
 ### 2026-11-22 - No layer drawn under a movie (src/game/hud.cpp)
 - The clear fix did not help: Harry's log has no "widened" line, so the movie's clear already covered its target and
   the piece at the movie's side is drawn on each movie frame, under the movie: the mission select's menu going on.
