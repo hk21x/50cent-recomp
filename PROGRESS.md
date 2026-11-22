@@ -15,6 +15,18 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - The screen cleared black as a movie starts (src/game/widescreen.cpp)
+- Found on the GPU-VM (1920x800, a save loaded with FC_FLOW_START 10, probe branch movie-probe): the movie that
+  starts a mission draws into a 512x512 target of its own (82233B00), and all of its clears go there; the display
+  buffers are drawn only by the 4:3 fitted quad. Their sides kept whatever the screen before showed, for the whole
+  movie: Harry's loading text and grey panel, and the mission select's map. The boot movies use another target
+  (821A4F80, 640x480) and were unaffected. The three earlier attempts missed it because no layer draws and no clear
+  reaches the display buffers during the movie.
+- Fix: as 0x105F50 starts, each display buffer (D3DDevice_GetBackBuffer2 -1, 0, 1) is made the target and cleared
+  black (D3DDevice_Clear), then the target is put back (only when the viewport is the whole target, as
+  SetRenderTarget resets it). Proof: a variant clearing red (branch movie-red) showed red sides for the whole mission
+  movie on the GPU-VM. Smoke OK. Harry to confirm at 3440x1440.
+
 ### 2026-11-22 - The movie's sides: three attempts, stopped (write-up)
 - Harry: the mission failed screen fix works (black sides, Restart and Quit fine). The cutscene piece is still there
   (a saved game's mission select, then the mission's movie: the mission select's picture at the movie's left).
