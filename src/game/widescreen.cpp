@@ -39,6 +39,7 @@ void MoviePillar(bool on) {
 }
 
 bool g_gameplay = false;  // in the gameplay frame
+int g_probe_clears = 0;
 }  // namespace
 
 bool fc::HudLayoutWanted() { return g_gameplay && !fc::MenuUp(); }
@@ -53,6 +54,7 @@ X86_FUNC(sub_00105F50) {
     {
         std::lock_guard<std::recursive_mutex> lock(d3d::Lock());
         const gpu::State& s = d3d::State();
+        g_probe_clears = 0;
         LOGR("bulletproof: PROBE movie starts: target %08X data %08X size %08X viewport %u %u %ux%u", s.rt.header,
              s.rt.data, s.rt.size, s.viewport.x, s.viewport.y, s.viewport.w, s.viewport.h);
     }
@@ -78,8 +80,8 @@ X86_FUNC(sub_00122350) {
     gpu::State& s = d3d::State();
     const gpu::Viewport kept = s.viewport;
     const bool whole = s.pillar_fit && s.rt.size;
-    if (s.pillar_fit)
-        LOGR_FIRST(400, "bulletproof: PROBE movie clear %08X: target %08X data %08X size %08X viewport %u %u %ux%u",
+    if (s.pillar_fit && g_probe_clears++ < 6)
+        LOGR("bulletproof: PROBE movie clear %08X: target %08X data %08X size %08X viewport %u %u %ux%u",
                    kernel::R32(ctx.esp + 4), s.rt.header, s.rt.data, s.rt.size, kept.x, kept.y, kept.w, kept.h);
     if (whole) {
         const uint32_t w = (s.rt.size & 0xFFF) + 1, h = (s.rt.size >> 12 & 0xFFF) + 1;
