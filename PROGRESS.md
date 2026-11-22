@@ -15,6 +15,21 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - The movie's sides: three attempts, stopped (write-up)
+- Harry: the mission failed screen fix works (black sides, Restart and Quit fine). The cutscene piece is still there
+  (a saved game's mission select, then the mission's movie: the mission select's picture at the movie's left).
+- Tried, none helped: the loading layer left undrawn under a movie; the movie's clear given its whole target; no
+  layer drawn while a movie is on screen. Harry's log of the last run has neither the "widened" nor the "left undrawn
+  under a movie" line.
+- Learned: the player 0x105F50 runs the movie's frames itself (its own loop; it clears with 0x122350, black, the
+  target, depth and stencil, at 0x1061C3 and 0x10624C, then draws the quad), so the game draws no layer meanwhile
+  and its clear already covers the guest's whole target. The stale picture is therefore outside what the guest
+  draws or clears: most likely host side, in how the renderer keeps or presents the frame when the movie's new
+  720x480 target replaces the menu's (the area the pillarboxed movie leaves uncovered keeps the old picture).
+- Next (per the 3-attempts rule, not started): reproduce at 21:9 on the GPU-VM from a save's mission select and
+  capture which host target is presented during the movie and what fills its sides; the fix is then likely an SDK
+  change (gated on the other games' smoke tests).
+
 ### 2026-11-22 - The mission failed screen on black (src/game/hud.cpp)
 - Harry (3440x1440): the death screen's picture covered only a 16:9 middle; the world and the HUD showed at its sides.
 - It is not a menu (Harry's log: "out of the menus" just before it) but the PDA's group "missionFail" (Restart, Quit),
@@ -22,7 +37,7 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
   0x1FDC0 pauses play: 0x3297B0 = 1). The reset that hides missionFail (about 0x1F563) clears 0x3297B0.
 - 0x5C660 hooked: from it until 0x3297B0 has been set and cleared again, while 0x3297B0 is set, the game's clear
   (0x122350, black, the target alone) runs just before the PDA's layer ([0x3297B8]) draws. Smoke OK; built on the
-  GPU-VM. Not seen yet: the GPU-VM's save reaches no death; Harry to confirm.
+  GPU-VM. Harry confirmed it on his PC (3440x1440).
 
 ### 2026-11-22 - No layer drawn under a movie (src/game/hud.cpp)
 - The clear fix did not help: Harry's log has no "widened" line, so the movie's clear already covered its target and
