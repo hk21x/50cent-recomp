@@ -10,8 +10,10 @@
 //
 // PlayCreditsMovie is called once in all the scripts: flow.lua's step 56 (GameFlow[56], after m9_3 at 54 and the
 // S041 movie at 55), so it needs no level check. The level loaded is not m9_3 when the story continues from the
-// autosave m9_3's end writes (the flow index the profile load copies 0x323460 -> 0x337070 at 0xD1590).
-// FC_FLOW_START=N (a test) puts step N there after a profile loads, so Continue starts at it: 55 for the credits.
+// autosave m9_3's end writes.
+// FC_FLOW_START=N (a test): a profile loaded (0xD1590 case 0) is applied by 0x27C30, which copies the save's buffer
+// (its flow step at 0x32ACE0, profile +0x224) into the live profile and the flow; N written there first makes the
+// loaded game start at step N: 55 for the S041 movie and then the credits.
 #include <cstdlib>
 #include <cstring>
 
@@ -25,8 +27,7 @@
 namespace fc {
 namespace {
 
-constexpr uint32_t kFlowStart = 0x337070;     // the step Continue starts at (GameFlow, from 1)
-constexpr uint32_t kProfileSlot = 0x342AF0;   // -1 with no profile loaded
+constexpr uint32_t kFlowStart = 0x32ACE0;     // the loaded save's flow step (GameFlow, from 1)
 constexpr uint32_t kDifficulty = 0x323618;    // float: the damage the player takes
 constexpr uint32_t kOwnedSaved = 0x323498;    // the profile's unlocks, one byte an item
 constexpr uint32_t kOwnedNew = 0x32DDB8;      // the unlocks since the last checkpoint
@@ -84,15 +85,15 @@ X86_FUNC(sub_00026400) {
     __imp__sub_00026400(ctx, base);
 }
 
-// the profile load (0xD1590): FC_FLOW_START, above
-X86_EXTERN_FUNC(__imp__sub_000D1590);
-X86_FUNC(sub_000D1590) {
-    __imp__sub_000D1590(ctx, base);
+// applying a loaded profile (0x27C30): FC_FLOW_START, above
+X86_EXTERN_FUNC(__imp__sub_00027C30);
+X86_FUNC(sub_00027C30) {
     static const char* start = std::getenv("FC_FLOW_START");
     static bool done = false;
-    if (!done && start && *start && kernel::R32(fc::kProfileSlot) == 0) {
+    if (!done && start && *start) {
         done = true;
-        LOGR("bulletproof: FC_FLOW_START %s (the profile's %u)", start, kernel::R32(fc::kFlowStart));
+        LOGR("bulletproof: FC_FLOW_START %s (the save's %u)", start, kernel::R32(fc::kFlowStart));
         kernel::W32(fc::kFlowStart, uint32_t(std::atoi(start)));
     }
+    __imp__sub_00027C30(ctx, base);
 }
