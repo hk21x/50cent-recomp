@@ -15,6 +15,17 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - The loading screen left undrawn under a movie (src/game/hud.cpp)
+- Harry (3440x1440): a cutscene after the hub showed a grey piece and the ends of the LOADING text at the movie's sides.
+- The flow loads a mission while its opening movie plays (LoadMission, PlayMovie, LoadScreen); the loading layer
+  ("loadScreenLayer", kept at 0x340F60 by 0xD36A0) goes on drawing under the movie, which on the console covers it.
+  Here the movie is fitted at 4:3 in the middle, so the layer's sides showed. While a movie is on screen
+  (gpu::State::pillar_fit) that layer is left undrawn.
+- Ruled out on the GPU-VM with probes: the movie's clear covers the whole 640x480 target, and the window's back
+  buffer is cleared each frame. The first mission's movie (from the menus) draws no layer under it, so the case
+  is Harry's to confirm. Smoke OK.
+- Next: the death screen (a 16:9 picture in the Restart/Quit dialogue; the world and HUD show at its sides at 21:9).
+
 ### 2026-11-22 - The shops whole on a wide frame (src/game/hud.cpp, src/game/widescreen.cpp)
 - Harry (3440x1440): in the gun shop the stat bars sat apart from their frames, the counts and "9mm" off their
   labels; the bootlegger's list text was cut off at its left. The shops draw in the gameplay frame with no menu up,
