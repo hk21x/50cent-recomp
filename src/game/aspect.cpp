@@ -19,17 +19,28 @@
 #include "xdk/hle.h"
 
 namespace {
-constexpr uint32_t kAspect = 0x349478;
+constexpr uint32_t kAspect = 0x349478, kWorldView = 0x334CF0;
 
-void SetAspect() {
-    const float a = app::FrameAspect();
+// (the view being set up) While a menu is up, every view but the world's keeps the game's own 16:9: the menus' text
+// is laid out through their views, and at the frame's shape some of it came out that much wider (2.389 / 1.778 at
+// 21:9) about its anchor: the arcade mode's weapon names ran off the left of their panel, the mission select's
+// scores off its right, the Story or Arcade question past its box (Harry, 3440x1440, 2026-11-22). The menus are kept
+// 4:3 in the middle anyway (GameInfo::hud_aspect); the world behind the pause menu keeps the frame's shape.
+void SetAspect(uint32_t view) {
+    const float frame = app::FrameAspect();
+    const float a = fc::MenuUp() && view != kWorldView ? 16.0f / 9.0f : frame;
+    static bool said_menu = false;
+    if (a != frame && !said_menu) {
+        said_menu = true;
+        LOGR("bulletproof: the menus' views kept at 16:9");
+    }
     uint32_t v;
     std::memcpy(&v, &a, 4);
     kernel::W32(kAspect, v);
     static float said = 0;
-    if (a != said) {
-        said = a;
-        LOGR("bulletproof: the 3D views at %.3f:1", a);
+    if (frame != said) {
+        said = frame;
+        LOGR("bulletproof: the 3D views at %.3f:1", frame);
     }
 }
 }  // namespace
@@ -40,7 +51,7 @@ void SetAspect() {
 // 0x122020, which the frame's world takes): the projection (0x11EBF0, half the angle: D3DX's PerspectiveFovLH) and
 // the culling planes (0x121D00) both read it. Headless at 130%: its projection's x scale 1.437 for 1.868. The tangent of the half angle is
 // scaled, so the picture is that much wider and taller; the scopes' zoom divides it as before.
-constexpr uint32_t kWorldView = 0x334CF0, kViewFov = 0xD8;
+constexpr uint32_t kViewFov = 0xD8;
 
 float FovScale() {
     const uint32_t pct = std::clamp<uint32_t>(fc::fov_percent, 50, 150);
@@ -75,13 +86,13 @@ void WithFov(X86Context& ctx, F setup) {
 // (view; camera): a view set up for a camera (the game's scenes)
 X86_EXTERN_FUNC(__imp__sub_001221E0);
 X86_FUNC(sub_001221E0) {
-    SetAspect();
+    SetAspect(ctx.ecx);
     WithFov(ctx, [&] { __imp__sub_001221E0(ctx, base); });
 }
 
 // (view; camera): the same, with the camera's fog and clear colour (0x107199 and its neighbours)
 X86_EXTERN_FUNC(__imp__sub_00122020);
 X86_FUNC(sub_00122020) {
-    SetAspect();
+    SetAspect(ctx.ecx);
     WithFov(ctx, [&] { __imp__sub_00122020(ctx, base); });
 }
