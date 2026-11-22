@@ -15,6 +15,12 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - Black bars beside the movie after leaving a mission (src/game/widescreen.cpp)
+- The grey (51) at the sides of the title movie after Quit: headless with XBE_CLEAR_LOG=1, the game's clear 0x122350
+  clears target 021A1180 to FF333333 for about five frames at boot and as a mission is left (the loading screen's),
+  then the movie draws to another target, 021A4F80; on a wide frame the stale grey stayed beside the 4:3 movie. The
+  hook turns that colour black. Headless: no FF333333 clears left. GPU-VM, 1920x800, the same Quit: black bars. SMOKE OK.
+
 ### 2026-11-22 - The fade to black covers a wide frame's sides (src/game/hud.cpp)
 - Harry: ending a mission, the fade blackened the middle only; the sides should go too.
 - The fade is a layout layer, "fadeLayer" (0x336E30), its group "fadeGrp" (0x336E34), both found by 0x8E220: one
@@ -23,7 +29,7 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
   hooked for hide_hud) its group's x scale (+0x10, identity) is 8 times wider, then put back.
 - GPU-VM, 1920x800, pause menu > Quit > Yes: before, the middle black and the alley lit at the sides; after, black
   edge to edge. SMOKE OK. Seen there too: the title movie after it has dark grey (51) bars at its sides, the game's
-  own clear showing beside the 4:3 movie (the SDK clears black); not changed yet.
+  own clear showing beside the 4:3 movie (the SDK clears black); fixed in the next entry.
 
 ### 2026-11-21 - The mouse wheel and 1, 2, 3 change weapons (src/game/weapon_keys.cpp)
 - Harry: the wheel to change guns, and 1, 2, 3 on the keyboard.
