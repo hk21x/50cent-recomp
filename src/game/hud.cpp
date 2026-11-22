@@ -16,7 +16,8 @@
 // movie plays (LoadMission, PlayMovie, LoadScreen), and the loading layer goes on drawing under the movie. On the
 // console the movie covers the whole screen; here it is fitted at 4:3 in the middle of a wider frame, so the loading
 // text's ends and its grey panel showed at the movie's sides (Harry, 3440x1440, a cutscene after the hub,
-// 2026-11-22). While a movie is on screen that layer is left undrawn.
+// 2026-11-22). Starting a mission from a saved game's mission select, the menu went on drawing under the movie the
+// same way. While a movie is on screen no layer is drawn: on the console the movie covers them all.
 #include "common/bulletproof.h"
 #include <mutex>
 
@@ -59,9 +60,10 @@ X86_FUNC(sub_00029FA0) {
         ctx.esp += 4;  // ret: no arguments on the stack
         return;
     }
-    // the loading screen under a movie (the flow loads a mission while its opening movie plays): left undrawn
-    if (ctx.ecx && ctx.ecx == kernel::R32(kLoadLayer) && MoviePlaying()) {
-        LOGR_FIRST(1, "bulletproof: the loading screen left undrawn under a movie");
+    // no layer under a movie (the loading screen, the menu the movie was started from): left undrawn
+    if (ctx.ecx && MoviePlaying()) {
+        LOGR_FIRST(8, "bulletproof: layer %08X left undrawn under a movie (loading %08X, HUD %08X)", ctx.ecx,
+                   kernel::R32(kLoadLayer), kernel::R32(kHudLayer));
         ctx.esp += 4;
         return;
     }
