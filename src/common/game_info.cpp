@@ -129,6 +129,7 @@ const app::GameInfo app::kGame = {
     .achievements = fc::AchievementSet(), // the story, difficulty, unlocks and cash (src/common/achievement_set.cpp)
     .hud_aspect = 4.0f / 3.0f,            // the 2D is laid out for a 4:3 TV (src/game/widescreen.cpp)
     .squeeze_screen_programs = true,      // its 2D is drawn through vertex programs
+    .sharpen_2d = true,                   // the menus' and text's P8 pictures enlarged sharp (setting "Sharp text and HUD")
     .hide_file = fc::HideFile,            // skip_intro
     .mouse_look = true,                   // the mouse turns the camera and aims
     .mouse_direct = true,                 // directly, not as the right stick (src/game/mouse_aim.cpp)

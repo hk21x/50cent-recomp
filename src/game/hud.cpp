@@ -12,11 +12,24 @@
 // at 1920x800). While that layer draws, the group's x scale (its matrix, +0x10, identity) is made 8 times wider about
 // the middle, so the quad covers any frame's width, then put back.
 #include "common/bulletproof.h"
+#include <mutex>
+
 #include "kernel/kernel.h"
+#include "xdk/d3d8.h"
 #include "xdk/hle.h"
 
 namespace {
 constexpr uint32_t kHudLayer = 0x32FA30, kFadeLayer = 0x336E30, kFadeGroup = 0x336E34;
+
+// Sharp text (GameInfo::sharpen_2d): the game draws its menus and HUD through cameras of its own, so the renderers do
+// not see them as 2D; while a layer (or the name keyboard, 0x59330) draws, gpu::State::flat_2d says so, and their P8
+// pictures are enlarged sharp with their palettes. Nested layers put back what they found.
+bool Flat2d(bool on) {
+    std::lock_guard<std::recursive_mutex> lock(d3d::Lock());
+    const bool was = d3d::State().flat_2d;
+    d3d::State().flat_2d = on;
+    return was;
+}
 }
 
 // (ecx the layer): its top groups drawn
@@ -26,6 +39,7 @@ X86_FUNC(sub_00029FA0) {
         ctx.esp += 4;  // ret: no arguments on the stack
         return;
     }
+    const bool was = Flat2d(true);
     const uint32_t group = kernel::R32(kFadeGroup);
     if (ctx.ecx && group && ctx.ecx == kernel::R32(kFadeLayer)) {
         float& sx = kernel::G<float>(group + 0x10);
@@ -33,7 +47,16 @@ X86_FUNC(sub_00029FA0) {
         sx = kept * 8;
         __imp__sub_00029FA0(ctx, base);
         sx = kept;
-        return;
+    } else {
+        __imp__sub_00029FA0(ctx, base);
     }
-    __imp__sub_00029FA0(ctx, base);
+    Flat2d(was);
+}
+
+// the name keyboard's keys (ecx the keyboard; one argument)
+X86_EXTERN_FUNC(__imp__sub_00059330);
+X86_FUNC(sub_00059330) {
+    const bool was = Flat2d(true);
+    __imp__sub_00059330(ctx, base);
+    Flat2d(was);
 }
