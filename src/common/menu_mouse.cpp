@@ -2,7 +2,8 @@
 // right B (back) instead of what they play in play (the left fires: RT; the middle opens the weapons: Black), and the
 // wheel is the d-pad's up and down, a press a notch (in play it changes weapons: src/game/weapon_keys.cpp). The menus show a pointer of their own (a chrome arrow, as the
 // PDA's case); in the PDA's menus the row under it is highlighted and the left button selects only that row
-// (src/game/menu_pointer.cpp); a press off the rows does nothing.
+// (src/game/menu_pointer.cpp); a press off the rows does nothing. On a slider's row (sensitivity, volume) a press on
+// its value column's left or right half lowers or raises it, and the wheel over it changes it.
 //
 // A menu is up while the byte at 0x342A90 is set: 0x1047B0 sets it (from 0x84E40, which pauses the music, the speech
 // and the movie textures for the pause menu, and from the front end's 0x1FE60), 0x10473D and 0x1047DA clear it. Memory
@@ -225,12 +226,16 @@ void MenuMouse(input::Pad& p) {
     constexpr uint16_t kMouseBits[3] = {0x01, 0x02, 0x04};  // VK_LBUTTON VK_RBUTTON VK_MBUTTON
     static int pending = 0;                                 // notches to play, up positive
     static int64_t pulse = 0;
+    // a slider's steps to play (raise positive): each one the d-pad's left or right for a single read of the pad, one
+    // read apart, as the slider moves a step for every frame the d-pad is held (a 70 ms press moved it 8)
+    static int steps = 0;
+    static bool stepped = false;
     static bool was = false;
     const int notches = input::TakeWheel();  // taken in play too, so none wait for the next menu
     const bool menu = MenuUp();
     if (menu != was) {
         LOGR("bulletproof: %s", menu ? "a menu is up: the mouse plays A, B and the d-pad" : "out of the menus");
-        pending = 0;
+        pending = 0, steps = 0;
     }
     was = menu;
 #ifdef _WIN32
@@ -258,21 +263,42 @@ void MenuMouse(input::Pad& p) {
         // the left button: A over the highlighted row, nothing off the rows (decided as it goes down; over another
         // row, once the pointer's frame has highlighted it); A as before in the menus not placed (PointerHit unknown)
         static bool was_left = false, armed = false;
-        const int hit = PointerHit();
-        if ((held & 1) && !was_left) {
+        static int64_t repeat_at = 0;
+        const int hit = PointerHit(), slide = PointerSlider();
+        const bool down = (held & 1) && !was_left;
+        if (down) {
             armed = hit != kPointerOff;
-            LOGI("bulletproof: menu click (pointer %d)", hit);
+            LOGI("bulletproof: menu click (pointer %d, slider %d)", hit, slide);
         }
         was_left = held & 1;
-        if ((held & 1) && armed && (hit == kPointerOnCurrent || hit == kPointerUnknown)) Press(p, input::kA);
+        if ((held & 1) && armed && (slide == -1 || slide == 1)) {
+            // a slider's value column: its left half lowers a step, its right half raises one; held, a step every
+            // tenth of a second after 0.4 s
+            if (down) steps += slide, repeat_at = now + 400;
+            else if (now >= repeat_at && std::abs(steps) < 2) steps += slide, repeat_at = now + 100;
+        } else if ((held & 1) && armed && (hit == kPointerOnCurrent || hit == kPointerUnknown)) {
+            Press(p, input::kA);
+        }
         if (held & 2) Press(p, input::kB);
         static uint32_t was_held = 0;
         if (held != was_held) LOG_FIRST(16, "bulletproof: menu mouse buttons %u", held);
         was_held = held;
     }
     if (notches) LOG_FIRST(16, "bulletproof: menu wheel %d", notches);
-    if (notches && !pending) pulse = now;
-    pending = std::clamp(pending + notches, -8, 8);
+    // over a highlighted slider the wheel changes its value a step a notch (up raises) instead of moving the highlight
+    if (notches && PointerSlider() != 0) steps = std::clamp(steps + notches, -20, 20);
+    else if (notches) {
+        if (!pending) pulse = now;
+        pending = std::clamp(pending + notches, -8, 8);
+    }
+    if (steps && !stepped) {
+        Press(p, steps > 0 ? input::kRight : input::kLeft);
+        LOGI("bulletproof: slider step %s", steps > 0 ? "right" : "left");
+        steps += steps > 0 ? -1 : 1;
+        stepped = true;
+    } else {
+        stepped = false;
+    }
     if (pending) {
         if (now - pulse < kPress) {
             Press(p, pending > 0 ? input::kUp : input::kDown);

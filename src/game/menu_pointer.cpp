@@ -40,11 +40,19 @@ namespace {
 constexpr uint32_t kManager = 0x32A170;  // the PDA's menus
 constexpr uint32_t kHighlightBar = 0x489D0, kPlaySound = 0x48BC0;
 constexpr float kRowsY0 = 240.75f, kRowsScale = 771.0f;  // a node's height to the 480 lines
-constexpr float kBarLeft = 144, kBarRight = 494;         // the highlight bar, 640 wide
+// the rows' extent across, 640 wide: the title's highlight bar runs from 144 to 494, the Options pages' from 94 to 555
+// (GPU-VM shots); the wider is taken for all, the PDA's screen being that wide in each
+constexpr float kBarLeft = 94, kBarRight = 555;
+// a slider's value column (the Camera page's sensitivity bars, 421 to 551; the volumes' numbers from 425): its left
+// half lowers, its right half raises
+constexpr float kValueLeft = 415, kValueMiddle = 486;
 constexpr int kMaxItems = 32;
 // the items' kinds by vtable (their pools, 0x48C10 to 0x490F0, set them): a list box's or a text box's rows are its
 // own, not placed here
 constexpr uint32_t kListBox = 0x2B93EC, kTextBox = 0x2B9404;
+// a slider (the sensitivities, the volumes): its input (0x4A260) takes left (flag 1) and right (2), moving its node's
+// value (+0xA0) by its record's step (+0xC4)
+constexpr uint32_t kSlider = 0x2B93A4;
 constexpr uint32_t kListDown = 0x54B20, kListUp = 0x54A10;  // ecx the list box's node
 constexpr int kListSlots = 16;
 
@@ -118,6 +126,7 @@ struct Rows {
     int n = 0, current = -1;
     uint32_t items[kMaxItems];
     int slots[kMaxItems];  // a list box's visible slot, -1 for an item's own row
+    bool slider[kMaxItems];
     float ys[kMaxItems];
     int64_t at = 0;  // ms
 };
@@ -178,12 +187,14 @@ void Track(X86Context& ctx, uint32_t manager) {
             top += spacing * int16_t(kernel::G<uint16_t>(node + 0x1B8));
             for (int k = 0; k < visible && r.n < kMaxItems; k++) {
                 if (int16_t(kernel::G<uint16_t>(entries + 2 * k)) < 0) continue;
-                r.items[r.n] = item, r.slots[r.n] = k, r.ys[r.n++] = kRowsY0 - kRowsScale * (top - spacing * k);
+                r.items[r.n] = item, r.slots[r.n] = k, r.slider[r.n] = false;
+                r.ys[r.n++] = kRowsY0 - kRowsScale * (top - spacing * k);
             }
             continue;
         }
         if (!NodeHeight(node, y)) continue;
-        r.items[r.n] = item, r.slots[r.n] = -1, r.ys[r.n++] = kRowsY0 - kRowsScale * y;
+        r.items[r.n] = item, r.slots[r.n] = -1, r.slider[r.n] = R(item) == kSlider;
+        r.ys[r.n++] = kRowsY0 - kRowsScale * y;
     }
     r.placed = !text && (list ? r.n >= 1 : r.n >= 2);
     if (dialogue) {
@@ -239,6 +250,19 @@ void Track(X86Context& ctx, uint32_t manager) {
 }  // namespace
 
 uint32_t LayoutNode(uint32_t hash) { return Find(R(kManager) + 0xBC, hash); }
+
+int PointerSlider() {
+    Rows r;
+    {
+        std::lock_guard<std::mutex> lock(g_lock);
+        r = g_rows;
+    }
+    float x, y;
+    if (NowMs() - r.at > 1000 || !r.placed || !PointerAt(x, y)) return 0;
+    const int over = RowAt(r, x, y);
+    if (over < 0 || over != r.current || !r.slider[over]) return 0;
+    return x < kValueLeft ? 2 : x < kValueMiddle ? -1 : 1;
+}
 
 int PointerHit() {
     Rows r;

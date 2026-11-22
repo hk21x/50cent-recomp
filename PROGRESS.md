@@ -15,6 +15,19 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - The pointer on sliders and volumes (src/game/menu_pointer.cpp, src/common/menu_mouse.cpp)
+- Harry: the pointer in the screens it left to the keys (this entry: the sliders; the name keyboard and store next).
+- Read (dumps of Options > Camera and Audio/Video): the sensitivities and the three volumes are one item kind,
+  vtable 0x2B93A4, input 0x4A260: left (flag 1) and right (2) move its node's value (+0xA0; the volumes 95, 95, 85)
+  by its record's step (+0xC4); on/off rows are 0x2B93BC, buttons 0x2B9370. A held d-pad steps once, then repeats
+  slowly (headless: one frame of LEFT 95 -> 94; 30 frames 2 steps).
+- The rows' extent across widened to 94..555 (the Options pages' bar; the title's is 144..494). On the highlighted
+  slider's row, a press on the value column's left half (415..486) lowers a step and its right half raises one,
+  held repeating ten a second after 0.4 s; the wheel over it is a step a notch instead of moving the highlight.
+  Each step is the d-pad for one read of the pad.
+- Headless (FC_POINTER, .local/click_run.sh with timed releases): a click at x 450 on Sound Effect Volume 95 -> 94,
+  at x 520 back to 95; a 1.3 s hold stepped 8. SMOKE OK; wincheck clean.
+
 ### 2026-11-22 - Black bars beside the movie after leaving a mission (src/game/widescreen.cpp)
 - The grey (51) at the sides of the title movie after Quit: headless with XBE_CLEAR_LOG=1, the game's clear 0x122350
   clears target 021A1180 to FF333333 for about five frames at boot and as a mission is left (the loading screen's),
