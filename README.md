@@ -216,7 +216,7 @@ lists them with your unlocks.
 | Soldier Through | Finish the story on G-Unit Soldier | 100 |
 | Decorated / Full Rack | Pick up a Grizz medal / all 10 | 10 / 50 |
 | New Move / Close Quarters / Every Answer | Buy a disarm / own 10 / all 25 | 10 / 25 / 50 |
-| Armed Up / Full Arsenal | Get a new weapon / all 20 | 10 / 50 |
+| Armed Up / Full Arsenal | Buy a weapon / own all 20 at once (stashed or carried) | 10 / 50 |
 | Pocket Money / Stacking Up / Six Figures | Carry $10,000 / $50,000 / $100,000 | 10 / 25 / 50 |
 
 ## Requirements

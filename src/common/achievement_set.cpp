@@ -61,8 +61,8 @@ std::vector<achievements::Def> AchievementSet() {
     set.push_back({"first_disarm", "New Move", "Buy a disarm.", 10, kAwarded});
     set.push_back({"ten_disarms", "Close Quarters", "Own 10 disarms.", 25, kAwarded});
     set.push_back({"all_disarms", "Every Answer", "Own all 25 disarms.", 50, kAwarded});
-    set.push_back({"first_weapon", "Armed Up", "Get a new weapon.", 10, kAwarded});
-    set.push_back({"all_weapons", "Full Arsenal", "Get all 20 weapons.", 50, kAwarded});
+    set.push_back({"first_weapon", "Armed Up", "Buy a weapon.", 10, kAwarded});
+    set.push_back({"all_weapons", "Full Arsenal", "Own all 20 weapons at once.", 50, kAwarded});
     set.push_back({"cash_10k", "Pocket Money", "Carry $10,000.", 10, Carries(10000)});
     set.push_back({"cash_50k", "Stacking Up", "Carry $50,000.", 25, Carries(50000)});
     set.push_back({"cash_100k", "Six Figures", "Carry $100,000.", 50, Carries(100000)});
