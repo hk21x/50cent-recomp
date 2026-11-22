@@ -15,6 +15,23 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - Sharp text and HUD (SDK sharp-p8; src/game/hud.cpp); the weapon keys as Game actions (SDK game-actions)
+- Game actions (SDK dd5b311, gated on pgr2, pgr1, eon, agentunderfire, nightfire): GameInfo::actions, a title's own
+  keyboard actions after the console's inputs in the key tables (settings.toml [keys] by name, the key capture,
+  Default keys), a "Game actions" table on the Controls page, input::ActionHeld. Bulletproof's weapon_1..3 (1, 2,
+  3) are read as each goes down in the 0x86400 hook, in place of the fixed WM_KEYDOWN digits.
+- Sharp text: every texture the menus bind is P8 (headless probe: five sheets, each with its palette 0x400 before
+  it), which Sharpen2D left out; and the game draws its menus and HUD through its own cameras (src/game/aspect.cpp),
+  so the renderers never counted them as 2D. SDK: Sharpen2D takes P8 with the palette bound (the replacement keeps
+  the palette's hash and stands in only while it is bound); State::flat_2d marks a game's own 2D; P8 sheets up to
+  256 texels four times. Here: the layer draw 0x29FA0 and the keyboard 0x59330 set flat_2d; sharpen_2d on.
+- Headless (REF frames, XBE_SHARPEN_DUMP): the PDA frame, icons, backgrounds and both fonts sharpened, white glyphs
+  from their palettes. GPU-VM (D3D12, 1920x800, render 200%): 14 sheets sharpened (the HUD's and the weapon icons
+  too); P8 replacements bound with no palette mismatches (a diagnostic build); the frames differ exactly at the
+  text's, icons' and frame's edges. At 800 lines the text is ~1.7 times its 480 and the change is small; at 1440 it
+  is three times. Setting "Sharp text and HUD" (Graphics).
+- The keyboard harness note: the UI preview's 6 failing checks fail on fork main too (not from this).
+
 ### 2026-11-22 - Weapon keys: real input on Windows; 1 takes turns through the arms' holsters
 - GPU-VM (C:\bpctl\run.ps1 gains digit keys and "wheel N": the cursor put on the window, mouse_event's wheel):
   with FC_GIVE_WEAPONS=7,14,1 in the alley, real 2, 3, a notch down, a notch up and 1 logged slots 2, 3, 0, 3, 0.

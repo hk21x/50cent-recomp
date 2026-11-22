@@ -69,7 +69,7 @@ your screen's resolution and shape at 60, with anti-aliasing and sharpening laye
 | **Aspect, changed as you play** | Auto, 4:3, 16:9 or fill the screen, applied at once, mid-mission too. The HUD follows. |
 | **HUD at the edges** | On a wide screen the health bar, cash and weapon panel sit at the screen's sides, as on a 16:9 TV, not squeezed into the middle. |
 | **60 frames a second** | The console ran at 30. The game's simulation follows the clock, so it plays at its own speed. |
-| **Sharper graphics** | Render scale up to 200%, MSAA up to 8x, FXAA or SMAA, sharpening, anisotropic filtering and enhanced world textures. |
+| **Sharper graphics** | Render scale up to 200%, MSAA up to 8x, FXAA or SMAA, sharpening, anisotropic filtering, enhanced world textures, and sharp text and HUD (the menus' and HUD's pictures enlarged four times). |
 | **PC Settings in the game** | **Y** on the game's Options page (from the title and the pause menu) opens a PC Settings page in the PDA, in the game's own style; **F1** opens the whole settings window anywhere. Saved in `settings.toml`. |
 | **Mouse and keyboard** | WASD and mouse aim that turns the camera directly, as in a PC shooter, not as a stick. The button prompts show your keys while you play on the keyboard. |
 | **Mouse in the menus** | A pointer of its own in the PDA's colours: point at a row to highlight it and click to choose it, in lists too; right click goes back, the wheel scrolls. |
@@ -117,7 +117,7 @@ other menus.
 | Page | Settings |
 |---|---|
 | **Display** | Display mode (full screen, borderless, window), resolution, aspect ratio, vertical sync, frame rate cap |
-| **Graphics** | Render scale, MSAA, edge smoothing (FXAA, SMAA), texture filtering, sharpening |
+| **Graphics** | Render scale, MSAA, edge smoothing (FXAA, SMAA), texture filtering, sharpening, sharp text and HUD |
 | **Game** | Field of view, hide the HUD, skip intro movies, modern button pictures, enhanced textures |
 
 <p align="center">
