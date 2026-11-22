@@ -61,10 +61,32 @@ X86_FUNC(sub_00105F50) {
 // mission is left are cleared dark grey (FF333333), the loading screen's, before the movie that plays meanwhile draws
 // to another target. On a frame wider than the movie that grey stayed at its sides for the whole movie (GPU-VM,
 // 1920x800, Quit from the pause menu); on the console nothing shows past the picture. Cleared black instead.
+// A movie's clear (its every frame, black) is made to cover its whole target: a movie played as a saved game's mission
+// starts draws to a new 720x480 target, and the picture of the mission select before it stayed at the movie's sides
+// (Harry, 3440x1440, 2026-11-22), the clear covering the screen's viewport alone; the console's movie covers it all.
 X86_EXTERN_FUNC(__imp__sub_00122350);
 X86_FUNC(sub_00122350) {
     if (kernel::R32(ctx.esp + 4) == 0xFF333333u) kernel::W32(ctx.esp + 4, 0xFF000000u);
+    // a movie's clear covers its whole target (see above)
+    std::unique_lock<std::recursive_mutex> lock(d3d::Lock());
+    gpu::State& s = d3d::State();
+    const gpu::Viewport kept = s.viewport;
+    const bool whole = s.pillar_fit && s.rt.size;
+    if (whole) {
+        const uint32_t w = (s.rt.size & 0xFFF) + 1, h = (s.rt.size >> 12 & 0xFFF) + 1;
+        if (kept.x || kept.y || kept.w != w || kept.h != h)
+            LOGR_FIRST(4, "bulletproof: a movie's clear widened from %u %u %ux%u to its whole %ux%u target", kept.x,
+                       kept.y, kept.w, kept.h, w, h);
+        s.viewport.x = s.viewport.y = 0;
+        s.viewport.w = w;
+        s.viewport.h = h;
+    }
+    lock.unlock();
     __imp__sub_00122350(ctx, base);
+    if (whole) {
+        lock.lock();
+        s.viewport = kept;
+    }
 }
 
 constexpr uint32_t kCinematicMode = 0x32FAD8;  // byte
