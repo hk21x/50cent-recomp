@@ -27,6 +27,8 @@
 // frame with no menu up (the gun shop's stat bars, values and arrows, the bootlegger's list): moved piece by piece
 // they came apart on a 21:9 frame (Harry, 3440x1440, 2026-11-22). The pause menu is drawn in the gameplay frame too,
 // so nothing moves while one is up.
+#include <chrono>
+
 #include "app/app.h"
 #include "common/bulletproof.h"
 #include "core/log.h"
@@ -44,6 +46,8 @@ void MoviePillar(bool on) {
 }
 
 bool g_gameplay = false;  // in the gameplay frame
+bool g_cinematic = false;  // an in-engine cutscene (the scripts' cinematicMode)
+std::chrono::steady_clock::time_point g_last_gameplay;  // the gameplay frame's last start
 
 // XDK functions in the xbe (config/game.toml)
 constexpr uint32_t kGetBackBuffer2 = 0x24D4F0, kSetRenderTarget = 0x24D270, kClear = 0x24F2C0;
@@ -75,6 +79,26 @@ void ClearDisplayBuffers(X86Context& ctx) {
     LOGR_FIRST(1, "bulletproof: the display buffers cleared black before a movie");
 }
 }  // namespace
+
+// The frame's held shape: 4:3 through an in-engine cutscene; 16:9 while a menu of the front end is up (no gameplay
+// frame for a quarter second: the title, the profiles, arcade mode's mission, character and weapon screens). The
+// menus' text is sized for the game's 16:9 views: at the frame's own shape its letters came out that much wider
+// (2.389 / 1.778 at 21:9) while the PDA around them kept its size, so arcade mode's weapon names ran off the left of
+// their panel, the mission select's scores off its right and the Story or Arcade question past its box (Harry,
+// 3440x1440, 2026-11-22). The front end is a 4:3 picture on black either way. The pause menu, over the world, is not
+// held.
+void fc::UpdateAspectHold() {
+    const bool front_end =
+        fc::MenuUp() && std::chrono::steady_clock::now() - g_last_gameplay > std::chrono::milliseconds(250);
+    const float held = g_cinematic ? 4.0f / 3.0f : front_end ? 16.0f / 9.0f : 0.0f;
+    static float was = 0;
+    if (held == was) return;
+    was = held;
+    app::HoldAspect(held);
+    LOGR("bulletproof: the frame %s", g_cinematic ? "held at 4:3 (in-engine cutscene)"
+                                      : front_end  ? "held at 16:9 (the front end's menus)"
+                                                   : "at the aspect setting");
+}
 
 bool fc::HudLayoutWanted() { return g_gameplay && !fc::MenuUp(); }
 
@@ -132,13 +156,9 @@ X86_EXTERN_FUNC(__imp__sub_00086890);
 X86_FUNC(sub_00086890) {
     // an in-engine cutscene (the scripts' cinematicMode, 0x32FAD8, set by 0xC7190): the whole frame at 4:3, its sides
     // black, as a movie is; the 3D follows (src/game/aspect.cpp) from its next view
-    const bool cinematic = kernel::G<uint8_t>(kCinematicMode) != 0;
-    static bool was = false;
-    if (cinematic != was) {
-        was = cinematic;
-        app::HoldAspect(cinematic ? 4.0f / 3.0f : 0.0f);
-        LOGR("bulletproof: in-engine cutscene %s", cinematic ? "begins: the frame at 4:3" : "ends");
-    }
+    g_cinematic = kernel::G<uint8_t>(kCinematicMode) != 0;
+    g_last_gameplay = std::chrono::steady_clock::now();
+    fc::UpdateAspectHold();
     g_gameplay = true;
     __imp__sub_00086890(ctx, base);
     g_gameplay = false;

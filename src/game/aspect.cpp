@@ -22,6 +22,7 @@ namespace {
 constexpr uint32_t kAspect = 0x349478;
 
 void SetAspect() {
+    fc::UpdateAspectHold();  // src/game/widescreen.cpp
     const float a = app::FrameAspect();
     uint32_t v;
     std::memcpy(&v, &a, 4);
