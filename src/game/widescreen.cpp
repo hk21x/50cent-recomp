@@ -8,6 +8,11 @@
 // on screens in the world) do not span the frame and are left alone. The black bars the player draws over the top and
 // bottom 64 lines when the cutscene's +0x24 is set (0x10641E, through 0x121B70) would then cover the fitted picture,
 // so that flag is cleared while it plays and put back after.
+// A movie played as a mission starts (from the hub, or a saved game's mission select) draws into a 512x512 target of
+// its own and clears only that; the display buffers are drawn only by the fitted quad, so on a frame wider than 4:3
+// whatever the screen before had at the sides stayed there for the whole movie: the loading text and its grey panel,
+// the mission select's map (Harry, 3440x1440, 2026-11-22; on the GPU-VM the movie's clears were all to 82233B00,
+// 512x512). On the console the movie covers the screen. Every display buffer is cleared black as a movie starts.
 // The in-engine cutscenes are the game's 3D, run by its scripts with cinematicMode set (0xC7190 sets 0x32FAD8; the
 // CinemaLayer's bars are drawn over the frame while it is, 0x4B190): while one plays the whole frame is held at 4:3
 // (app::HoldAspect), its sides black as a movie's, and given back to the aspect setting after.
@@ -39,6 +44,36 @@ void MoviePillar(bool on) {
 }
 
 bool g_gameplay = false;  // in the gameplay frame
+
+// XDK functions in the xbe (config/game.toml)
+constexpr uint32_t kGetBackBuffer2 = 0x24D4F0, kSetRenderTarget = 0x24D270, kClear = 0x24F2C0;
+
+// Every display buffer cleared black, the target put back (see the movie player below)
+void ClearDisplayBuffers(X86Context& ctx) {
+    uint32_t rt, zs, w, h;
+    gpu::Viewport vp;
+    {
+        std::lock_guard<std::recursive_mutex> lock(d3d::Lock());
+        const gpu::State& s = d3d::State();
+        rt = s.rt.header, zs = s.zs.header, vp = s.viewport;
+        w = (s.rt.size & 0xFFF) + 1, h = (s.rt.size >> 12 & 0xFFF) + 1;
+    }
+    // putting the target back resets the viewport to all of it: only done when that is what it was
+    if (!rt || vp.x || vp.y || vp.w != w || vp.h != h) return;
+    uint32_t done[3] = {};
+    for (int32_t i = -1; i < 2; i++) {
+        const uint32_t surface = kernel::CallGuest(ctx, kGetBackBuffer2, {uint32_t(i)});
+        if (!surface) continue;
+        if (surface != done[0] && surface != done[1] && surface != done[2]) {
+            done[i + 1] = surface;
+            kernel::CallGuest(ctx, kSetRenderTarget, {surface, 0});
+            kernel::CallGuest(ctx, kClear, {0, 0, 0xF0, 0xFF000000u, 0x3F800000u, 0});
+        }
+        kernel::W32(surface, kernel::R32(surface) - 1);  // GetBackBuffer2's reference
+    }
+    kernel::CallGuest(ctx, kSetRenderTarget, {rt, zs});
+    LOGR_FIRST(1, "bulletproof: the display buffers cleared black before a movie");
+}
 }  // namespace
 
 bool fc::HudLayoutWanted() { return g_gameplay && !fc::MenuUp(); }
@@ -49,6 +84,7 @@ X86_FUNC(sub_00105F50) {
     const uint32_t cutscene = kernel::R32(ctx.esp + 4);
     const uint8_t bars = cutscene ? kernel::G<uint8_t>(cutscene + 0x24) : 0;
     if (cutscene) kernel::G<uint8_t>(cutscene + 0x24) = 0;
+    ClearDisplayBuffers(ctx);
     MoviePillar(true);
     static bool said = false;
     if (!said) said = true, LOGR("bulletproof: cutscenes shown whole at 4:3");
