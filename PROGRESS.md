@@ -15,6 +15,17 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-22 - Weapon keys: real input on Windows; 1 takes turns through the arms' holsters
+- GPU-VM (C:\bpctl\run.ps1 gains digit keys and "wheel N": the cursor put on the window, mouse_event's wheel):
+  with FC_GIVE_WEAPONS=7,14,1 in the alley, real 2, 3, a notch down, a notch up and 1 logged slots 2, 3, 0, 3, 0.
+- Thrown weapons: there is no seventh holster (player +0x664 on is the ammo table, eight types 8 bytes apart, as
+  0x31A60 copies it). Grenades, molotovs and sticky bombs are class 1 (the weapon table's +0x60), so they go in the
+  arms' holsters with the pistols (FC_GIVE_WEAPONS=21: holster 0), and 1 reaches them: no fourth key needed.
+- 1, 2, 3 now start from the holster after the last chosen, so the two arm holsters take turns (the weapon put away
+  goes where the drawn one was): with a grenade in 0 and the Gat in 1, 1 four times chose 0, 1, 0, 1. SMOKE OK.
+- The store (the hub's weapon shop, "WeapShop" / shopLayer, a list box with left and right arrows) cannot be reached
+  headless from a new game; left for a save that is there.
+
 ### 2026-11-22 - The pointer on the name keyboard (src/game/menu_pointer.cpp)
 - The keyboard ([0x329A1C]; up while [0x329A10] is 2 and its +0xAA5 clear) is run by 0x597A0, which 0x1E3C0 jumps
   to after the PDA's frame (so it is handled from the 0x49F00 hook). Five rows (+0xA6C counts) of 16 byte keys from

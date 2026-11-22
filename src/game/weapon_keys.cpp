@@ -15,7 +15,8 @@
 //
 // Here, before 0x86400 runs: a wheel notch down is the game's own tap (0x46C00), a notch up the same step backwards;
 // the draw follows a tenth of a second after the last notch, so several notches pass over weapons. 1, 2 and 3 choose
-// the holster of that class (the other pistol if a pistol is in the hand already) and draw it at once.
+// the holster of that class and draw it at once; pressed again, the next of that class (the arms hold two: pistols,
+// and the grenades, molotovs and sticky bombs, which are class 1 too).
 // FC_GIVE_WEAPONS=7,14 (weapon numbers) gives those once in play, to try it headless.
 #include <cstdlib>
 #include <cstring>
@@ -115,9 +116,15 @@ X86_FUNC(sub_00086400) {
         }
         if (key >= 1 && key <= 3) {
             const bool in_hand = Class(Weapon(player, 5)) == key;
+            // the holsters of that class from the one after the last chosen: the arms' two (pistols and the thrown
+            // weapons, class 1 too) take turns, the weapon put away going where the drawn one was
+            static int last = -1;
             int pick = -1;
-            for (int s = 0; s < 4 && pick < 0; s++)
+            for (int n = 1; n <= 4 && pick < 0; n++) {
+                const int s = (last + n + 4) % 4;
                 if (Weapon(player, s) != -1 && Class(Weapon(player, s)) == key) pick = s;
+            }
+            if (pick >= 0) last = pick;
             if (pick >= 0) Choose(ctx, player, pick, 0);
             LOGR("bulletproof: key %d: slot %d%s", key, pick, pick < 0 ? (in_hand ? " (in the hand)" : " (none)") : "");
         }
