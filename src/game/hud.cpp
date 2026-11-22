@@ -14,6 +14,7 @@
 #include "common/bulletproof.h"
 #include <mutex>
 
+#include "core/log.h"
 #include "kernel/kernel.h"
 #include "xdk/d3d8.h"
 #include "xdk/hle.h"
@@ -45,6 +46,12 @@ X86_FUNC(sub_00029FA0) {
     if (fc::hide_hud && ctx.ecx && ctx.ecx == kernel::R32(kHudLayer)) {
         ctx.esp += 4;  // ret: no arguments on the stack
         return;
+    }
+    {
+        std::lock_guard<std::recursive_mutex> lock(d3d::Lock());
+        if (d3d::State().pillar_fit)
+            LOGR_FIRST(40, "bulletproof: layer %08X drawn in a movie (HUD %08X, fade %08X, layout wanted %d)", ctx.ecx,
+                       kernel::R32(kHudLayer), kernel::R32(kFadeLayer), fc::HudLayoutWanted());
     }
     const bool was = Flat2d(true);
     // the HUD's own layer alone is laid out to the frame's edges (src/game/widescreen.cpp)
