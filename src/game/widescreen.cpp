@@ -67,7 +67,7 @@ void ClearDisplayBuffers(X86Context& ctx) {
         if (surface != done[0] && surface != done[1] && surface != done[2]) {
             done[i + 1] = surface;
             kernel::CallGuest(ctx, kSetRenderTarget, {surface, 0});
-            kernel::CallGuest(ctx, kClear, {0, 0, 0xF0, 0xFF000000u, 0x3F800000u, 0});
+            kernel::CallGuest(ctx, kClear, {0, 0, 0xF0, 0xFFFF0000u, 0x3F800000u, 0});
         }
         kernel::W32(surface, kernel::R32(surface) - 1);  // GetBackBuffer2's reference
     }
