@@ -346,18 +346,31 @@ void Track(X86Context& ctx, uint32_t manager) {
 }
 }  // namespace
 
-// FC_SHOP_OPEN=<function> (a test): a shop's Lua opener called once, 20 s into play with no shop open
-// (0x833F0 StartBootLeggerInteraction, 0x55EE0 StartWeaponPurchase, 0x560F0 StartMedicineInteraction)
+// Tests: FC_EXIT_LEVEL=N leaves the level as the scripts' ExitLevel(N) does (0xCB680; 12 EXIT_HUB_VAN, Grizz's van,
+// 9 EXIT_HUB_DOC), 20 s into play; FC_SHOP_OPEN=<function> calls a shop's Lua opener once, FC_SHOP_DELAY seconds into
+// play (20 unless given) with no shop open (0x833F0 StartBootLeggerInteraction, 0x55EE0 StartWeaponPurchase, 0x560F0
+// StartMedicineInteraction), or under 0x100 sets that shop state (0x11 the bootlegger's, past its greeting).
 void ShopTest(X86Context& ctx) {
+    static const char* exit_level = std::getenv("FC_EXIT_LEVEL");
     static const char* want = std::getenv("FC_SHOP_OPEN");
+    static const char* delay = std::getenv("FC_SHOP_DELAY");
     static int64_t first = 0;
-    static bool done = false;
-    if (!want || done) return;
+    static bool exited = false, done = false;
+    if (!exit_level && !want) return;
     if (!first) first = NowMs();
-    if (NowMs() - first < 20000 || R(kShopState)) return;
+    if (exit_level && !exited && NowMs() - first >= 20000) {
+        exited = true;
+        const uint32_t code = uint32_t(std::strtoul(exit_level, nullptr, 0));
+        kernel::CallGuest(ctx, 0x25FF0, {code, 0xFFFFFFFFu});
+        kernel::W32(0x325318, 0xB);
+        kernel::CallGuest(ctx, 0x34B60, {});
+        LOGR("bulletproof: FC_EXIT_LEVEL %u", code);
+    }
+    const int64_t wait = delay ? int64_t(std::atof(delay) * 1000) : 20000;
+    if (!want || done || NowMs() - first < wait || R(kShopState)) return;
     done = true;
     const uint32_t fn = uint32_t(std::strtoul(want, nullptr, 16));
-    if (fn < 0x100) kernel::W32(kShopState, fn);  // a state of its own (0x11 the bootlegger's, past its greeting)
+    if (fn < 0x100) kernel::W32(kShopState, fn);
     else kernel::CallGuest(ctx, fn, {});
     LOGR("bulletproof: FC_SHOP_OPEN %X: the shop state %u", fn, R(kShopState));
 }
