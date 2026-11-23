@@ -131,10 +131,10 @@ uint32_t NodeByPath(uint32_t layer, const char* path) {
 // The shops (0x55770 sets up their layers and managers; the shop state 0x3315D8 says which is open, and 0x55900 runs
 // that one's manager's frame in the gameplay frame): the crib's TV (2), the stash (4), the gun shop ("WeapShop", 5;
 // Grizz's van), Doc's ("Doc", 0xF) and the bootlegger's ("Bootlegger", 0x12; Whoo Kid's music and videos), the
-// disarms (0xC). Their layers are drawn by the menus' camera (the bootlegger's list and buttons measured headless at
-// the PDA's scale, across as down). Each has a row of buttons ("buttonGrp": its icon at the group, its label beside
-// it): Back (B) and the third action (Y) at the left, the action (A) and the second (X) at the right, the label's
-// text running from its node away from the icon.
+// disarms (0xC; their bar "disButtonGrp", 0x56450). Their layers are drawn by the menus' camera (the bootlegger's
+// list and buttons measured headless at the PDA's scale, across as down). Each has a row of buttons ("buttonGrp": its
+// icon at the group, its label beside it): Back (B) and the third action (Y) at the left, the action (A) and the
+// second (X) at the right, the label's text running from its node away from the icon.
 constexpr uint32_t kShopState = 0x3315D8;
 uint32_t ShopManager() {
     switch (R(kShopState)) {
@@ -301,9 +301,15 @@ void Track(X86Context& ctx, uint32_t manager) {
     const char* bar = shop ? "" : manager == kManager ? kPdaBar : nullptr;
     for (const Button& b : kButtons) {
         // the shops' paths are "buttonGrp/..."; the PDA's the same past that, under its bar
-        const std::string gpath = bar ? std::string(bar) + (shop ? b.group : b.group + 10) : "",
-                          lpath = bar ? std::string(bar) + (shop ? b.label : b.label + 10) : "";
-        const uint32_t group = bar ? NodeByPath(layer, gpath.c_str()) : 0, label = group ? NodeByPath(layer, lpath.c_str()) : 0;
+        std::string gpath = bar ? std::string(bar) + (shop ? b.group : b.group + 10) : "",
+                    lpath = bar ? std::string(bar) + (shop ? b.label : b.label + 10) : "";
+        uint32_t group = bar ? NodeByPath(layer, gpath.c_str()) : 0;
+        if (shop && !group) {  // the disarms' bar is "disButtonGrp/..." (0x56450)
+            gpath = std::string("disB") + (b.group + 1);
+            lpath = std::string("disB") + (b.label + 1);
+            group = NodeByPath(layer, gpath.c_str());
+        }
+        const uint32_t label = group ? NodeByPath(layer, lpath.c_str()) : 0;
         float gx, gy, lx, ly;
         if (!label || !NodeShown(group) || !NodePlace(group, gx, gy) || !NodePlace(label, lx, ly)) continue;
         const float icon = ScreenX(gx, spread), text = ScreenX(lx, spread), y = ScreenY(gy);

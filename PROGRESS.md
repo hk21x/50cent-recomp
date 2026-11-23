@@ -15,6 +15,21 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-23 - The disarm shop's pointer; auto-aim at the frame's edges (src/game/menu_pointer.cpp)
+- The disarms are bought at a table in the theater (StartTableInteraction, 0x55F20 sets the shop state 0xB, the frame
+  then 0xC; "Disarm", 0x3317E0; callback 0xE5AB0: up and down step its list, A buys, X views the move, B leaves).
+  Reached headless: FC_EXIT_LEVEL=11 (EXIT_HUB_THEATER, H0_Thtr) from FC_FLOW_START=10, then FC_SHOP_OPEN=B
+  FC_SHOP_DELAY=45. Its list was placed (4 rows) but its prompts were not: its bar is "disButtonGrp/..." (0x56450)
+  where the other shops' is "buttonGrp/..." (0x56290). The shops now look for either: 3 buttons found. Headless:
+  hover moved the highlight and the panel behind it (Stay Down, Ski Mask Way), View played X, Buy A, a click off them
+  nothing. (Shop test pointer steps need 60 vblanks or more apart: the run logs the vblank every 60.)
+- Auto-aim, read from the code: the aim point is a ray from the camera's own matrix through the crosshair (0x7C750:
+  the camera's position + forward * 100 + right and up offsets, cast into the world 0x325670); the aim assist
+  (player +0x3C0C, 0x29790 sets its target from that ray's hit) slows the camera in 0x94000 by the angle between the
+  camera's forward and the target. Neither reads the view's planes (+0xF0..+0x12C of a view, widened by
+  view_cull.cpp) or its aspect, so it is the same at 16:9 and 21:9: no locks on targets off the frame's edges.
+- SMOKE OK; wincheck clean.
+
 ### 2026-11-23 - The README's new header (README.md, docs/img/bulletproof-header.webp)
 
 - Harry's banner (the game's logo over the first mission's alley, 1600x500) replaces the old cut of the alley shot at the README's top, as WebP (30 KB). The old docs/img/bulletproof-banner.webp is removed.
