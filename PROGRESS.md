@@ -15,6 +15,17 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-23 - The shops' pointer on a wide frame (src/game/menu_pointer.cpp)
+- Harry (3440x1440): the gun shop's arrows did nothing when clicked (his log: 5 buttons placed, so they were found).
+  The shop's layer is laid out for 16:9 from the frame's height (as the HUD, which huddled in a 16:9 middle on wider
+  frames); its nodes were mapped as 4:3, right only for the headless test, whose pointer is in fractions of a 16:9
+  frame drawn into 720x480. On Windows the pointer takes the menus as 4:3 in the middle, so a shop's places and
+  widths across are spread by 16:9 over 4:3 there (Harry's shot from before the shops fix agrees: the arrows'
+  distance from the edges is that of 16:9). A shop click now logs the pointer's place and the button under it.
+- E (X, Buy Ammo) did nothing for him: the gun shop's callback (0xE3590, flag 0x100) buys ammo only when that ammo
+  is below its most and the price is there; his earlier shot shows 9mm at 19/19 and $0. To check with room and cash.
+- Headless: the arrows at 181.5 and 458.5 as before (the test's pointer). SMOKE OK; wincheck clean.
+
 ### 2026-11-23 - The gun shop's pointer: its arrows, the wheel across, no stray buys (src/game/menu_pointer.cpp)
 - Harry: in the gun shop the pointer showed but clicks did nothing. His log: "WeapShop": 0 of 23 rows placed. The gun
   shop is a picker in the world: 23 button items (vtable 0x2B9370), one a weapon (Nine, Gat, SatNight...; those not

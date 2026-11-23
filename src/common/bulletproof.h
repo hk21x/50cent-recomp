@@ -25,6 +25,7 @@ void WeaponKey(int key);
 int TakeWeaponWheel();
 int TakeWeaponKey();
 bool MenuUp();                                           // a menu is up (the front end or the pause menu)
+bool PointerForced();  // the pointer from FC_POINTER (a test), in the frame's own fractions
 bool PointerAt(float& x, float& y);                      // the mouse pointer in the menus' 640x480 (src/common/menu_mouse.cpp)
 // what the pointer is over in the PDA's menus (src/game/menu_pointer.cpp); unknown in the others
 enum { kPointerUnknown, kPointerOff, kPointerOnCurrent, kPointerOnOther };

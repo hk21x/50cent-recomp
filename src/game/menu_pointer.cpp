@@ -30,6 +30,7 @@
 #include <cstring>
 #include <mutex>
 
+#include "app/app.h"
 #include "common/bulletproof.h"
 #include "core/log.h"
 #include "kernel/kernel.h"
@@ -108,7 +109,8 @@ bool NodeHeight(uint32_t node, float& y) {
     float x;
     return NodePlace(node, x, y);
 }
-float ScreenX(float x) { return 320 + kRowsScale * x; }  // a node's x to the menus' 640 (the camera's scale across too)
+// a node's x to the menus' 640 (the camera's scale across too), times `spread` (see ShopSpread)
+float ScreenX(float x, float spread = 1) { return 320 + kRowsScale * x * spread; }
 float ScreenY(float y) { return kRowsY0 - kRowsScale * y; }
 
 // a node shown: it and each of its parents (+0x7C, set by the vtable's +0x28)
@@ -142,6 +144,12 @@ uint32_t ShopManager() {
     }
     return 0;
 }
+// A shop's layer is laid out for the game's widescreen mode, 16:9 from the frame's height at any width (as the HUD:
+// on a wider frame its pieces huddled in a 16:9 middle): its nodes' x, measured headless as fractions of a 16:9 frame
+// drawn into 720x480 (where the test's pointer is in the same fractions), spread by 16:9 over 4:3 in the pointer's
+// own space on Windows, which takes the menus as 4:3 in the middle (src/common/menu_mouse.cpp). Harry's shot of the
+// gun shop at 3440x1440 agrees: its arrows' distance from the edges there is that of 16:9 kept by hud_layout.
+float ShopSpread() { return PointerForced() || !app::Widescreen() ? 1.0f : (16.0f / 9.0f) / (4.0f / 3.0f); }
 constexpr float kListHalfWidth = 138;  // the bootlegger's list: 290 to 565 (640) about its node
 constexpr float kItemHalfWidth = 60;   // a shop's other items about their nodes
 
@@ -235,6 +243,7 @@ void Track(X86Context& ctx, uint32_t manager) {
     static int64_t dialogue_at = 0;
     const bool dialogue = mem::IsCommitted(record + 6) && std::strncmp(static_cast<const char*>(kernel::HostPtr(record + 6)), "Dialogue", 9) == 0;
     const bool shop = manager == ShopManager();
+    const float spread = shop ? ShopSpread() : 1;
     if (!dialogue && ((manager != kManager && !shop) || NowMs() - dialogue_at < 300)) return;
     Rows r;
     bool text = false, list = false;
@@ -247,7 +256,7 @@ void Track(X86Context& ctx, uint32_t manager) {
         float y;
         if (!node) continue;
         float nx, ny;
-        const float centre = shop && NodePlace(node, nx, ny) ? ScreenX(nx) : 0;
+        const float centre = shop && NodePlace(node, nx, ny) ? ScreenX(nx, spread) : 0;
         if (R(item) == kListBox) {
             // its visible slots: +0x1BC of them, +0xA0 each one's entry (-1 none), +0x1B8 the highlighted one; the node at
             // +0x190 is placed on the highlighted slot, the others a row's spacing (+0x28 of its look, +0x1C0) apart
@@ -265,12 +274,12 @@ void Track(X86Context& ctx, uint32_t manager) {
                 if (int16_t(kernel::G<uint16_t>(entries + 2 * k)) < 0) continue;
                 r.items[r.n] = item, r.slots[r.n] = k, r.slider[r.n] = false;
                 if (across) {
-                    const float x = ScreenX(hx + spacing * (k - at)), half = kRowsScale * spacing / 2;
+                    const float x = ScreenX(hx + spacing * (k - at), spread), half = kRowsScale * spacing * spread / 2;
                     r.lefts[r.n] = x - half, r.rights[r.n] = x + half;
                     r.ys[r.n++] = ScreenY(hy);
                 } else {
-                    r.lefts[r.n] = shop ? centre - kListHalfWidth : kBarLeft;
-                    r.rights[r.n] = shop ? centre + kListHalfWidth : kBarRight;
+                    r.lefts[r.n] = shop ? centre - kListHalfWidth * spread : kBarLeft;
+                    r.rights[r.n] = shop ? centre + kListHalfWidth * spread : kBarRight;
                     r.ys[r.n++] = ScreenY(hy - spacing * (k - at));
                 }
             }
@@ -278,8 +287,8 @@ void Track(X86Context& ctx, uint32_t manager) {
         }
         if (!NodeHeight(node, y)) continue;
         r.items[r.n] = item, r.slots[r.n] = -1, r.slider[r.n] = R(item) == kSlider;
-        r.lefts[r.n] = shop ? centre - kItemHalfWidth : kBarLeft;
-        r.rights[r.n] = shop ? centre + kItemHalfWidth : kBarRight;
+        r.lefts[r.n] = shop ? centre - kItemHalfWidth * spread : kBarLeft;
+        r.rights[r.n] = shop ? centre + kItemHalfWidth * spread : kBarRight;
         r.ys[r.n++] = kRowsY0 - kRowsScale * y;
     }
     // a shop's buttons shown: each a box from its icon across its label's text
@@ -287,17 +296,17 @@ void Track(X86Context& ctx, uint32_t manager) {
         const uint32_t group = shop ? NodeByPath(layer, b.group) : 0, label = group ? NodeByPath(layer, b.label) : 0;
         float gx, gy, lx, ly;
         if (!label || !NodeShown(group) || !NodePlace(group, gx, gy) || !NodePlace(label, lx, ly)) continue;
-        const float icon = ScreenX(gx), text = ScreenX(lx), y = ScreenY(gy);
-        r.buttons[r.nbuttons++] = {b.control, b.left ? icon - kIconHalf : text - kLabelText,
-                                   b.left ? text + kLabelText : icon + kIconHalf, y - kButtonHalfHeight,
-                                   y + kButtonHalfHeight};
+        const float icon = ScreenX(gx, spread), text = ScreenX(lx, spread), y = ScreenY(gy);
+        r.buttons[r.nbuttons++] = {b.control, b.left ? icon - kIconHalf * spread : text - kLabelText * spread,
+                                   b.left ? text + kLabelText * spread : icon + kIconHalf * spread,
+                                   y - kButtonHalfHeight, y + kButtonHalfHeight};
     }
     for (const Arrow& a : kArrows) {
         const uint32_t node = shop ? NodeByPath(layer, a.node) : 0;
         float ax, ay;
         if (!node || !NodeShown(node) || !NodePlace(node, ax, ay)) continue;
-        const float x = ScreenX(ax), y = ScreenY(ay);
-        r.buttons[r.nbuttons++] = {a.control, x - kArrowHalf, x + kArrowHalf, y - kArrowHalf, y + kArrowHalf};
+        const float x = ScreenX(ax, spread), y = ScreenY(ay);
+        r.buttons[r.nbuttons++] = {a.control, x - kArrowHalf * spread, x + kArrowHalf * spread, y - kArrowHalf, y + kArrowHalf};
         r.arrows = true;
     }
     r.shop = shop;
@@ -315,7 +324,7 @@ void Track(X86Context& ctx, uint32_t manager) {
              r.placed ? "" : " (not a menu of rows: the click plays A anywhere)", r.nbuttons);
         for (int i = 0; i < r.n; i++) LOGI("bulletproof:   row %d at %.1f, %.0f to %.0f", i, r.ys[i], r.lefts[i], r.rights[i]);
         for (int i = 0; i < r.nbuttons; i++)
-            LOGI("bulletproof:   button %d: %.0f to %.0f, %.0f to %.0f", r.buttons[i].control, r.buttons[i].x0,
+            LOGR("bulletproof:   button %d: %.0f to %.0f, %.0f to %.0f", r.buttons[i].control, r.buttons[i].x0,
                  r.buttons[i].x1, r.buttons[i].y0, r.buttons[i].y1);
     }
     // the pointer highlights a row as it moves onto it; standing still it leaves the keys' and the wheel's choice alone

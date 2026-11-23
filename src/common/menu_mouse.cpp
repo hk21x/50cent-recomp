@@ -187,6 +187,8 @@ void Press(input::Pad& p, int c) {
 }
 }  // namespace
 
+bool PointerForced() { return ForcedPointer().on; }
+
 bool PointerAt(float& x, float& y) {
     const Forced f = ForcedPointer();
     if (f.on) {
@@ -275,6 +277,9 @@ void MenuMouse(input::Pad& p) {
             button = PointerButton();
             armed = button < 0 && hit != kPointerOff;
             LOGI("bulletproof: menu click (pointer %d, slider %d, button %d)", hit, slide, button);
+            float cx, cy;
+            if (ShopUp() && PointerAt(cx, cy))
+                LOGR_FIRST(24, "bulletproof: a shop click at %.0f %.0f (of the menus' 640x480): button %d", cx, cy, button);
         }
         was_left = held & 1;
         if (!(held & 1)) button = -1;
