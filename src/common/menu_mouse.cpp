@@ -5,7 +5,8 @@
 // (src/game/menu_pointer.cpp); a press off the rows does nothing. On a slider's row (sensitivity, volume) a press on
 // its value column's left or right half lowers or raises it, and the wheel over it changes it.
 // The shops (the gun shop, Doc's, the bootlegger's, the disarms) are menus played in play: while one is up the mouse is
-// the menus' too, and a click on one of their on-screen buttons (Back, Buy...) plays that button.
+// the menus' too, and a click on one of their on-screen buttons (Back, Buy, the gun shop's arrows) plays that button;
+// off them a click does nothing in a shop picked from in the world (the gun shop), so a stray one buys nothing.
 //
 // A menu is up while the byte at 0x342A90 is set: 0x1047B0 sets it (from 0x84E40, which pauses the music, the speech
 // and the movie textures for the pause menu, and from the front end's 0x1FE60), 0x10473D and 0x1047DA clear it. Memory
@@ -309,7 +310,9 @@ void MenuMouse(input::Pad& p) {
     }
     if (pending) {
         if (now - pulse < kPress) {
-            Press(p, pending > 0 ? input::kUp : input::kDown);
+            // in the gun shop the weapons are stepped left and right (up the wheel the one before)
+            if (ShopAcross()) Press(p, pending > 0 ? input::kLeft : input::kRight);
+            else Press(p, pending > 0 ? input::kUp : input::kDown);
         } else if (now - pulse >= kPress + kGap) {
             pending += pending > 0 ? -1 : 1;
             pulse = now;

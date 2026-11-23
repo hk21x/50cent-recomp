@@ -15,6 +15,22 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-23 - The gun shop's pointer: its arrows, the wheel across, no stray buys (src/game/menu_pointer.cpp)
+- Harry: in the gun shop the pointer showed but clicks did nothing. His log: "WeapShop": 0 of 23 rows placed. The gun
+  shop is a picker in the world: 23 button items (vtable 0x2B9370), one a weapon (Nine, Gat, SatNight...; those not
+  yet offered skipped), with no place on the screen; the d-pad's left and right step between them and the camera
+  follows; its callback 0xE3590 buys (A) and buys ammo (X). A click played A anywhere, a buy he could not afford.
+- Its layer has arrows either side of the ammo's name (shopTopGrp/leftArrow and rightArrow: 181.5 and 458.5 across,
+  382 down): each plays its direction when clicked, the wheel steps left and right while they show, and a click off
+  the arrows and buttons does nothing in a shop with no rows.
+- Reached headless: FC_EXIT_LEVEL=12 does as the scripts' ExitLevel(EXIT_HUB_VAN) (0xCB680: 0x25FF0(code, -1),
+  0x325318 = 0xB, 0x34B60); from the first hub (FC_FLOW_START=10) the van loads and its shop opens, then the mission
+  fails six seconds on (a script's, not the health: holding it changed nothing). The GPU-VM with Harry's save took
+  the autosave and another mission instead. Headless in those seconds: the right arrow Nine to Gat, Buster, SatNight
+  (a held click repeats as the d-pad), the left back to Nine, a click in the middle nothing.
+- GPU-VM note: with the window's real cursor in play the test pad's DOWN was often undone; FC_POINTER (the pointer
+  from a file) cleared it.
+
 ### 2026-11-23 - The mouse after a landing (src/game/mouse_aim.cpp)
 - Harry: after a jump and landing the mouse felt inverted and clunky for a few seconds. The camera's events (0x955C0)
   ease the pitch on a jump (+0x264 set, +0x258 the pitch eased to, +0x25C the step, +0x254 the pitch before) and back

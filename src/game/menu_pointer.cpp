@@ -158,6 +158,16 @@ constexpr Button kButtons[] = {
     {"buttonGrp/action3BtnGrp", "buttonGrp/action3BtnGrp/action3Label", input::kY, true},
 };
 constexpr float kIconHalf = 14, kLabelText = 90, kButtonHalfHeight = 11;
+// The gun shop (Grizz's van) is a picker in the world: its 23 items are buttons, one a weapon, with no place on the
+// screen (their nodes are the van's); the d-pad's left and right step between them and the camera follows. Its layer
+// has arrows either side of the ammo's name (measured headless: 181.5 and 458.5 across, 382 down): each plays its
+// d-pad direction when clicked, and the wheel steps left and right there.
+struct Arrow {
+    const char* node;
+    int control;
+};
+constexpr Arrow kArrows[] = {{"shopTopGrp/leftArrow", input::kLeft}, {"shopTopGrp/rightArrow", input::kRight}};
+constexpr float kArrowHalf = 16;
 
 // a __thiscall guest function (CallGuest puts every register and the stack back)
 void CallThis(X86Context& ctx, uint32_t fn, uint32_t self, std::initializer_list<uint32_t> args) {
@@ -185,8 +195,10 @@ struct Rows {
     struct Box {
         int control;
         float x0, x1, y0, y1;
-    } buttons[4];
+    } buttons[6];
     int nbuttons = 0;
+    bool shop = false;    // a shop's menu: off its rows and buttons a click does nothing (no A anywhere)
+    bool arrows = false;  // its left and right arrows shown: the wheel steps across
     int64_t at = 0;  // ms
 };
 std::mutex g_lock;
@@ -280,6 +292,15 @@ void Track(X86Context& ctx, uint32_t manager) {
                                    b.left ? text + kLabelText : icon + kIconHalf, y - kButtonHalfHeight,
                                    y + kButtonHalfHeight};
     }
+    for (const Arrow& a : kArrows) {
+        const uint32_t node = shop ? NodeByPath(layer, a.node) : 0;
+        float ax, ay;
+        if (!node || !NodeShown(node) || !NodePlace(node, ax, ay)) continue;
+        const float x = ScreenX(ax), y = ScreenY(ay);
+        r.buttons[r.nbuttons++] = {a.control, x - kArrowHalf, x + kArrowHalf, y - kArrowHalf, y + kArrowHalf};
+        r.arrows = true;
+    }
+    r.shop = shop;
     r.placed = !text && (list ? r.n >= 1 : r.n >= 2);
     if (dialogue) {
         if (!r.placed) return;  // one not on screen (no rows placed) leaves the menu under it alone
@@ -340,6 +361,18 @@ void Track(X86Context& ctx, uint32_t manager) {
     }
     for (int i = 0; i < r.n; i++)
         if (r.items[i] == R(menu + 4) && (r.slots[i] < 0 || r.slots[i] == Cursor(ctx, manager, r.items[i]))) r.current = i;
+    if (shop) {
+        static uint32_t was_item = 0;
+        const uint32_t now_item = R(menu + 4);
+        if (now_item != was_item && now_item) {
+            for (int i = 0; i < n; i++) {
+                const uint32_t nm = R(record + 0x28 + 4 * i);
+                if (Find(manager + 0x18, Hash(nm)) == now_item && mem::IsCommitted(nm))
+                    LOGI("bulletproof: the shop's choice now %.24s", static_cast<const char*>(kernel::HostPtr(nm)));
+            }
+        }
+        was_item = now_item;
+    }
     r.at = NowMs();
     std::lock_guard<std::mutex> lock(g_lock);
     g_rows = r;
@@ -444,6 +477,11 @@ void KeyboardTrack(X86Context& ctx) {
     LOGI("bulletproof: the pointer on the keyboard's row %d key %d", row, key);
 }
 
+bool ShopAcross() {
+    std::lock_guard<std::mutex> lock(g_lock);
+    return NowMs() - g_rows.at < 1000 && g_rows.shop && g_rows.arrows && !g_rows.placed;
+}
+
 bool ShopUp() {
     const uint32_t m = ShopManager();
     return m && R(m + 0xC) != 0;
@@ -490,7 +528,8 @@ int PointerHit() {
         r = g_rows;
     }
     float x, y;
-    if (NowMs() - r.at > 1000 || !r.placed || !PointerAt(x, y)) return kPointerUnknown;  // no PDA menu's frame lately: another menu
+    if (NowMs() - r.at > 1000 || !PointerAt(x, y)) return kPointerUnknown;  // no PDA menu's frame lately: another menu
+    if (!r.placed) return r.shop ? kPointerOff : kPointerUnknown;  // a shop's picker: only its buttons click
     const int over = RowAt(r, x, y);
     return over < 0 ? kPointerOff : over == r.current ? kPointerOnCurrent : kPointerOnOther;
 }
