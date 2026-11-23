@@ -11,9 +11,23 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
 - Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
   library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main c06f201; README with GPU-VM shots (docs/img)
+- GitHub: private hk21x/50cent-recomp; SDK at fork main db977b4; README with GPU-VM shots (docs/img)
 
 ## Log
+
+### 2026-11-23 - The sound levelled (SDK GameInfo::level_output; src/common/game_info.cpp)
+- Harry confirmed a gun purchase (Armed Up's check) and Doc's shop with the mouse. The sound "needs levelling out".
+- Measured headless (WAV of the route: the logos, title music, 10 s of the intro sequence and of m001, then the
+  alley with gunfire; scripts/wavstats.py): movies, music and play at -18 to -19 dB RMS, but the mission's start
+  (Lloyd's speech over music, with many effects at once) at -10.9 dB with 29848 clipped samples. The PCM streams
+  alone (XBE_DSOUND_SOLO_TAG=1: music and speech) stay at -16 to -22 there; the effects (Xbox ADPCM, tag 0x69) make
+  the burst. They play into submix buffers that are flat groups (not 3D, volume 1, headroom 1, the crosstalk bins 6
+  to 9 and the centre at 0 mB; a probe), so no mixer fault: the game's own range.
+- SDK level-output (gated on pgr2, pgr1, eon, agentunderfire, nightfire): GameInfo::level_output, a compressor on
+  the mix's RMS (3:1 above -20 dBFS, 10 ms up, 300 ms down, +7 dB make-up) and a soft limit in place of the hard
+  clip; XBE_LEVEL_OUTPUT=0 turns it off. On for Bulletproof. The route after: logos -17.5, title music -17.4, intro
+  -17.5, m001 -16.8, the mission's start -14.1, play -16.7, gunfire -17.5 dB; nothing clipped (from a spread of 8 dB
+  to 3.4). Harry to listen.
 
 ### 2026-11-23 - The PDA's prompt bar clicks (src/game/menu_pointer.cpp)
 - Harry chose clickable prompts over a pause menu row for PC Settings. The PDA's bar (B Back, A Select, X and Y as

@@ -140,4 +140,5 @@ const app::GameInfo app::kGame = {
                 {"weapon_3", "Weapon: rifle or shotgun", {'3', 0}}},
     .texture_bound = fc::ButtonPictures,  // the prompts' pictures (src/common/buttons.cpp)
     .aspect_live = true,                  // the aspect setting applies at once (src/game/aspect.cpp)
+    .level_output = true,                 // its effects burst some 10 dB over its music and speech (PROGRESS 2026-11-23)
 };
