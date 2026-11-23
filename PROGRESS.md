@@ -18,6 +18,10 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-23 - The README's work-in-progress warning removed (README.md)
+- Harry: the warning goes before the release. Known issues still lists the whole story, the arcade and NVIDIA as not
+  yet tested.
+
 ### 2026-11-23 - Release preparation: README, release notes, Status (README.md, docs/releases/v1.0.md)
 - Harry: the sound is fine now; many missions of different kinds all work; the Discord invite is permanent.
 - README: the warning now says many missions are played and the whole story and the arcade are not; Getting

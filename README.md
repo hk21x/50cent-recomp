@@ -27,10 +27,6 @@ Options page.
 > [!NOTE]
 > This project does not include any game assets. You need your own copy of the Xbox game to build and play.
 
-> [!WARNING]
-> Many of the story's missions, of every kind, have been played through on PC. The whole story start to finish and the
-> arcade have not been played yet: please report anything you find.
-
 ## Table of contents
 
 - [Xbox vs. PC](#xbox-vs-pc)
