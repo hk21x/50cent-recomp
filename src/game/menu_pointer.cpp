@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <mutex>
+#include <string>
 
 #include "app/app.h"
 #include "common/bulletproof.h"
@@ -165,7 +166,12 @@ constexpr Button kButtons[] = {
     {"buttonGrp/action2BtnGrp", "buttonGrp/action2BtnGrp/action2Label", input::kX, false},
     {"buttonGrp/action3BtnGrp", "buttonGrp/action3BtnGrp/action3Label", input::kY, true},
 };
-constexpr float kIconHalf = 14, kLabelText = 90, kButtonHalfHeight = 11;
+constexpr float kIconHalf = 14, kLabelText = 100, kButtonHalfHeight = 11;
+// The PDA's prompt bar (B Back, A Select, X and Y as each page sets them: 0x1E850 shows, hides and labels them) is the
+// same four groups under "masterMenuGrp/overlayGrp/borderGrp/" in the menus' layer: clicked, each plays its button
+// (Y on an Options page opens PC Settings). The PDA's layer is laid out as 4:3 (no spread: on the GPU-VM at 1920x800
+// "Select" sat at 549 of the pointer's 640, headless at 542), unlike the shops' 16:9.
+constexpr const char* kPdaBar = "masterMenuGrp/overlayGrp/borderGrp/";
 // The gun shop (Grizz's van) is a picker in the world: its 23 items are buttons, one a weapon, with no place on the
 // screen (their nodes are the van's); the d-pad's left and right step between them and the camera follows. Its layer
 // has arrows either side of the ammo's name (measured headless: 181.5 and 458.5 across, 382 down): each plays its
@@ -292,8 +298,12 @@ void Track(X86Context& ctx, uint32_t manager) {
         r.ys[r.n++] = kRowsY0 - kRowsScale * y;
     }
     // a shop's buttons shown: each a box from its icon across its label's text
+    const char* bar = shop ? "" : manager == kManager ? kPdaBar : nullptr;
     for (const Button& b : kButtons) {
-        const uint32_t group = shop ? NodeByPath(layer, b.group) : 0, label = group ? NodeByPath(layer, b.label) : 0;
+        // the shops' paths are "buttonGrp/..."; the PDA's the same past that, under its bar
+        const std::string gpath = bar ? std::string(bar) + (shop ? b.group : b.group + 10) : "",
+                          lpath = bar ? std::string(bar) + (shop ? b.label : b.label + 10) : "";
+        const uint32_t group = bar ? NodeByPath(layer, gpath.c_str()) : 0, label = group ? NodeByPath(layer, lpath.c_str()) : 0;
         float gx, gy, lx, ly;
         if (!label || !NodeShown(group) || !NodePlace(group, gx, gy) || !NodePlace(label, lx, ly)) continue;
         const float icon = ScreenX(gx, spread), text = ScreenX(lx, spread), y = ScreenY(gy);

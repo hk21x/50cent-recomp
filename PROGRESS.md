@@ -15,6 +15,15 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-23 - The PDA's prompt bar clicks (src/game/menu_pointer.cpp)
+- Harry chose clickable prompts over a pause menu row for PC Settings. The PDA's bar (B Back, A Select, X and Y as
+  each page sets them, 0x1E850) is the shops' four button groups under "masterMenuGrp/overlayGrp/borderGrp/" in the
+  menus' layer: each shown one now plays its button when clicked, so "Y PC Settings" on an Options page (the title's
+  and the pause menu's) opens the page with the mouse. The PDA's layer maps as 4:3 (no spread): "Select" at 549 of
+  the pointer's 640 on the GPU-VM, 542 headless.
+- Headless (the alley, pause > Options, FC_POINTER at the Y prompt, 120 382): "Y on the Options page: the PC Settings
+  page". Bars placed: Options B 87..225, A 418..556, Y 69..207 (371..393 down). SMOKE OK; wincheck clean.
+
 ### 2026-11-23 - The shops' pointer on a wide frame (src/game/menu_pointer.cpp)
 - Harry (3440x1440): the gun shop's arrows did nothing when clicked (his log: 5 buttons placed, so they were found).
   The shop's layer is laid out for 16:9 from the frame's height (as the HUD, which huddled in a 16:9 middle on wider
