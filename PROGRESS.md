@@ -25,6 +25,9 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 - E (X, Buy Ammo) did nothing for him: the gun shop's callback (0xE3590, flag 0x100) buys ammo only when that ammo
   is below its most and the price is there; his earlier shot shows 9mm at 19/19 and $0. To check with room and cash.
 - Headless: the arrows at 181.5 and 458.5 as before (the test's pointer). SMOKE OK; wincheck clean.
+- Harry confirmed the shops' menus work with the mouse (2026-11-23). He then asked for the PC settings in the pause
+  menu: they are there already (pause menu > Options, Y "PC Settings" in the bar; checked headless again, the page
+  opens on Display).
 
 ### 2026-11-23 - The gun shop's pointer: its arrows, the wheel across, no stray buys (src/game/menu_pointer.cpp)
 - Harry: in the gun shop the pointer showed but clicks did nothing. His log: "WeapShop": 0 of 23 rows placed. The gun
