@@ -15,6 +15,15 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-23 - The mouse after a landing (src/game/mouse_aim.cpp)
+- Harry: after a jump and landing the mouse felt inverted and clunky for a few seconds. The camera's events (0x955C0)
+  ease the pitch on a jump (+0x264 set, +0x258 the pitch eased to, +0x25C the step, +0x254 the pitch before) and back
+  on landing; the update (0x94000) stops easing only when the right stick moves up or down, and the mouse adds to the
+  angles directly, so the easing pulled the view back against it. The mouse moving up or down now stops it as the
+  stick does.
+- Headless (the alley, jumps with FC_MOUSE_TEST=0,3): "the mouse stops the camera's pitch easing" after the first
+  jump. SMOKE OK; wincheck clean. Harry to confirm.
+
 ### 2026-11-23 - The pointer in the shops (src/game/menu_pointer.cpp, src/common/menu_mouse.cpp)
 - The shops are menu managers of the PDA's kind (0x55770 makes them): the crib's TV 0x331B08, the stash 0x331608, the
   gun shop ("WeapShop", Grizz's van), Doc's ("Doc") and the bootlegger's ("Bootlegger", Whoo Kid) share 0x3316E8,

@@ -9,6 +9,10 @@
 // and with it stick up looks down, as a plane's; the mouse keeps the PC's way whatever the game's options (up looks up;
 // the settings' mouse invert flips it). Its movement is added to the angles before the update, so the game's own
 // clamp holds; the stick is left to the controller. Not called in cutscenes and menus, so the mouse does nothing there.
+// A jump eases the pitch to a jump's and a landing back to the pitch before it (0x955C0, the camera's events: +0x264
+// set, +0x258 the pitch eased to, +0x25C the step, +0x254 the pitch kept); the update stops easing once the right
+// stick moves up or down, but the mouse is not the stick, so after a landing the easing pulled the view back against
+// the mouse for seconds, as if inverted (Harry, 2026-11-23). The mouse moving up or down stops it as the stick does.
 // Headless (no mouse): FC_MOUSE_TEST=dx,dy,from,to plays that many counts a call for calls from..to.
 #include <algorithm>
 #include <chrono>
@@ -70,6 +74,12 @@ X86_FUNC(sub_00094000) {
     float x, y;
     const uint32_t angles = kernel::R32(ctx.esp + 4);
     if (angles && Counts(x, y)) {
+        const uint32_t camera = ctx.ecx;
+        if (y != 0 && camera && kernel::G<uint8_t>(camera + 0x264)) {
+            kernel::G<uint8_t>(camera + 0x264) = 0;
+            SetF(camera + 0x25C, 0);
+            LOGR_FIRST(4, "bulletproof: the mouse stops the camera's pitch easing (a jump's or a landing's)");
+        }
         SetF(angles, GetF(angles) - y * kRadiansPerCount);
         SetF(angles + 4, GetF(angles + 4) + x * kRadiansPerCount);
         static bool said = false;
