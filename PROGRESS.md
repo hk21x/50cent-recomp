@@ -3,17 +3,28 @@
 Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Status
-- Milestone: 2 - New Game reaches the first mission (the alley) headless; the console's layout read (LT crouches,
-  RT fires, X reloads, White heals, Black the weapons); modern button pictures and WASD and mouse keys (to see on Windows); SMOKE OK on that route. The CRI movie server race fixed (src/game/movie_server.cpp). Next: Windows
-- 60 fps headless with the simulation on the clock (Havok steps of 1/60 s); on Harry's PC 60.0 fps, about 2 ms of host work a frame
-- To check on Windows: picture and sound; the front end is silent after the title music (58 s) headless; gameplay
-  audio peaks at full scale; the modern and key button pictures (the reference renderer does not draw replacements)
-- XDK: 5849 (D3D8 not LTCG), 157 of 278 functions, 11 of 13 data
-- Push buffers: none recorded or replayed. Game code writes no push buffer tags and calls no push buffer API; the
-  library's one tag write (0x257380) is under the hosted Begin/DrawVertices. 0x24E880 pushes a vertex cache flush
-- GitHub: private hk21x/50cent-recomp; SDK at fork main db977b4; README with GPU-VM shots (docs/img)
+- Milestone: 4 - release preparation. The game plays on Windows (Harry: many story missions of every kind, the
+  shops, the sound levelled); SMOKE OK headless (title -> New Game -> the alley). Next: the launcher run end to end
+  on a clean folder, the repository made public, the v1.0 tag.
+- PC features: true widescreen with the HUD at the edges and the aspect live; 60 fps with the simulation on the
+  clock; render scale, MSAA, FXAA/SMAA, sharpening, anisotropic filtering, enhanced textures, sharp text and HUD;
+  mouse aim, WASD and the key prompts; the pointer in the PDA, lists, dialogues, sliders, the name keyboard, the
+  shops and the prompt bar; PC Settings in the PDA (Y on Options) and F1; 22 achievements; field of view; skip
+  intro, hide HUD, Quit Game; the mix levelled (SDK level-output).
+- Not yet tested: the whole story start to finish, the arcade, NVIDIA graphics.
+- XDK: 5849 (D3D8 not LTCG). Push buffers: none recorded or replayed.
+- GitHub: hk21x/50cent-recomp (still private); SDK at fork main db977b4; README with GPU-VM shots (docs/img);
+  release notes docs/releases/v1.0.md.
 
 ## Log
+
+### 2026-11-23 - Release preparation: README, release notes, Status (README.md, docs/releases/v1.0.md)
+- Harry: the sound is fine now; many missions of different kinds all work; the Discord invite is permanent.
+- README: the warning now says many missions are played and the whole story and the arcade are not; Getting
+  started's step 4 describes this game's launcher (a build from source with about 1.4 GB of tools and the license,
+  not a package download). docs/releases/v1.0.md written from the template (it said "Game Title"). Status rewritten.
+- Found: the repository is still private (the API's 404 anonymously), and the launcher clones game.json's repo, so
+  it must be public before a release. Next: the launcher end to end on the GPU-VM from a mirror of the repo.
 
 ### 2026-11-23 - The README brought up to date (README.md)
 - Features: the pointer in the shops and the name keyboard, and clicking a button prompt; the levelled sound. Known

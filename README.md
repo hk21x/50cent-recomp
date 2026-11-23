@@ -28,7 +28,8 @@ Options page.
 > This project does not include any game assets. You need your own copy of the Xbox game to build and play.
 
 > [!WARNING]
-> Work in progress: the story has been played from the start, but not yet through every mission on PC.
+> Many of the story's missions, of every kind, have been played through on PC. The whole story start to finish and the
+> arcade have not been played yet: please report anything you find.
 
 ## Table of contents
 
@@ -237,7 +238,7 @@ lists them with your unlocks.
 
 `BulletproofLauncher.exe` does everything for you: no Visual Studio, no Git, no command line, nothing installed in
 Windows and no admin rights needed. It and a build from source both make the game's code on your own PC from your own
-disc: it is never downloaded, only the program around it.
+disc: it is never downloaded, only the source and the build tools.
 
 1. Download `BulletproofLauncher.exe` from the [latest release](https://github.com/hk21x/50cent-recomp/releases/latest).
 2. Put it in a folder of its own with a short path (for example `C:\Games\Bulletproof`) and run it. Everything it makes
@@ -245,8 +246,10 @@ disc: it is never downloaded, only the program around it.
    **Run anyway**.
 3. **Your game:** choose your disc image (`.iso`) or the folder with the disc's files. The launcher checks that it is
    the supported release (USA/Europe).
-4. **Get the game ready:** the launcher downloads the game's package (the program and a compiler, no game code), then
-   your PC builds the game's code from your disc. You can stop at any time; it carries on where it left off.
+4. **Build:** accept Microsoft's license for its C++ libraries and Windows SDK and press **Build**. The launcher
+   downloads about 1.4 GB of build tools (Clang, CMake, Git, Microsoft's C++ libraries and Windows SDK) and the port's
+   source (no game code) into its own folder, then your PC builds the game from your disc: 30 to 90 minutes the first
+   time, with about 3 GB free. You can stop at any time; it carries on where it left off.
 5. **Play.**
 
 When a new release is out, the launcher offers it at the top of its window: **Update the launcher**, then **Update**.
