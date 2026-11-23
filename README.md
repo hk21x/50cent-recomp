@@ -244,16 +244,17 @@ disc: it is never downloaded, only the source and the build tools.
    the supported release (USA/Europe).
 4. **Build:** accept Microsoft's license for its C++ libraries and Windows SDK and press **Build**. The launcher
    downloads about 1.4 GB of build tools (Clang, CMake, Git, Microsoft's C++ libraries and Windows SDK) and the port's
-   source (no game code) into its own folder, then your PC builds the game from your disc: 30 to 90 minutes the first
-   time, with about 3 GB free. You can stop at any time; it carries on where it left off.
+   source (no game code) into its own folder, then your PC builds the game from your disc: about 7 minutes on a
+   six-core PC with a fast connection, longer on older ones, with about 3 GB free. You can stop at any time; it carries on where it left off.
 5. **Play.**
 
 When a new release is out, the launcher offers it at the top of its window: **Update the launcher**, then **Update**.
-The new version is built beside the game and only replaces it once it is ready, keeping your saves and settings.
+The game is built again with the new version, keeping your saves and settings.
 
 Files, all under the `Bulletproof` folder beside the launcher:
 - `play\`: `Bulletproof.exe`, `settings.toml`, `hdd\` (your profiles and saves), `logs\`, `achievements.toml`,
-  `screenshots\`, `compiler\`
+  `screenshots\`
+- `tools\` (the build tools, about 1.8 GB) and `source\` (the port's source and the build)
 - `launcher.log`, the launcher's log (send it with any problem)
 
 To remove everything, delete the launcher and its `Bulletproof` folder (keep `play\hdd` if you want your saves).

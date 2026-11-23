@@ -4,8 +4,8 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Status
 - Milestone: 4 - release preparation. The game plays on Windows (Harry: many story missions of every kind, the
-  shops, the sound levelled); SMOKE OK headless (title -> New Game -> the alley). Next: the launcher run end to end
-  on a clean folder, the repository made public, the v1.0 tag.
+  shops, the sound levelled); SMOKE OK headless (title -> New Game -> the alley). Launcher checked end to end on the
+  GPU-VM; the repository is public. Next: the v1.0 tag.
 - PC features: true widescreen with the HUD at the edges and the aspect live; 60 fps with the simulation on the
   clock; render scale, MSAA, FXAA/SMAA, sharpening, anisotropic filtering, enhanced textures, sharp text and HUD;
   mouse aim, WASD and the key prompts; the pointer in the PDA, lists, dialogues, sliders, the name keyboard, the
@@ -13,10 +13,24 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
   intro, hide HUD, Quit Game; the mix levelled (SDK level-output).
 - Not yet tested: the whole story start to finish, the arcade, NVIDIA graphics.
 - XDK: 5849 (D3D8 not LTCG). Push buffers: none recorded or replayed.
-- GitHub: hk21x/50cent-recomp (still private); SDK at fork main db977b4; README with GPU-VM shots (docs/img);
+- GitHub: hk21x/50cent-recomp (public); SDK at fork main db977b4; README with GPU-VM shots (docs/img);
   release notes docs/releases/v1.0.md.
 
 ## Log
+
+### 2026-11-23 - The launcher end to end on the GPU-VM (README.md, docs/releases/v1.0.md)
+- A launcher built from launcher/ with game.json's repo pointed at a bare mirror of the repo (C:\lt\mirror.git, main
+  at 7305fd8), run from an empty folder C:\lt\run on the GPU-VM's desktop (a task clicking from a command file):
+  Choose a disc image took C:\ISOs\...xiso.iso as "USA, Europe"; the license and Build; the tools (llvm 77 s, cmake
+  32 s, ninja, git 7 s, msvc 11 s, winsdk 28 s), the source 6 s, configure 121 s, compile and link 128 s: 6 min 50 s
+  from Build to "Built and ready" on 6 threads. Play started the game full screen at 60 fps: the logos, the title, New
+  Game, the profile list (keyboard prompts), Continue without saving clicked with the mouse, the alley with Lloyd
+  Banks. toolchain.json gave 404 while the repository was private (the launcher's own used); Harry made it public
+  during the run, after which it, the API and an anonymous clone answer (no game files in any commit).
+- The README's and the notes' "30 to 90 minutes" now say about 7 minutes on a six-core PC; the README's file list
+  had a `compiler\` folder that does not exist (tools\ and source\ do).
+- Test note: E sent by SendKeys did not register on the profile list (F did); a click on the prompt did. A tooling
+  quirk most likely (Harry's keyboard plays E there); not chased.
 
 ### 2026-11-23 - The README's work-in-progress warning removed (README.md)
 - Harry: the warning goes before the release. Known issues still lists the whole story, the arcade and NVIDIA as not
