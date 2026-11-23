@@ -15,6 +15,24 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-23 - The pointer in the shops (src/game/menu_pointer.cpp, src/common/menu_mouse.cpp)
+- The shops are menu managers of the PDA's kind (0x55770 makes them): the crib's TV 0x331B08, the stash 0x331608, the
+  gun shop ("WeapShop", Grizz's van), Doc's ("Doc") and the bootlegger's ("Bootlegger", Whoo Kid) share 0x3316E8,
+  the disarms 0x3317E0; the shop state 0x3315D8 says which is open (0x55900 runs its frame in the gameplay frame, with
+  no menu up). Their layers are drawn by the menus' camera: the bootlegger's list and buttons sit at the PDA's scale,
+  across as down (x = 320 + 771 * the node's x).
+- While a shop is up the mouse is the menus' (the arrow, left A, right B, the wheel the d-pad). Its rows are placed
+  as the PDA's (a list's slots; a list across, its look's +0x3C clear, slot by slot to the right); its on-screen
+  buttons ("buttonGrp": Back B, Buy/action A, action2 X, action3 Y; shown by +0x7C) play their button when clicked.
+- A list's slot under the pointer is stepped to through the item's own d-pad input (0x4A590, pad bits 1 left, 2
+  right, 4 up, 8 down): the bootlegger's callback (0xE5F30) steps the list itself and shows the entry; stepping the
+  list alone left its panel on the entry before. The PDA's lists go the same way now (the profile list: rows 1, 0, 1).
+- Headless (FC_SHOP_OPEN=11 in the hub from FC_FLOW_START=10; FC_SHOP_OPEN takes an opener's address or a state):
+  hover highlighted "Hole In Yo Back" and "I Warned You" with the panel following; a click bought it ($15000 to
+  $10000); Video Shop switched lists. The gun shop, Doc's and the disarms are in their own levels (H0_Van, H0_Docs),
+  not reached headless (the gun shop's opener alone crashed: its info group is the van's): to check on Windows.
+  SMOKE OK; wincheck clean.
+
 ### 2026-11-22 - The front end's menus held at 16:9 (src/game/widescreen.cpp, src/game/aspect.cpp)
 - Harry confirmed the movie fix (the screen cleared black as a movie starts): no more picture at a cutscene's sides.
 - Harry (3440x1440): in arcade mode the weapon screen's names were cut at its panel's left ("ecision"). Reproduced

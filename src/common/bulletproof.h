@@ -29,6 +29,8 @@ bool PointerAt(float& x, float& y);                      // the mouse pointer in
 // what the pointer is over in the PDA's menus (src/game/menu_pointer.cpp); unknown in the others
 enum { kPointerUnknown, kPointerOff, kPointerOnCurrent, kPointerOnOther };
 int PointerHit();
+bool ShopUp();         // a shop's menu is up (the gun shop, Doc's, the bootlegger's, the disarms, the crib's TV and stash)
+int PointerButton();   // the pad control of a shop's on-screen button under the pointer, -1 for none
 // the pointer over the highlighted row, a slider: -1 or 1 over the left or right half of its value column, 2 elsewhere
 // on the row; 0 not over one
 int PointerSlider();

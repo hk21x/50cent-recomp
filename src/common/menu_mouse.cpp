@@ -4,6 +4,8 @@
 // PDA's case); in the PDA's menus the row under it is highlighted and the left button selects only that row
 // (src/game/menu_pointer.cpp); a press off the rows does nothing. On a slider's row (sensitivity, volume) a press on
 // its value column's left or right half lowers or raises it, and the wheel over it changes it.
+// The shops (the gun shop, Doc's, the bootlegger's, the disarms) are menus played in play: while one is up the mouse is
+// the menus' too, and a click on one of their on-screen buttons (Back, Buy...) plays that button.
 //
 // A menu is up while the byte at 0x342A90 is set: 0x1047B0 sets it (from 0x84E40, which pauses the music, the speech
 // and the movie textures for the pause menu, and from the front end's 0x1FE60), 0x10473D and 0x1047DA clear it. Memory
@@ -232,7 +234,8 @@ void MenuMouse(input::Pad& p) {
     static bool stepped = false;
     static bool was = false;
     const int notches = input::TakeWheel();  // taken in play too, so none wait for the next menu
-    const bool menu = MenuUp();
+    // a shop's menu is played in play (no menu up), but takes the mouse as a menu does
+    const bool menu = MenuUp() || ShopUp();
     if (menu != was) {
         LOGR("bulletproof: %s", menu ? "a menu is up: the mouse plays A, B and the d-pad" : "out of the menus");
         pending = 0, steps = 0;
@@ -263,15 +266,20 @@ void MenuMouse(input::Pad& p) {
         // the left button: A over the highlighted row, nothing off the rows (decided as it goes down; over another
         // row, once the pointer's frame has highlighted it); A as before in the menus not placed (PointerHit unknown)
         static bool was_left = false, armed = false;
+        static int button = -1;  // a shop's on-screen button pressed: its control, held while the left button is
         static int64_t repeat_at = 0;
         const int hit = PointerHit(), slide = PointerSlider();
         const bool down = (held & 1) && !was_left;
         if (down) {
-            armed = hit != kPointerOff;
-            LOGI("bulletproof: menu click (pointer %d, slider %d)", hit, slide);
+            button = PointerButton();
+            armed = button < 0 && hit != kPointerOff;
+            LOGI("bulletproof: menu click (pointer %d, slider %d, button %d)", hit, slide, button);
         }
         was_left = held & 1;
-        if ((held & 1) && armed && (slide == -1 || slide == 1)) {
+        if (!(held & 1)) button = -1;
+        if (button >= 0) {
+            Press(p, button);
+        } else if ((held & 1) && armed && (slide == -1 || slide == 1)) {
             // a slider's value column: its left half lowers a step, its right half raises one; held, a step every
             // tenth of a second after 0.4 s
             if (down) steps += slide, repeat_at = now + 400;

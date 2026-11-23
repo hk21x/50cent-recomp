@@ -149,6 +149,10 @@ X86_FUNC(sub_00122350) {
     }
 }
 
+namespace fc {
+void ShopTest(X86Context& ctx);  // FC_SHOP_OPEN (src/game/menu_pointer.cpp)
+}
+
 constexpr uint32_t kCinematicMode = 0x32FAD8;  // byte
 
 // the gameplay frame: the world, then the HUD over it
@@ -159,6 +163,7 @@ X86_FUNC(sub_00086890) {
     g_cinematic = kernel::G<uint8_t>(kCinematicMode) != 0;
     g_last_gameplay = std::chrono::steady_clock::now();
     fc::UpdateAspectHold();
+    fc::ShopTest(ctx);
     g_gameplay = true;
     __imp__sub_00086890(ctx, base);
     g_gameplay = false;
