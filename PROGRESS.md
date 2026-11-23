@@ -22,7 +22,7 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
   angles directly, so the easing pulled the view back against it. The mouse moving up or down now stops it as the
   stick does.
 - Headless (the alley, jumps with FC_MOUSE_TEST=0,3): "the mouse stops the camera's pitch easing" after the first
-  jump. SMOKE OK; wincheck clean. Harry to confirm.
+  jump. SMOKE OK; wincheck clean. Harry confirmed it (2026-11-23).
 
 ### 2026-11-23 - The pointer in the shops (src/game/menu_pointer.cpp, src/common/menu_mouse.cpp)
 - The shops are menu managers of the PDA's kind (0x55770 makes them): the crib's TV 0x331B08, the stash 0x331608, the
