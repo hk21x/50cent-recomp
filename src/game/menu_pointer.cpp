@@ -347,7 +347,7 @@ void Track(X86Context& ctx, uint32_t manager) {
 }  // namespace
 
 // Tests: FC_EXIT_LEVEL=N leaves the level as the scripts' ExitLevel(N) does (0xCB680; 12 EXIT_HUB_VAN, Grizz's van,
-// 9 EXIT_HUB_DOC), 20 s into play; FC_SHOP_OPEN=<function> calls a shop's Lua opener once, FC_SHOP_DELAY seconds into
+// 9 EXIT_HUB_DOC), 20 s into play, the player's health held after; FC_SHOP_OPEN=<function> calls a shop's Lua opener once, FC_SHOP_DELAY seconds into
 // play (20 unless given) with no shop open (0x833F0 StartBootLeggerInteraction, 0x55EE0 StartWeaponPurchase, 0x560F0
 // StartMedicineInteraction), or under 0x100 sets that shop state (0x11 the bootlegger's, past its greeting).
 void ShopTest(X86Context& ctx) {
@@ -365,6 +365,16 @@ void ShopTest(X86Context& ctx) {
         kernel::W32(0x325318, 0xB);
         kernel::CallGuest(ctx, 0x34B60, {});
         LOGR("bulletproof: FC_EXIT_LEVEL %u", code);
+    }
+    // the player's health (+0x504 of 0x32DCFC) held from then on: the level left this way does not keep its player
+    // alive for long (the mission failed screen six seconds into the van)
+    static float health = 0;
+    const uint32_t player = R(0x32DCFC);
+    if (exit_level && player && !exited) health = RF(player + 0x504);
+    if (exited && player && health > 0 && RF(player + 0x504) < health) {
+        uint32_t v;
+        std::memcpy(&v, &health, 4);
+        kernel::W32(player + 0x504, v);
     }
     const int64_t wait = delay ? int64_t(std::atof(delay) * 1000) : 20000;
     if (!want || done || NowMs() - first < wait || R(kShopState)) return;
