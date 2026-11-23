@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/img/bulletproof-banner.webp" alt="50 Cent: Bulletproof, native PC port: 50 Cent in the first mission's alley under a street lamp" width="100%">
+  <img src="docs/img/bulletproof-header.webp" alt="50 Cent: Bulletproof, native PC port: the game's logo over 50 Cent and a gunman running down the first mission's alley" width="100%">
 </p>
 
 <p align="center">

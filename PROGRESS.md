@@ -15,6 +15,10 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-23 - The README's new header (README.md, docs/img/bulletproof-header.webp)
+
+- Harry's banner (the game's logo over the first mission's alley, 1600x500) replaces the old cut of the alley shot at the README's top, as WebP (30 KB). The old docs/img/bulletproof-banner.webp is removed.
+
 ### 2026-11-23 - The sound levelled (SDK GameInfo::level_output; src/common/game_info.cpp)
 - Harry confirmed a gun purchase (Armed Up's check) and Doc's shop with the mouse. The sound "needs levelling out".
 - Measured headless (WAV of the route: the logos, title music, 10 s of the intro sequence and of m001, then the
