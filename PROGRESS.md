@@ -15,6 +15,10 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-23 - The README brought up to date (README.md)
+- Features: the pointer in the shops and the name keyboard, and clicking a button prompt; the levelled sound. Known
+  issues and Roadmap no longer list the pointer's gaps (the name keyboard, the store, sliders), now done.
+
 ### 2026-11-23 - The disarm shop's pointer; auto-aim at the frame's edges (src/game/menu_pointer.cpp)
 - The disarms are bought at a table in the theater (StartTableInteraction, 0x55F20 sets the shop state 0xB, the frame
   then 0xC; "Disarm", 0x3317E0; callback 0xE5AB0: up and down step its list, A buys, X views the move, B leaves).

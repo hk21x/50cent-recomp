@@ -72,9 +72,10 @@ your screen's resolution and shape at 60, with anti-aliasing and sharpening laye
 | **Sharper graphics** | Render scale up to 200%, MSAA up to 8x, FXAA or SMAA, sharpening, anisotropic filtering, enhanced world textures, and sharp text and HUD (the menus' and HUD's pictures enlarged four times). |
 | **PC Settings in the game** | **Y** on the game's Options page (from the title and the pause menu) opens a PC Settings page in the PDA, in the game's own style; **F1** opens the whole settings window anywhere. Saved in `settings.toml`. |
 | **Mouse and keyboard** | WASD and mouse aim that turns the camera directly, as in a PC shooter, not as a stick. The button prompts show your keys while you play on the keyboard. |
-| **Mouse in the menus** | A pointer of its own in the PDA's colours: point at a row to highlight it and click to choose it, in lists too; right click goes back, the wheel scrolls. |
+| **Mouse in the menus** | A pointer of its own in the PDA's colours: point at a row to highlight it and click to choose it, in lists, the shops and the name keyboard too; click a button prompt to press it; right click goes back, the wheel scrolls. |
 | **Controllers** | Xbox, PlayStation and Switch pads with hot plugging and rumble. **Modern button pictures** show today's Xbox pad: LB and RB for White and Black, LT and RT, View and Menu. |
 | **Achievements** | 22, for the story's missions, the hardest difficulties, the store's disarms and weapons, Grizz medals and cash, kept in `achievements.toml` beside the game. |
+| **Levelled sound** | The mix is evened out, so the loudest moments, such as the first mission's start, no longer clip. |
 | **Field of view** | 50 to 150% of the game's, changed at once; aiming zooms in proportion. |
 | **Quality of life** | Skip the intro movies, hide the HUD (F9) for screenshots, Quit Game on the title menu, F12 screenshots at full resolution, Alt+Enter for full screen, an optional boot splash (`splash.png` beside the game). |
 
@@ -293,15 +294,12 @@ when you report a problem on the <a href="https://discord.gg/PQjkKsdtc">Discord 
 <sup>[(Back to top)](#table-of-contents)</sup>
 
 - **Not yet covered by testing:** the whole story on PC, the arcade and NVIDIA graphics cards.
-- **The mouse pointer** highlights rows in the PDA's menus and lists; the name keyboard and the store take a click as
-  A on the highlighted choice, and sliders and switches are changed with the arrows.
 
 ## Roadmap
 <sup>[(Back to top)](#table-of-contents)</sup>
 
 - **The whole story played through on PC**, with fixes for whatever it finds.
 - **More achievements**, for the music and videos the store unlocks, and for combat.
-- **The pointer everywhere:** the name keyboard, the store and the settings rows.
 
 ## Community and support
 <sup>[(Back to top)](#table-of-contents)</sup>
