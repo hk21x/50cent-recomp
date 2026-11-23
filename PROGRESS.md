@@ -23,6 +23,7 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
   the pointer's 640 on the GPU-VM, 542 headless.
 - Headless (the alley, pause > Options, FC_POINTER at the Y prompt, 120 382): "Y on the Options page: the PC Settings
   page". Bars placed: Options B 87..225, A 418..556, Y 69..207 (371..393 down). SMOKE OK; wincheck clean.
+- Harry confirmed it on Windows (2026-11-23).
 
 ### 2026-11-23 - The shops' pointer on a wide frame (src/game/menu_pointer.cpp)
 - Harry (3440x1440): the gun shop's arrows did nothing when clicked (his log: 5 buttons placed, so they were found).
