@@ -3,9 +3,9 @@
 Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Status
-- Milestone: 4 - release preparation. The game plays on Windows (Harry: many story missions of every kind, the
+- Milestone: 4 - v1.0 released (2026-11-24). The game plays on Windows (Harry: many story missions of every kind, the
   shops, the sound levelled); SMOKE OK headless (title -> New Game -> the alley). Launcher checked end to end on the
-  GPU-VM; the repository is public. Next: the v1.0 tag.
+  GPU-VM; the repository is public. Next: players' reports, the whole story played through.
 - PC features: true widescreen with the HUD at the edges and the aspect live; 60 fps with the simulation on the
   clock; render scale, MSAA, FXAA/SMAA, sharpening, anisotropic filtering, enhanced textures, sharp text and HUD;
   mouse aim, WASD and the key prompts; the pointer in the PDA, lists, dialogues, sliders, the name keyboard, the
@@ -17,6 +17,12 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
   release notes docs/releases/v1.0.md.
 
 ## Log
+
+### 2026-11-24 - v1.0 released
+- Tag v1.0 (annotated) on main c9dac6b, pushed. The release workflow (actions run 45334921118) succeeded and published
+  "50 Cent: Bulletproof PC port 1.0" (https://github.com/hk21x/50cent-recomp/releases/tag/v1.0) with
+  docs/releases/v1.0.md as its notes and BulletproofLauncher.exe (2,588,672 bytes, sha256 9bb4376d...927037). The
+  README's releases/latest link downloads it with that hash; a PE32+ GUI exe.
 
 ### 2026-11-23 - The launcher end to end on the GPU-VM (README.md, docs/releases/v1.0.md)
 - A launcher built from launcher/ with game.json's repo pointed at a bare mirror of the repo (C:\lt\mirror.git, main
