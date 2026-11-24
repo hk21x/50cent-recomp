@@ -3,7 +3,7 @@
 Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Status
-- Milestone: 4 - v1.0 (the packaged launcher) tagged 2026-11-24, a draft until its package is attached. The game plays on Windows (Harry: many story missions of every kind, the
+- Milestone: 4 - v1.0 released 2026-11-24 (the packaged launcher). The game plays on Windows (Harry: many story missions of every kind, the
   shops, the sound levelled); SMOKE OK headless (title -> New Game -> the alley). Launcher checked end to end on the
   GPU-VM; the repository is public. Next: players' reports, the whole story played through.
 - PC features: true widescreen with the HUD at the edges and the aspect live; 60 fps with the simulation on the
@@ -17,6 +17,13 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
   release notes docs/releases/v1.0.md.
 
 ## Log
+
+### 2026-11-24 - v1.0 published (the packaged launcher)
+- The tag v1.0 (edf5bb9) made the draft (actions run 45338130933, success); Harry attached the package and published
+  it at 06:09 UTC. As a player's launcher fetches them: BulletproofLauncher.exe 2,588,672 bytes (sha256 793480af...),
+  Bulletproof-package.zip.json, and Bulletproof-package.zip 73,559,315 bytes whose sha256 (23645a25...) matches its
+  .json and the GPU-VM build.
+- Next: Harry runs the published launcher once; players' reports; the whole story played through.
 
 ### 2026-11-24 - The packaged launcher; v1.0 again (CMakeLists.txt, launcher/, prebuilt-test.bat, release-package.bat)
 - Harry removed the first v1.0 release and its tag: v1.0 is to be the packaged launcher (Juiced's and PGR2's model).
