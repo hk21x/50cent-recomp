@@ -11,6 +11,7 @@ includes = ["game.toml"]
 D3D_BlockOnNonSurfaceResource = 0x251B40
 
 [xbe]
+library = "Bulletproof.dll"  # the game code DLL the first start builds (Windows, XBE_GAME_DLL); this config is the one it reads
 # Lua's protected call (0xE7A00, luaD_rawrunprotected) calls _setjmp3 (0x1E0E28, the CRT's: it writes "VC20") and
 # goes on at 0xE7A28; a script error's luaD_throw (0xE79C0) longjmps there (0x1E0E21: jmp [buf+0x14]). Without it
 # Harry's game stopped: "indirect call to 000E7A28 has no recompiled function" (452 s into play).
