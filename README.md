@@ -234,7 +234,7 @@ lists them with your unlocks.
 
 `BulletproofLauncher.exe` does everything for you: no Visual Studio, no Git, no command line, nothing installed in
 Windows and no admin rights needed. It and a build from source both make the game's code on your own PC from your own
-disc: it is never downloaded, only the source and the build tools.
+disc: it is never downloaded, only the program around it.
 
 1. Download `BulletproofLauncher.exe` from the [latest release](https://github.com/hk21x/50cent-recomp/releases/latest).
 2. Put it in a folder of its own with a short path (for example `C:\Games\Bulletproof`) and run it. Everything it makes
@@ -242,19 +242,17 @@ disc: it is never downloaded, only the source and the build tools.
    **Run anyway**.
 3. **Your game:** choose your disc image (`.iso`) or the folder with the disc's files. The launcher checks that it is
    the supported release (USA/Europe).
-4. **Build:** accept Microsoft's license for its C++ libraries and Windows SDK and press **Build**. The launcher
-   downloads about 1.4 GB of build tools (Clang, CMake, Git, Microsoft's C++ libraries and Windows SDK) and the port's
-   source (no game code) into its own folder, then your PC builds the game from your disc: about 7 minutes on a
-   six-core PC with a fast connection, longer on older ones, with about 3 GB free. You can stop at any time; it carries on where it left off.
+4. **Get the game ready:** the launcher downloads the game's package (about 75 MB: the program and a compiler, no
+   game code), then your PC builds the game's code from your disc, in about a minute. You can stop at any time; it
+   carries on where it left off.
 5. **Play.**
 
 When a new release is out, the launcher offers it at the top of its window: **Update the launcher**, then **Update**.
 The game is built again with the new version, keeping your saves and settings.
 
 Files, all under the `Bulletproof` folder beside the launcher:
-- `play\`: `Bulletproof.exe`, `settings.toml`, `hdd\` (your profiles and saves), `logs\`, `achievements.toml`,
-  `screenshots\`
-- `tools\` (the build tools, about 1.8 GB) and `source\` (the port's source and the build)
+- `play\`: `Bulletproof.exe`, `Bulletproof.dll` (the game's code, built on your PC), `settings.toml`, `hdd\` (your
+  profiles and saves), `logs\`, `achievements.toml`, `screenshots\`, `compiler\`
 - `launcher.log`, the launcher's log (send it with any problem)
 
 To remove everything, delete the launcher and its `Bulletproof` folder (keep `play\hdd` if you want your saves).

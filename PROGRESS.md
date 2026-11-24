@@ -3,7 +3,7 @@
 Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Status
-- Milestone: 4 - v1.0 released (2026-11-24). The game plays on Windows (Harry: many story missions of every kind, the
+- Milestone: 4 - v1.0 (the packaged launcher) tagged 2026-11-24, a draft until its package is attached. The game plays on Windows (Harry: many story missions of every kind, the
   shops, the sound levelled); SMOKE OK headless (title -> New Game -> the alley). Launcher checked end to end on the
   GPU-VM; the repository is public. Next: players' reports, the whole story played through.
 - PC features: true widescreen with the HUD at the edges and the aspect live; 60 fps with the simulation on the
@@ -17,6 +17,20 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
   release notes docs/releases/v1.0.md.
 
 ## Log
+
+### 2026-11-24 - The packaged launcher; v1.0 again (CMakeLists.txt, launcher/, prebuilt-test.bat, release-package.bat)
+- Harry removed the first v1.0 release and its tag: v1.0 is to be the packaged launcher (Juiced's and PGR2's model).
+- As Juiced: XBE_GAME_DLL on Windows (BULLETPROOF_LINKED_CODE turns it off), config library Bulletproof.dll, game.json
+  package Bulletproof-package.zip, prebuilt-test.bat and release-package.bat, tags make a draft release (notes
+  required), MinGit's busybox edition in toolchain.json. launcher.bat had the template's GAME_SHORT=Game (its copy
+  failed): Bulletproof. Linux: recompile and SMOKE OK.
+- GPU-VM from f65b900: build.bat made Bulletproof.exe 6.8 MB and Bulletproof.dll 9.4 MB; release-package.bat
+  Bulletproof-package.zip 73,559,315 bytes, sha256 23645a25...133eca3e (and its .json), no game code; launcher.bat
+  BulletproofLauncher.exe 2.6 MB. An empty folder C:\lt2 with the launcher and the package beside it: the disc image
+  chosen, Get the game ready: the package unpacked 1.3 s, the game's code compiled (65 files, 6 at a time) 59.9 s,
+  61.2 s in all; Play: the logos, the title, New Game, Continue without saving (clicked), the alley. The install is
+  340 MB besides the disc. README and the notes (docs/releases/v1.0.md) for the package: about a minute, 400 MB.
+- Next: the tag v1.0 (a draft); Harry attaches Bulletproof-package.zip and its .json, then publishes.
 
 ### 2026-11-24 - v1.0 released
 - Tag v1.0 (annotated) on main c9dac6b, pushed. The release workflow (actions run 45334921118) succeeded and published
