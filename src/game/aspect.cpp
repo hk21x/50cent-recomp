@@ -92,10 +92,12 @@ X86_FUNC(sub_00122020) {
 // in its widescreen mode the world takes 0.45028 (0x86982 and 0x56B73, by the option byte 0x323488) and the HUD 0.3 by
 // 0.3 (where 0x11AB00 says widescreen), whose 0.3 high stays for the world. With aspect_live the game is always in its
 // widescreen mode, so a 4:3 frame was drawn with those cameras: thin by 0.45028/0.4 * 0.31/0.3 = 1.163 (the alley, xemu
-// 0.8.139 set to 4:3: x 2.490557 y 3.213622; here x 2.212452 y 3.320743). A 4:3 frame is drawn with the 4:3 cameras; a
-// wider one with the widescreen ones (xemu set to widescreen: x 1.659339 y 3.320743, the same here). The option byte and
-// the display mode's flags are left alone: the movies and the options read them too.
-bool fc::WideCameras() { return app::FrameAspect() > 4.0f / 3.0f + 1e-3f; }
+// 0.8.139 set to 4:3: x 2.490557 y 3.213622; here x 2.212452 y 3.320743). A 4:3 frame is drawn with the 4:3 cameras.
+// The aspect alone makes a wide frame wide, so the console's wider camera draws a 2.001:1 picture on a 16:9 screen, 12.6%
+// thin (xemu set to widescreen: x 1.659339 y 3.320743, the same here with console_widescreen); without that setting a wide
+// frame has the 4:3 cameras too, and shows more at the sides. The option byte and the display mode's flags are left
+// alone: the movies and the options read them too.
+bool fc::WideCameras() { return fc::console_widescreen && app::FrameAspect() > 4.0f / 3.0f + 1e-3f; }
 
 // whether the display mode is widescreen; 0x17384 and 0x25A5F set the options by it
 X86_EXTERN_FUNC(__imp__sub_0011AB00);

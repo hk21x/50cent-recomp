@@ -96,8 +96,8 @@ void fc::UpdateAspectHold() {
     if (was == 0) own = app::FrameAspect();
     const uint32_t choice = app::Get().aspect % 4;
     const bool wide = choice ? choice != 1 : own > 4.0f / 3.0f + 1e-3f;
-    // a 4:3 frame's menus are 4:3, as on a 4:3 console (src/game/aspect.cpp, src/game/text_shape.cpp)
-    const float menus = wide ? 16.0f / 9.0f : 4.0f / 3.0f;
+    // with the 4:3 cameras the menus are 4:3, as on a 4:3 console (src/game/aspect.cpp, src/game/text_shape.cpp)
+    const float menus = wide && fc::console_widescreen ? 16.0f / 9.0f : 4.0f / 3.0f;
     const float held = g_cinematic ? 4.0f / 3.0f : front_end ? menus : 0.0f;
     if (held == was) return;
     was = held;
