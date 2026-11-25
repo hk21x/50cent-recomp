@@ -150,7 +150,7 @@ uint32_t ShopManager() {
 // drawn into 720x480 (where the test's pointer is in the same fractions), spread by 16:9 over 4:3 in the pointer's
 // own space on Windows, which takes the menus as 4:3 in the middle (src/common/menu_mouse.cpp). Harry's shot of the
 // gun shop at 3440x1440 agrees: its arrows' distance from the edges there is that of 16:9 kept by hud_layout.
-float ShopSpread() { return PointerForced() || !app::Widescreen() ? 1.0f : (16.0f / 9.0f) / (4.0f / 3.0f); }
+float ShopSpread() { return PointerForced() || !fc::WideCameras() ? 1.0f : (16.0f / 9.0f) / (4.0f / 3.0f); }
 constexpr float kListHalfWidth = 138;  // the bootlegger's list: 290 to 565 (640) about its node
 constexpr float kItemHalfWidth = 60;   // a shop's other items about their nodes
 

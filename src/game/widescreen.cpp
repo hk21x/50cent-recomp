@@ -90,13 +90,20 @@ void ClearDisplayBuffers(X86Context& ctx) {
 void fc::UpdateAspectHold() {
     const bool front_end =
         fc::MenuUp() && std::chrono::steady_clock::now() - g_last_gameplay > std::chrono::milliseconds(250);
-    const float held = g_cinematic ? 4.0f / 3.0f : front_end ? 16.0f / 9.0f : 0.0f;
     static float was = 0;
+    // the setting's own shape, read while nothing is held (the choice alone says it but for auto: the screen's)
+    static float own = 16.0f / 9.0f;
+    if (was == 0) own = app::FrameAspect();
+    const uint32_t choice = app::Get().aspect % 4;
+    const bool wide = choice ? choice != 1 : own > 4.0f / 3.0f + 1e-3f;
+    // with the 4:3 cameras the menus are 4:3, as on a 4:3 console (src/game/aspect.cpp, src/game/text_shape.cpp)
+    const float menus = wide && fc::console_widescreen ? 16.0f / 9.0f : 4.0f / 3.0f;
+    const float held = g_cinematic ? 4.0f / 3.0f : front_end ? menus : 0.0f;
     if (held == was) return;
     was = held;
     app::HoldAspect(held);
     LOGR("bulletproof: the frame %s", g_cinematic ? "held at 4:3 (in-engine cutscene)"
-                                      : front_end  ? "held at 16:9 (the front end's menus)"
+                                      : front_end  ? "held for the front end's menus"
                                                    : "at the aspect setting");
 }
 

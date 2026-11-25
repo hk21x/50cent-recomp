@@ -52,6 +52,7 @@ std::array<uint16_t, 2> Keys(int c) {
 
 bool skip_intro = false;
 bool hide_hud = false;
+bool console_widescreen = false;  // src/game/aspect.cpp
 uint32_t fov_percent = 100;  // the world's field of view, % of the game's (src/game/aspect.cpp)  // the HUD's layer left undrawn (src/game/hud.cpp); F9 in play switches it
 
 // F9 (not a repeat) in play, no menu up: the HUD hidden or shown, and saved (WM_KEYDOWN, the virtual key in wp)
@@ -88,6 +89,7 @@ void Init() {
     if (const char* e = std::getenv("FC_SKIP_INTRO"); e && *e) skip_intro = *e == '1';
     if (const char* e = std::getenv("FC_FOV"); e && *e) fov_percent = uint32_t(std::atoi(e));
     fov_percent = std::clamp<uint32_t>(fov_percent, 50, 150);
+    if (const char* e = std::getenv("FC_CONSOLE_WIDE"); e && *e) console_widescreen = *e == '1';
     if (const char* e = std::getenv("FC_HIDE_HUD"); e && *e) hide_hud = *e == '1';
     if (hide_hud) LOGR("bulletproof: the HUD is hidden (hide_hud)");
     if (skip_intro) LOGR("bulletproof: the intro movies are skipped (skip_intro)");
@@ -114,6 +116,9 @@ const app::GameInfo app::kGame = {
                  "play; the menus and cutscenes still show."},
                 {"fov_percent", nullptr, &fc::fov_percent, "Field of view (%)",
                  "50 to 150; 100 is the game's. Wider shows more around 50 Cent, at once; aiming zooms in proportion."},
+                {"console_widescreen", &fc::console_widescreen, nullptr, "The console's widescreen camera",
+                 "On a wide frame the Xbox's own widescreen camera, which squeezes everything 12.6% thinner than the "
+                 "screen's shape. Off, everything keeps the shapes of 4:3 and a wider frame shows more at the sides."},
                 {"modern_buttons", &fc::modern_buttons, nullptr, "Modern button pictures",
                  "The prompts as today's Xbox pad marks them: LB and RB for White and Black, LT and RT, View and Menu for "
                  "Back and Start. With the keyboard they show the keys. Off, the console's."}},
