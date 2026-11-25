@@ -17,6 +17,7 @@ void Init();                                             // GameInfo::init
 void TestPad(int port, input::Pad& pad);                 // FC_PAD_CMD's presses (src/common/test_pad.cpp)
 void Pad(int port, input::Pad& pad);                     // GameInfo::pad: TestPad, then the mouse in the menus
 extern uint32_t fov_percent;                             // the world's field of view, % (src/game/aspect.cpp)
+bool WideCameras();                                      // the game's widescreen cameras are used (src/game/aspect.cpp)
 extern bool hide_hud;                                    // the HUD left undrawn (src/game/hud.cpp; F9)
 // the weapon keys (src/game/weapon_keys.cpp): the wheel's notches in play (up positive) and 1, 2 or 3 pressed, each
 // taken once by the player's input

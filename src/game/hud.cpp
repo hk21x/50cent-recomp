@@ -95,7 +95,7 @@ X86_FUNC(sub_00029FA0) {
     const bool was = Flat2d(true);
     // the HUD's own layer alone is laid out to the frame's edges (src/game/widescreen.cpp)
     const bool layout = ctx.ecx && ctx.ecx == kernel::R32(kHudLayer) && fc::HudLayoutWanted();
-    const float kept_layout = HudLayout(layout ? 16.0f / 9.0f : 0.0f);
+    const float kept_layout = HudLayout(!layout ? 0.0f : fc::WideCameras() ? 16.0f / 9.0f : 4.0f / 3.0f);
     const uint32_t group = kernel::R32(kFadeGroup);
     if (ctx.ecx && group && ctx.ecx == kernel::R32(kFadeLayer)) {
         float& sx = kernel::G<float>(group + 0x10);

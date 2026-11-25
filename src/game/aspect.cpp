@@ -86,3 +86,36 @@ X86_FUNC(sub_00122020) {
     SetAspect();
     WithFov(ctx, [&] { __imp__sub_00122020(ctx, base); });
 }
+
+// The game's two sets of cameras. A view's projection is its aspect's (above) times 0.4 over its camera's width and 0.3
+// over its height (+0x250 and +0x254; 0x1221E0, 0x122020). On a 4:3 console the world and the HUD both take 0.4 by 0.31;
+// in its widescreen mode the world takes 0.45028 (0x86982 and 0x56B73, by the option byte 0x323488) and the HUD 0.3 by
+// 0.3 (where 0x11AB00 says widescreen), whose 0.3 high stays for the world. With aspect_live the game is always in its
+// widescreen mode, so a 4:3 frame was drawn with those cameras: thin by 0.45028/0.4 * 0.31/0.3 = 1.163 (the alley, xemu
+// 0.8.139 set to 4:3: x 2.490557 y 3.213622; here x 2.212452 y 3.320743). A 4:3 frame is drawn with the 4:3 cameras; a
+// wider one with the widescreen ones (xemu set to widescreen: x 1.659339 y 3.320743, the same here). The option byte and
+// the display mode's flags are left alone: the movies and the options read them too.
+bool fc::WideCameras() { return app::FrameAspect() > 4.0f / 3.0f + 1e-3f; }
+
+// whether the display mode is widescreen; 0x17384 and 0x25A5F set the options by it
+X86_EXTERN_FUNC(__imp__sub_0011AB00);
+X86_FUNC(sub_0011AB00) {
+    const uint32_t ret = kernel::R32(ctx.esp);
+    __imp__sub_0011AB00(ctx, base);
+    if (ret == 0x17389 || ret == 0x25A64 || fc::WideCameras()) return;
+    ctx.eax &= ~0xFFu;
+}
+
+// (view; width): a camera's width set, its height kept
+X86_EXTERN_FUNC(__imp__sub_001072C0);
+X86_FUNC(sub_001072C0) {
+    constexpr uint32_t kWide = 0x3EE68B1A, kNormal = 0x3ECCCCCD;  // 0.45028, 0.4
+    constexpr uint32_t kWideHeight = 0x3E99999A, kHeight = 0x3E9EB852;  // 0.3, 0.31
+    const uint32_t width = kernel::R32(ctx.esp + 4);
+    if ((width == kWide || width == kNormal) && !fc::WideCameras()) {
+        kernel::W32(ctx.esp + 4, kNormal);
+        // the widescreen HUD's height, left by a frame before the setting changed
+        if (kernel::R32(ctx.ecx + 0x254) == kWideHeight) kernel::W32(ctx.ecx + 0x254, kHeight);
+    }
+    __imp__sub_001072C0(ctx, base);
+}
